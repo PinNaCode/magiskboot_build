@@ -1,0 +1,71 @@
+add_library(libbase STATIC
+    vendor/Magisk/native/src/base/files.cpp
+    vendor/Magisk/native/src/base/misc.cpp
+    vendor/Magisk/native/src/base/selinux.cpp
+    vendor/Magisk/native/src/base/logging.cpp
+    vendor/Magisk/native/src/base/stream.cpp
+    vendor/cxx-rs/src/cxx.cc)
+target_include_directories(libbase PRIVATE
+    vendor/Magisk/native/src/base)
+target_include_directories(libbase PUBLIC
+    vendor/Magisk/native/src/include
+    vendor/Magisk/native/src/base/include)
+target_compile_definitions(libbase PRIVATE _FORTIFY_SOURCE)
+target_compile_options(libbase PRIVATE -O2)
+target_link_libraries(libbase bsd android_liblog)
+
+add_library(libmincrypt STATIC
+    vendor/Magisk/native/src/external/mincrypt/dsa_sig.c
+    vendor/Magisk/native/src/external/mincrypt/p256.c
+    vendor/Magisk/native/src/external/mincrypt/p256_ec.c
+    vendor/Magisk/native/src/external/mincrypt/p256_ecdsa.c
+    vendor/Magisk/native/src/external/mincrypt/rsa.c
+    vendor/Magisk/native/src/external/mincrypt/sha.c
+    vendor/Magisk/native/src/external/mincrypt/sha256.c)
+target_include_directories(libmincrypt PUBLIC
+    vendor/Magisk/native/src/external/mincrypt/include)
+
+add_library(libzopfli STATIC
+    vendor/Magisk/native/src/external/zopfli/src/zopfli/blocksplitter.c
+    vendor/Magisk/native/src/external/zopfli/src/zopfli/cache.c
+    vendor/Magisk/native/src/external/zopfli/src/zopfli/deflate.c
+    vendor/Magisk/native/src/external/zopfli/src/zopfli/gzip_container.c
+    vendor/Magisk/native/src/external/zopfli/src/zopfli/hash.c
+    vendor/Magisk/native/src/external/zopfli/src/zopfli/katajainen.c
+    vendor/Magisk/native/src/external/zopfli/src/zopfli/lz77.c
+    vendor/Magisk/native/src/external/zopfli/src/zopfli/squeeze.c
+    vendor/Magisk/native/src/external/zopfli/src/zopfli/tree.c
+    vendor/Magisk/native/src/external/zopfli/src/zopfli/util.c
+    vendor/Magisk/native/src/external/zopfli/src/zopfli/zlib_container.c
+    vendor/Magisk/native/src/external/zopfli/src/zopfli/zopfli_lib.c)
+target_include_directories(libzopfli PUBLIC
+    vendor/Magisk/native/src/external/zopfli/src)
+target_compile_options(libzopfli PRIVATE
+    -Wall -Werror -Wno-unused -Wno-unused-parameter)
+
+add_executable(magiskboot
+    vendor/Magisk/native/src/boot/main.cpp
+    vendor/Magisk/native/src/boot/bootimg.cpp
+    vendor/Magisk/native/src/boot/hexpatch.cpp
+    vendor/Magisk/native/src/boot/compress.cpp
+    vendor/Magisk/native/src/boot/format.cpp
+    vendor/Magisk/native/src/boot/dtb.cpp
+    vendor/Magisk/native/src/boot/ramdisk.cpp
+    vendor/Magisk/native/src/boot/pattern.cpp
+    vendor/Magisk/native/src/boot/cpio.cpp)
+target_include_directories(magiskboot PRIVATE
+    ${LIBLZMA_INCLUDE_DIRS}
+    ${BZIP2_INCLUDE_DIRS}
+    ${LIBFDT_INCLUDE_DIRS})
+target_link_libraries(magiskboot
+    libbase
+    libmincrypt
+    ${LIBLZMA_LIBRARIES}
+    PkgConfig::liblz4
+    ${BZIP2_LIBRARIES}
+    ${LIBFDT_LIBRARIES}
+    PkgConfig::zlib
+    libzopfli
+    Threads::Threads)
+
+install(TARGETS magiskboot DESTINATION bin)

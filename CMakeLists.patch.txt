@@ -1,0 +1,23 @@
+set(vendored_dirs
+    Magisk
+    cxx-rs
+    android_logging
+    android_libbase
+    android_core
+    android_fmtlib)
+
+# XXX: Consider using https://cmake.org/cmake/help/v3.0/module/ExternalProject.html
+if(PATCH_VENDOR_PROJECTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/patches")
+    execute_process(COMMAND git submodule update --force)
+    foreach(vendor_dir ${vendored_dirs})
+        file(GLOB patches ${CMAKE_CURRENT_SOURCE_DIR}/patches/${vendor_dir}/*.patch)
+        if(patches)
+            message(STATUS "Applying patches for: ${vendor_dir}")
+            execute_process(COMMAND git -C ${CMAKE_CURRENT_SOURCE_DIR}/vendor/${vendor_dir} am ${patches}
+                            RESULT_VARIABLE ret)
+            if(NOT "${ret}" STREQUAL "0")
+                message(FATAL_ERROR "Couldn't apply patches for ${vendor_dir}")
+            endif()
+        endif()
+    endforeach()
+endif()

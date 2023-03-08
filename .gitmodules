@@ -1,0 +1,26 @@
+[submodule "Magisk"]
+	path = vendor/Magisk
+	url = https://github.com/topjohnwu/Magisk.git
+	branch = master
+	shallow = true
+[submodule "cxx-rs"]
+	path = vendor/cxx-rs
+	url = https://github.com/dtolnay/cxx.git
+	branch = master
+	shallow = true
+[submodule "android_logging"]
+	path = vendor/android_logging
+	url = https://android.googlesource.com/platform/system/logging.git
+	shallow = true
+[submodule "android_libbase"]
+	path = vendor/android_libbase
+	url = https://android.googlesource.com/platform/system/libbase.git
+	shallow = true
+[submodule "android_fmtlib"]
+	path = vendor/android_fmtlib
+	url = https://android.googlesource.com/platform/external/fmtlib.git
+	shallow = true
+[submodule "android_core"]
+	path = vendor/android_core
+	url = https://android.googlesource.com/platform/system/core.git
+	shallow = true
