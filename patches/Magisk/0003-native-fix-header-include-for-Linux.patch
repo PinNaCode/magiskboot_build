@@ -1,7 +1,7 @@
-From 71c093b681e513280d4f833bb14cb7f0d4c7a271 Mon Sep 17 00:00:00 2001
+From 7d66f82dc0771a3a1869b50f77b93d02ebb7c2ed Mon Sep 17 00:00:00 2001
 From: Ookiineko <chiisaineko@protonmail.com>
 Date: Thu, 9 Mar 2023 23:29:40 +0800
-Subject: [PATCH 3/5] native: fix header include for Linux
+Subject: [PATCH] native: fix header include for Linux
 
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
@@ -12,12 +12,12 @@ Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
  native/src/base/misc.hpp     | 1 +
  native/src/base/selinux.cpp  | 4 ++++
  native/src/base/stream.cpp   | 4 ++++
- native/src/base/xwrap.hpp    | 1 +
+ native/src/base/xwrap.hpp    | 2 ++
  native/src/boot/cpio.cpp     | 1 +
  native/src/boot/format.hpp   | 1 +
  native/src/boot/hexpatch.cpp | 1 +
  native/src/boot/pattern.cpp  | 2 ++
- 12 files changed, 26 insertions(+)
+ 12 files changed, 27 insertions(+)
 
 diff --git a/native/src/base/files.cpp b/native/src/base/files.cpp
 index 4012d2e..1d30556 100644
@@ -119,14 +119,15 @@ index dcde87e..1bc7837 100644
  #include <base.hpp>
  #include <stream.hpp>
 diff --git a/native/src/base/xwrap.hpp b/native/src/base/xwrap.hpp
-index 8c4c1d1..3f156ea 100644
+index 8c4c1d1..8beb959 100644
 --- a/native/src/base/xwrap.hpp
 +++ b/native/src/base/xwrap.hpp
-@@ -4,6 +4,7 @@
+@@ -4,6 +4,8 @@
  #include <stdio.h>
  #include <poll.h>
  #include <fcntl.h>
 +#include <unistd.h>
++#include <sys/socket.h>
  
  #include <base-rs.hpp>
  
