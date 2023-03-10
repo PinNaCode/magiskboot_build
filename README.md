@@ -56,7 +56,7 @@ pacman -S --needed xz lz4 bzip2 dtc zlib pkgconf clang lld cmake ninja libbsd
 ### Build & Install
 
 ````shell
-cmake -B build -DCMAKE_BUILD_TYPE=Release  # configure
+cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release  # configure
 cmake --build build -j $(nproc)  # build
 ./build/magiskboot  # running
 # install to system (probably needs super-user privileges,
@@ -67,7 +67,7 @@ sudo cmake --install install
 ### Generating source tarball
 
 ````shell
-cmake -B build  # configure
+cmake -G Ninja -B build  # configure
 cmake --build build -t package_source  # make a source package
 ````
 
