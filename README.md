@@ -17,10 +17,12 @@ for build-time dependencies:
 1. [pkg-config][pkg-config]
 2. [Clang][Clang]
 3. [LLD][LLD]
-4. [Rust][Rust]
+4. [Rust][Rust] (nightly)
 5. [Cargo][Cargo]
 6. [cxxbridge][cxx-rs]
 7. [CMake][CMake]
+
+for Linux systems, please install [libbsd][libbsd] as well
 
 please ensure you have installed the above softwares before building
 
@@ -64,3 +66,5 @@ you should be able to find your source package under the `build` folder
 [CMake]: https://cmake.org/
 [Magisk]: https://github.com/topjohnwu/Magisk.git
 [android-tools]: https://github.com/nmeum/android-tools
+[libbsd]: https://libbsd.freedesktop.org/
+
