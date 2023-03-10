@@ -2,6 +2,8 @@
 
 a simple CMake-based build system for magiskboot
 
+for static version please use the [static](../../tree/static) branch
+
 ### Requirements
 
 magiskboot itself depends on the following libraries:
