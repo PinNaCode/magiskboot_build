@@ -43,6 +43,16 @@ ln -s `which lld-15` ~/.bin/lld
 export PATH=~/.bin:$PATH
 ````
 
+#### archlinux
+
+install nightly Rust via [rustup][rustup] first
+
+````shell
+cargo install --version 1.0.92 cxxbridge-cmd
+pacman -Syu
+pacman -S --needed xz lz4 bzip2 dtc zlib pkgconf clang lld cmake ninja libbsd
+````
+
 ### Build & Install
 
 ````shell
