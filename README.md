@@ -33,6 +33,7 @@ there are examples for some popular Linux distributions:
 install nightly Rust via [rustup][rustup] first
 
 ````shell
+cargo install --version 1.0.92 cxxbridge-cmd
 sudo apt install -y lzma-dev liblzma-dev liblz4-dev libbz2-dev libfdt-dev \
                  zlib1g-dev pkgconf clang-15 lld-15 cmake ninja-build libbsd-dev
 mkdir ~/.bin
