@@ -47,24 +47,24 @@ export PATH=~/.bin:$PATH
 
 #### Alpine Linux (edge)
 
-install nightly Rust via [rustup][rustup] (can be installed with apk) first
+install nightly Rust via [rustup][rustup] (can be installed with `apk`) first
 
 ````shell
 cargo install --version 1.0.92 cxxbridge-cmd
-apk update
-apk upgrade  # upgrade all existing packages (recommended)
-apk add build-base xz-dev lz4-dev bzip2-dev dtc-dev zlib-dev pkgconf clang \
-        lld cmake samurai libbsd-dev
+sudo apk update
+sudo apk upgrade  # upgrade all existing packages (recommended)
+sudo apk add build-base xz-dev lz4-dev bzip2-dev dtc-dev zlib-dev \
+        pkgconf clang lld cmake samurai libbsd-dev
 ````
 
 #### archlinux
 
-install nightly Rust via [rustup][rustup] (can be installed with pacman) first
+install nightly Rust via [rustup][rustup] (can be installed with `pacman`) first
 
 ````shell
 cargo install --version 1.0.92 cxxbridge-cmd
-pacman -Su  # sync and upgrade all existing packages
-pacman -S --needed base-dev xz lz4 bzip2 dtc zlib pkgconf clang lld cmake ninja libbsd
+sudo pacman -Su  # sync and upgrade all existing packages
+sudo pacman -S --needed base-dev xz lz4 bzip2 dtc zlib pkgconf clang lld cmake ninja libbsd
 ````
 
 ### Build & Install
@@ -73,8 +73,7 @@ pacman -S --needed base-dev xz lz4 bzip2 dtc zlib pkgconf clang lld cmake ninja 
 cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release  # configure
 cmake --build build -j $(nproc)  # build
 ./build/magiskboot  # running
-# install to system (probably needs super-user privileges,
-# or to a directory specified by the `DESTDIR' environment variable)
+# install to system (or to a directory specified by the `DESTDIR' environment variable)
 sudo cmake --install install
 ````
 
@@ -109,4 +108,3 @@ you should be able to find your source package under the `build` folder
 [android-tools]: https://github.com/nmeum/android-tools
 [libbsd]: https://libbsd.freedesktop.org/
 [rustup]: https://rustup.rs/
-
