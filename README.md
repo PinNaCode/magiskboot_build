@@ -26,6 +26,22 @@ for Linux systems, please install [libbsd][libbsd] as well
 
 please ensure you have installed the above softwares before building
 
+there are examples for some popular Linux distributions:
+
+#### Ubuntu 22.04 (jammy)
+
+install nightly Rust via [rustup][rustup] first
+
+````shell
+sudo apt install -y lzma-dev liblzma-dev liblz4-dev libbz2-dev libfdt-dev \
+                 zlib1g-dev pkgconf clang-15 lld-15 cmake ninja-build libbsd-dev
+mkdir ~/.bin
+ln -s `which clang-15` ~/.bin/clang
+ln -s `which clang++-15` ~/.bin/clang++
+ln -s `which lld-15` ~/.bin/lld
+export PATH=~/.bin:$PATH
+````
+
 ### Build & Install
 
 ````shell
@@ -67,4 +83,5 @@ you should be able to find your source package under the `build` folder
 [Magisk]: https://github.com/topjohnwu/Magisk.git
 [android-tools]: https://github.com/nmeum/android-tools
 [libbsd]: https://libbsd.freedesktop.org/
+[rustup]: https://rustup.rs/
 
