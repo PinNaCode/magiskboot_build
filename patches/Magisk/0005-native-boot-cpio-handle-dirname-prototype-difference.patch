@@ -1,7 +1,7 @@
-From 38e49b80b19d59e655a87ead062c9225df858c58 Mon Sep 17 00:00:00 2001
+From ce51e85356fbe2c9a91c9fcd877200139cd04f87 Mon Sep 17 00:00:00 2001
 From: Ookiineko <chiisaineko@protonmail.com>
 Date: Thu, 9 Mar 2023 23:10:45 +0800
-Subject: [PATCH 5/5] native: boot: cpio: handle dirname prototype difference
+Subject: [PATCH] native: boot: cpio: handle dirname prototype difference
 
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
@@ -9,20 +9,21 @@ Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/native/src/boot/cpio.cpp b/native/src/boot/cpio.cpp
-index 5bec150..56d51d7 100644
+index 079cb10..99424f6 100644
 --- a/native/src/boot/cpio.cpp
 +++ b/native/src/boot/cpio.cpp
-@@ -82,7 +82,9 @@ void cpio::extract_entry(const entry_map::value_type &e, const char *file) {
+@@ -81,8 +81,10 @@ void cpio::extract_entry(const entry_map::value_type &e, const char *file) {
      unlink(file);
      rmdir(file);
      // Make sure parent folders exist
 -    char *parent = dirname(file);
 +    char *file_tmp = strdup(file);
 +    char *parent = dirname(file_tmp);
-+    free(file_tmp);
      xmkdirs(parent, 0755);
++    free(file_tmp);
      if (S_ISDIR(e.second->mode)) {
          xmkdir(file, e.second->mode & 0777);
+     } else if (S_ISREG(e.second->mode)) {
 -- 
 2.39.2
 
