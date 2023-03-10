@@ -47,7 +47,7 @@ export PATH=~/.bin:$PATH
 
 #### Alpine Linux (edge)
 
-install nightly Rust via [rustup][rustup] first
+install nightly Rust via [rustup][rustup] (can be installed with apk) first
 
 ````shell
 cargo install --version 1.0.92 cxxbridge-cmd
@@ -59,7 +59,7 @@ apk add build-base xz-dev lz4-dev bzip2-dev dtc-dev zlib-dev pkgconf clang \
 
 #### archlinux
 
-install nightly Rust via [rustup][rustup] first
+install nightly Rust via [rustup][rustup] (can be installed with pacman) first
 
 ````shell
 cargo install --version 1.0.92 cxxbridge-cmd
