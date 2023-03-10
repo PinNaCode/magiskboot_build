@@ -12,7 +12,7 @@ target_include_directories(libbase PUBLIC
     vendor/Magisk/native/src/base/include)
 target_compile_definitions(libbase PRIVATE _FORTIFY_SOURCE)
 target_compile_options(libbase PRIVATE -O2)
-target_link_libraries(libbase bsd android_liblog)
+target_link_libraries(libbase PkgConfig::libbsd android_liblog)
 
 add_library(libmincrypt STATIC
     vendor/Magisk/native/src/external/mincrypt/dsa_sig.c
