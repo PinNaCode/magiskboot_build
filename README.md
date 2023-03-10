@@ -45,6 +45,18 @@ ln -s `which lld-15` ~/.bin/lld
 export PATH=~/.bin:$PATH
 ````
 
+#### Alpine Linux (edge)
+
+install nightly Rust via [rustup][rustup] first
+
+````shell
+cargo install --version 1.0.92 cxxbridge-cmd
+apk update
+apk upgrade  # upgrade all existing packages (recommended)
+apk add build-base xz-dev lz4-dev bzip2-dev dtc-dev zlib-dev pkgconf clang \
+        lld cmake samurai libbsd-dev
+````
+
 #### archlinux
 
 install nightly Rust via [rustup][rustup] first
