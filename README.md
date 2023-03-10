@@ -34,7 +34,9 @@ install nightly Rust via [rustup][rustup] first
 
 ````shell
 cargo install --version 1.0.92 cxxbridge-cmd
-sudo apt install -y lzma-dev liblzma-dev liblz4-dev libbz2-dev libfdt-dev \
+sudo apt update
+sudo apt upgrade  # upgrade all existing packages (optional)
+sudo apt install build-essentials lzma-dev liblzma-dev liblz4-dev libbz2-dev libfdt-dev \
                  zlib1g-dev pkgconf clang-15 lld-15 cmake ninja-build libbsd-dev
 mkdir ~/.bin
 ln -s `which clang-15` ~/.bin/clang
@@ -49,8 +51,8 @@ install nightly Rust via [rustup][rustup] first
 
 ````shell
 cargo install --version 1.0.92 cxxbridge-cmd
-pacman -Syu
-pacman -S --needed xz lz4 bzip2 dtc zlib pkgconf clang lld cmake ninja libbsd
+pacman -Su  # sync and upgrade all existing packages
+pacman -S --needed base-dev xz lz4 bzip2 dtc zlib pkgconf clang lld cmake ninja libbsd
 ````
 
 ### Build & Install
