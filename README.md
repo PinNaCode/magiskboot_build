@@ -28,7 +28,7 @@ for Linux systems, please install [libbsd][libbsd] as well
 
 please ensure you have installed the above softwares before building
 
-there are examples for some popular Linux distributions:
+there are examples for some popular operating systems/distributions:
 
 #### Ubuntu 22.04 (jammy)
 
@@ -67,6 +67,17 @@ install nightly Rust via [rustup][rustup] (can be installed with `pacman`) first
 cargo install --version 1.0.92 cxxbridge-cmd
 sudo pacman -Su  # sync and upgrade all existing packages
 sudo pacman -S --needed base-dev xz lz4 bzip2 dtc zlib pkgconf clang lld cmake ninja libbsd
+````
+
+#### Termux
+
+````shell
+apt update
+apt upgrade  # upgrade all existing packages (optional)
+apt install tur-repo  # for nightly Rust package
+apt install build-essentials liblzma liblz4 libbz2 dtc zlib pkg-config \
+            clang lld rustc-nightly cmake ninja libbsd
+cargo install --version 1.0.92 cxxbridge-cmd
 ````
 
 ### Build & Install
