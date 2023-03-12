@@ -38,6 +38,7 @@ sudo apt update
 sudo apt upgrade  # upgrade all existing packages (optional)
 sudo apt install build-essentials lzma-dev liblzma-dev liblz4-dev libbz2-dev libfdt-dev \
                  zlib1g-dev pkgconf clang-15 lld-15 cmake ninja-build libbsd-dev
+rustup component add rust-src  # install STD library source
 mkdir ~/.bin
 ln -s `which clang-15` ~/.bin/clang
 ln -s `which clang++-15` ~/.bin/clang++
@@ -54,6 +55,7 @@ sudo apk update
 sudo apk upgrade  # upgrade all existing packages (recommended)
 sudo apk add build-base xz-dev lz4-dev bzip2-dev dtc-dev zlib-dev \
         pkgconf clang lld cmake samurai libbsd-dev
+rustup component add rust-src  # install STD library source
 ````
 
 #### archlinux
@@ -63,6 +65,7 @@ install nightly Rust via [rustup][rustup] (can be installed with `pacman`) first
 ````shell
 sudo pacman -Su  # sync and upgrade all existing packages
 sudo pacman -S --needed base-dev xz lz4 bzip2 dtc zlib pkgconf clang lld cmake ninja libbsd
+rustup component add rust-src  # install STD library source
 ````
 
 #### Termux
@@ -72,7 +75,7 @@ apt update
 apt upgrade  # upgrade all existing packages (optional)
 apt install tur-repo  # for nightly Rust package
 apt install build-essentials liblzma liblz4 libbz2 dtc zlib pkg-config \
-            clang lld rustc-nightly cmake ninja libbsd
+            clang lld rustc-nightly rust-src-nightly cmake ninja libbsd
 ````
 
 ### Build & Install
