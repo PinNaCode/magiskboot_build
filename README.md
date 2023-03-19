@@ -46,6 +46,21 @@ ln -s `which lld-15` ~/.bin/lld
 export PATH=~/.bin:$PATH
 ````
 
+#### macOS Big Sur (or higher verison)
+
+install [Homebrew][Homebrew] first
+
+````shell
+brew update
+brew upgrade  # upgrade all existing packages (optional)
+brew install binutils xz lz4 bzip2 dtc zlib pkgconf llvm cmake ninja rustup-init
+rustup-init  # install nightly Rust here
+mkdir ~/.bin
+for x in $HOMEBREW_PREFIX/opt/binutils/bin/*; do ln -s $x ~/.bin; done
+unlink ~/.bin/strip  # avoids "Killed 9" error
+export PATH=$HOMEBREW_PREFIX/opt/llvm/bin:~/.bin:$PATH
+````
+
 #### Alpine Linux (edge)
 
 install nightly Rust via [rustup][rustup] (can be installed with `apk`) first
@@ -118,3 +133,4 @@ you should be able to find your source package under the `build` folder
 [android-tools]: https://github.com/nmeum/android-tools
 [libbsd]: https://libbsd.freedesktop.org/
 [rustup]: https://rustup.rs/
+[Homebrew]: https://brew.sh/
