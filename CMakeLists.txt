@@ -39,7 +39,9 @@ pkg_check_modules(liblz4 REQUIRED IMPORTED_TARGET liblz4)
 find_package(BZip2 REQUIRED)
 find_package(LIBFDT REQUIRED)
 pkg_check_modules(zlib REQUIRED IMPORTED_TARGET zlib)
-pkg_check_modules(libbsd REQUIRED IMPORTED_TARGET libbsd)
+if (NOT APPLE)
+    pkg_check_modules(libbsd REQUIRED IMPORTED_TARGET libbsd)
+endif()
 
 add_compile_options(-Wall)
 
