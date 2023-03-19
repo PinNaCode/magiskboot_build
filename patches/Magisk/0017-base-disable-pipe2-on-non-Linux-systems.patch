@@ -1,0 +1,84 @@
+From 98958800ce47d6915b79ce06d52815787c57a844 Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Mon, 20 Mar 2023 04:47:36 +0800
+Subject: [PATCH] base: disable pipe2 on non-Linux systems
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ native/src/base/lib.rs    | 4 ++++
+ native/src/base/misc.cpp  | 9 +++++++++
+ native/src/base/xwrap.hpp | 2 ++
+ native/src/base/xwrap.rs  | 1 +
+ 4 files changed, 16 insertions(+)
+
+diff --git a/native/src/base/lib.rs b/native/src/base/lib.rs
+index 88fffa4..c78400b 100644
+--- a/native/src/base/lib.rs
++++ b/native/src/base/lib.rs
+@@ -32,8 +32,12 @@ pub mod ffi {
+ 
+ #[cxx::bridge(namespace = "rust")]
+ pub mod ffi2 {
++    #[cfg(target_os = "linux")]
+     extern "Rust" {
+         fn xpipe2(fds: &mut [i32; 2], flags: i32) -> i32;
++    }
++
++    extern "Rust" {
+         fn fd_path(fd: i32, buf: &mut [u8]) -> isize;
+     }
+ }
+diff --git a/native/src/base/misc.cpp b/native/src/base/misc.cpp
+index 329a8a5..b0e2a83 100644
+--- a/native/src/base/misc.cpp
++++ b/native/src/base/misc.cpp
+@@ -99,11 +99,20 @@ int gen_rand_str(char *buf, int len, bool varlen) {
+ }
+ 
+ int exec_command(exec_t &exec) {
++#ifdef __linux__
+     auto pipefd = array<int, 2>{-1, -1};
++#else
++    int pipefd[2] = {-1, -1};
++#endif
++
+     int outfd = -1;
+ 
+     if (exec.fd == -1) {
++#ifdef __linux__
+         if (xpipe2(pipefd, O_CLOEXEC) == -1)
++#else
++        if (pipe(pipefd) == -1)
++#endif
+             return -1;
+         outfd = pipefd[1];
+     } else if (exec.fd >= 0) {
+diff --git a/native/src/base/xwrap.hpp b/native/src/base/xwrap.hpp
+index 71be943..aeb1f61 100644
+--- a/native/src/base/xwrap.hpp
++++ b/native/src/base/xwrap.hpp
+@@ -9,7 +9,9 @@
+ 
+ #include <base-rs.hpp>
+ 
++#ifdef __linux__
+ using rust::xpipe2;
++#endif
+ 
+ extern "C" {
+ 
+diff --git a/native/src/base/xwrap.rs b/native/src/base/xwrap.rs
+index 08a81c6..10e3e82 100644
+--- a/native/src/base/xwrap.rs
++++ b/native/src/base/xwrap.rs
+@@ -223,6 +223,7 @@ pub extern "C" fn xlseek64(fd: RawFd, offset: i64, whence: i32) -> i64 {
+     }
+ }
+ 
++#[cfg(target_os = "linux")]
+ pub fn xpipe2(fds: &mut [i32; 2], flags: i32) -> i32 {
+     unsafe {
+         let r = libc::pipe2(fds.as_mut_ptr(), flags);
+-- 
+2.40.0
+

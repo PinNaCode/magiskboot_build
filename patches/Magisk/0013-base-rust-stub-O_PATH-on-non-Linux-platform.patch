@@ -1,0 +1,32 @@
+From 31095676c7d95361be13f74a9221df0312ff7126 Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Mon, 20 Mar 2023 03:51:25 +0800
+Subject: [PATCH 1/2] base: rust: stub O_PATH on non-Linux platform
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ native/src/base/files.rs | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/native/src/base/files.rs b/native/src/base/files.rs
+index e748b84..9752f1e 100644
+--- a/native/src/base/files.rs
++++ b/native/src/base/files.rs
+@@ -5,7 +5,13 @@ use std::io::BufRead;
+ use std::os::unix::io::{AsRawFd, FromRawFd, OwnedFd, RawFd};
+ use std::path::Path;
+ 
+-use libc::{c_char, c_uint, mode_t, EEXIST, ENOENT, O_CLOEXEC, O_PATH};
++use libc::{c_char, c_int, c_uint, mode_t, EEXIST, ENOENT, O_CLOEXEC};
++
++#[cfg(target_os = "linux")]
++use libc::O_PATH;
++
++#[cfg(not(target_os = "linux"))]
++const O_PATH: c_int = 0x0;
+ 
+ use crate::{bfmt_cstr, errno, xopen};
+ 
+-- 
+2.40.0
+
