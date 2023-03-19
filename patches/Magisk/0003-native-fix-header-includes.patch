@@ -1,4 +1,4 @@
-From 15dc91545d09858ad88cba2186e203a858240742 Mon Sep 17 00:00:00 2001
+From 6697011818e9c539f0367ddf2a626d682b8bf805 Mon Sep 17 00:00:00 2001
 From: Ookiineko <chiisaineko@protonmail.com>
 Date: Thu, 9 Mar 2023 23:29:40 +0800
 Subject: [PATCH] native: fix header includes
@@ -60,14 +60,14 @@ index ea27cfd..9d62e69 100644
  #include "xwrap.hpp"
  
 diff --git a/native/src/base/logging.hpp b/native/src/base/logging.hpp
-index ac0a3dc..7bad00d 100644
+index ac0a3dc..6c370e8 100644
 --- a/native/src/base/logging.hpp
 +++ b/native/src/base/logging.hpp
 @@ -5,6 +5,10 @@
  
  #include <base-rs.hpp>
  
-+#if !defined(__ANDROID__) && !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__NetBSD__) && !defined(__DragonFly__) && !defined(__APPLE__)
++#if !defined(__ANDROID__) && !defined(__APPLE__)
 +#include <bsd/sys/cdefs.h>
 +#endif
 +
@@ -75,7 +75,7 @@ index ac0a3dc..7bad00d 100644
  
  void LOGD(const char *fmt, ...) __printflike(1, 2);
 diff --git a/native/src/base/misc.cpp b/native/src/base/misc.cpp
-index 0dc6189..9a5b6d7 100644
+index 0dc6189..66f2f9d 100644
 --- a/native/src/base/misc.cpp
 +++ b/native/src/base/misc.cpp
 @@ -1,13 +1,29 @@
@@ -102,7 +102,7 @@ index 0dc6189..9a5b6d7 100644
  #include <random>
  #include <string>
 +#include <cstring>
-+#if !defined(__ANDROID__) && !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__NetBSD__) && !defined(__DragonFly__) && !defined(__APPLE__)
++#if !defined(__ANDROID__) && !defined(__APPLE__)
 +#include <bsd/string.h>
 +#endif
  
@@ -138,14 +138,14 @@ index dcf3cb0..269d35f 100644
  #include <base.hpp>
  #include <selinux.hpp>
 diff --git a/native/src/base/stream.cpp b/native/src/base/stream.cpp
-index dcde87e..1dc04b1 100644
+index dcde87e..8411512 100644
 --- a/native/src/base/stream.cpp
 +++ b/native/src/base/stream.cpp
 @@ -1,5 +1,9 @@
  #include <unistd.h>
  #include <cstddef>
 +#include <cstring>
-+#if !defined(__ANDROID__) && !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__NetBSD__) && !defined(__DragonFly__) && !defined(__APPLE__)
++#if !defined(__ANDROID__) && !defined(__APPLE__)
 +#include <bsd/stdio.h>
 +#endif
  
