@@ -1,0 +1,31 @@
+From c7ecebf8e00579d5848a889ab5584ecc1f24857a Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Mon, 20 Mar 2023 01:46:07 +0800
+Subject: [PATCH 4/6] base: misc: add pr_setname impl for macOS
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ native/src/base/misc.cpp | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/native/src/base/misc.cpp b/native/src/base/misc.cpp
+index cf16b3b..c5bcfd7 100644
+--- a/native/src/base/misc.cpp
++++ b/native/src/base/misc.cpp
+@@ -175,7 +175,13 @@ void init_argv0(int argc, char **argv) {
+ void set_nice_name(const char *name) {
+     memset(argv0, 0, name_len);
+     strscpy(argv0, name, name_len);
++#ifdef __linux__
+     prctl(PR_SET_NAME, name);
++#elif defined(__APPLE__)
++    pthread_setname_np(name);
++#else
++#error unknown PR_SET_NAME impl on this platform
++#endif
+ }
+ 
+ /*
+-- 
+2.40.0
+

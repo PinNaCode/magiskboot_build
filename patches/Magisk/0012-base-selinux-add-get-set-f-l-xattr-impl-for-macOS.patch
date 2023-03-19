@@ -1,0 +1,92 @@
+From dd9f624ef46db9efac9836ecc934d75a6d6af32b Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Mon, 20 Mar 2023 01:50:33 +0800
+Subject: [PATCH 6/6] base: selinux: add {get,set}{,f,l}xattr impl for macOS
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ native/src/base/selinux.cpp | 36 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
+
+diff --git a/native/src/base/selinux.cpp b/native/src/base/selinux.cpp
+index 081219b..819a05b 100644
+--- a/native/src/base/selinux.cpp
++++ b/native/src/base/selinux.cpp
+@@ -54,7 +54,13 @@ static int __setcon(const char *ctx) {
+ 
+ static int __getfilecon(const char *path, char **ctx) {
+     char buf[1024];
++#ifdef __linux__
+     int rc = syscall(__NR_getxattr, path, XATTR_NAME_SELINUX, buf, sizeof(buf) - 1);
++#elif defined(__APPLE__)
++    int rc = getxattr(path, XATTR_NAME_SELINUX, buf, sizeof(buf) - 1, 0, 0);
++#else
++#error Unknown getxattr impl on this platform
++#endif
+     if (rc >= 0)
+         *ctx = strdup(buf);
+     return rc;
+@@ -62,7 +68,13 @@ static int __getfilecon(const char *path, char **ctx) {
+ 
+ static int __lgetfilecon(const char *path, char **ctx) {
+     char buf[1024];
++#ifdef __linux__
+     int rc = syscall(__NR_lgetxattr, path, XATTR_NAME_SELINUX, buf, sizeof(buf) - 1);
++#elif defined(__APPLE__)
++    int rc = getxattr(path, XATTR_NAME_SELINUX, buf, sizeof(buf) - 1, 0, XATTR_NOFOLLOW);
++#else
++#error Unknown getxattr impl on this platform
++#endif
+     if (rc >= 0)
+         *ctx = strdup(buf);
+     return rc;
+@@ -70,22 +82,46 @@ static int __lgetfilecon(const char *path, char **ctx) {
+ 
+ static int __fgetfilecon(int fd, char **ctx) {
+     char buf[1024];
++#ifdef __linux__
+     int rc = syscall(__NR_fgetxattr, fd, XATTR_NAME_SELINUX, buf, sizeof(buf) - 1);
++#elif defined(__APPLE__)
++    int rc = fgetxattr(fd, XATTR_NAME_SELINUX, buf, sizeof(buf) - 1, 0, 0);
++#else
++#error Unknown getxattr impl on this platform
++#endif
+     if (rc >= 0)
+         *ctx = strdup(buf);
+     return rc;
+ }
+ 
+ static int __setfilecon(const char *path, const char *ctx) {
++#ifdef __linux__
+     return syscall(__NR_setxattr, path, XATTR_NAME_SELINUX, ctx, strlen(ctx) + 1, 0);
++#elif defined(__APPLE__)
++    return setxattr(path, XATTR_NAME_SELINUX, ctx, strlen(ctx) + 1, 0, 0);
++#else
++#error Unknown getxattr impl on this platform
++#endif
+ }
+ 
+ static int __lsetfilecon(const char *path, const char *ctx) {
++#ifdef __linux__
+     return syscall(__NR_lsetxattr, path, XATTR_NAME_SELINUX, ctx, strlen(ctx) + 1, 0);
++#elif defined(__APPLE__)
++    return setxattr(path, XATTR_NAME_SELINUX, ctx, strlen(ctx) + 1, 0, XATTR_NOFOLLOW);
++#else
++#error Unknown getxattr impl on this platform
++#endif
+ }
+ 
+ static int __fsetfilecon(int fd, const char *ctx) {
++#ifdef __linux__
+     return syscall(__NR_fsetxattr, fd, XATTR_NAME_SELINUX, ctx, strlen(ctx) + 1, 0);
++#elif defined(__APPLE__)
++    return fsetxattr(fd, XATTR_NAME_SELINUX, ctx, strlen(ctx) + 1, 0, 0);
++#else
++#error Unknown getxattr impl on this platform
++#endif
+ }
+ 
+ // Function pointers
+-- 
+2.40.0
+

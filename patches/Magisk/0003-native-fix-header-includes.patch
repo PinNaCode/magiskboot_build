@@ -1,32 +1,37 @@
-From b5593c469396e619d3ca14e0e170c3bd24152040 Mon Sep 17 00:00:00 2001
+From 15dc91545d09858ad88cba2186e203a858240742 Mon Sep 17 00:00:00 2001
 From: Ookiineko <chiisaineko@protonmail.com>
 Date: Thu, 9 Mar 2023 23:29:40 +0800
-Subject: [PATCH] native: fix header include for Linux
+Subject: [PATCH] native: fix header includes
 
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
- native/src/base/files.cpp    | 2 ++
- native/src/base/files.hpp    | 1 +
- native/src/base/logging.hpp  | 4 ++++
- native/src/base/misc.cpp     | 4 ++++
- native/src/base/misc.hpp     | 1 +
- native/src/base/selinux.cpp  | 2 ++
- native/src/base/stream.cpp   | 4 ++++
- native/src/base/xwrap.hpp    | 2 ++
- native/src/boot/cpio.cpp     | 1 +
- native/src/boot/format.hpp   | 1 +
- native/src/boot/hexpatch.cpp | 1 +
- native/src/boot/pattern.cpp  | 2 ++
- 12 files changed, 25 insertions(+)
+ native/src/base/files.cpp    |  7 +++++++
+ native/src/base/files.hpp    |  3 +++
+ native/src/base/logging.hpp  |  4 ++++
+ native/src/base/misc.cpp     | 16 ++++++++++++++++
+ native/src/base/misc.hpp     |  1 +
+ native/src/base/selinux.cpp  |  6 ++++++
+ native/src/base/stream.cpp   |  4 ++++
+ native/src/base/xwrap.hpp    |  4 ++++
+ native/src/boot/cpio.cpp     |  1 +
+ native/src/boot/format.hpp   |  1 +
+ native/src/boot/hexpatch.cpp |  1 +
+ native/src/boot/pattern.cpp  |  2 ++
+ 12 files changed, 50 insertions(+)
 
 diff --git a/native/src/base/files.cpp b/native/src/base/files.cpp
-index 4012d2e..1d30556 100644
+index 4012d2e..de7e46c 100644
 --- a/native/src/base/files.cpp
 +++ b/native/src/base/files.cpp
-@@ -1,9 +1,11 @@
+@@ -1,9 +1,16 @@
++#ifdef __linux__
  #include <sys/sendfile.h>
  #include <sys/sysmacros.h>
  #include <linux/fs.h>
++#elif defined(__APPLE__)
++#include <sys/types.h>
++#include <sys/disk.h>
++#endif
 +#include <sys/ioctl.h>
  #include <fcntl.h>
  #include <unistd.h>
@@ -36,10 +41,17 @@ index 4012d2e..1d30556 100644
  #include <base.hpp>
  #include <misc.hpp>
 diff --git a/native/src/base/files.hpp b/native/src/base/files.hpp
-index ea27cfd..ce1b964 100644
+index ea27cfd..9d62e69 100644
 --- a/native/src/base/files.hpp
 +++ b/native/src/base/files.hpp
-@@ -7,6 +7,7 @@
+@@ -2,11 +2,14 @@
+ 
+ #include <sys/mman.h>
+ #include <sys/stat.h>
++#ifdef __linux__
+ #include <mntent.h>
++#endif
+ #include <functional>
  #include <string_view>
  #include <string>
  #include <vector>
@@ -48,14 +60,14 @@ index ea27cfd..ce1b964 100644
  #include "xwrap.hpp"
  
 diff --git a/native/src/base/logging.hpp b/native/src/base/logging.hpp
-index ac0a3dc..f92c6ff 100644
+index ac0a3dc..7bad00d 100644
 --- a/native/src/base/logging.hpp
 +++ b/native/src/base/logging.hpp
 @@ -5,6 +5,10 @@
  
  #include <base-rs.hpp>
  
-+#if !defined(__ANDROID__) && !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__NetBSD__) && !defined(__DragonFly__)
++#if !defined(__ANDROID__) && !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__NetBSD__) && !defined(__DragonFly__) && !defined(__APPLE__)
 +#include <bsd/sys/cdefs.h>
 +#endif
 +
@@ -63,15 +75,34 @@ index ac0a3dc..f92c6ff 100644
  
  void LOGD(const char *fmt, ...) __printflike(1, 2);
 diff --git a/native/src/base/misc.cpp b/native/src/base/misc.cpp
-index 0dc6189..094581e 100644
+index 0dc6189..9a5b6d7 100644
 --- a/native/src/base/misc.cpp
 +++ b/native/src/base/misc.cpp
-@@ -8,6 +8,10 @@
+@@ -1,13 +1,29 @@
+ #include <sys/types.h>
+ #include <sys/wait.h>
++#ifdef __linux__
+ #include <sys/prctl.h>
+ #include <sys/sysmacros.h>
++#elif defined(__APPLE__)
++#include <sys/types.h>
++#endif
+ #include <fcntl.h>
+ #include <pwd.h>
+ #include <unistd.h>
++#ifdef __APPLE__
++#include <sys/syscall.h>
++#include <crt_externs.h>
++#define environ (*_NSGetEnviron())
++#include <signal.h>
++#include <pthread.h>
++#else
  #include <syscall.h>
++#endif
  #include <random>
  #include <string>
 +#include <cstring>
-+#if !defined(__ANDROID__) && !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__NetBSD__) && !defined(__DragonFly__)
++#if !defined(__ANDROID__) && !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__NetBSD__) && !defined(__DragonFly__) && !defined(__APPLE__)
 +#include <bsd/string.h>
 +#endif
  
@@ -90,34 +121,38 @@ index c193a2c..48e6082 100644
  #include <base-rs.hpp>
  
 diff --git a/native/src/base/selinux.cpp b/native/src/base/selinux.cpp
-index dcf3cb0..7217c6c 100644
+index dcf3cb0..269d35f 100644
 --- a/native/src/base/selinux.cpp
 +++ b/native/src/base/selinux.cpp
-@@ -1,6 +1,8 @@
+@@ -1,6 +1,12 @@
  #include <unistd.h>
  #include <sys/syscall.h>
  #include <sys/xattr.h>
++#ifdef __linux__
 +#include <linux/xattr.h>
++#else
++#define XATTR_NAME_SELINUX	"security.selinux"
++#endif
 +#include <cstring>
  
  #include <base.hpp>
  #include <selinux.hpp>
 diff --git a/native/src/base/stream.cpp b/native/src/base/stream.cpp
-index dcde87e..f8f3bb4 100644
+index dcde87e..1dc04b1 100644
 --- a/native/src/base/stream.cpp
 +++ b/native/src/base/stream.cpp
 @@ -1,5 +1,9 @@
  #include <unistd.h>
  #include <cstddef>
 +#include <cstring>
-+#if !defined(__ANDROID__) && !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__NetBSD__) && !defined(__DragonFly__)
++#if !defined(__ANDROID__) && !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__NetBSD__) && !defined(__DragonFly__) && !defined(__APPLE__)
 +#include <bsd/stdio.h>
 +#endif
  
  #include <base.hpp>
  #include <stream.hpp>
 diff --git a/native/src/base/xwrap.hpp b/native/src/base/xwrap.hpp
-index 8c4c1d1..8beb959 100644
+index 8c4c1d1..71be943 100644
 --- a/native/src/base/xwrap.hpp
 +++ b/native/src/base/xwrap.hpp
 @@ -4,6 +4,8 @@
@@ -129,6 +164,16 @@ index 8c4c1d1..8beb959 100644
  
  #include <base-rs.hpp>
  
+@@ -56,7 +58,9 @@ int xmkdir(const char *pathname, mode_t mode);
+ int xmkdirs(const char *pathname, mode_t mode);
+ int xmkdirat(int dirfd, const char *pathname, mode_t mode);
+ void *xmmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);
++#ifdef __linux__
+ ssize_t xsendfile(int out_fd, int in_fd, off_t *offset, size_t count);
++#endif
+ pid_t xfork();
+ int xpoll(pollfd *fds, nfds_t nfds, int timeout);
+ ssize_t xrealpath(const char * __restrict__ path, char * __restrict__ buf, size_t bufsiz);
 diff --git a/native/src/boot/cpio.cpp b/native/src/boot/cpio.cpp
 index 079cb10..5bec150 100644
 --- a/native/src/boot/cpio.cpp
@@ -174,5 +219,5 @@ index bc29398..fc69b6a 100644
  
  #include "magiskboot.hpp"
 -- 
-2.39.2
+2.40.0
 

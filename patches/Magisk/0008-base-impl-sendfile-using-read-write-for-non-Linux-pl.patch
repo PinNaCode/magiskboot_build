@@ -1,0 +1,40 @@
+From 350222e64d496615ece40de309b6c9ba9e6b7740 Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Mon, 20 Mar 2023 01:42:32 +0800
+Subject: [PATCH 2/6] base: files: add BLKGETSIZE for macOS
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ native/src/base/files.cpp | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/native/src/base/files.cpp b/native/src/base/files.cpp
+index 8ee3c7f..f315b49 100644
+--- a/native/src/base/files.cpp
++++ b/native/src/base/files.cpp
+@@ -559,9 +559,22 @@ mmap_data::mmap_data(const char *name, bool rw) {
+     if (fstat(fd, &st))
+         return;
+     if (S_ISBLK(st.st_mode)) {
++#ifdef __linux__
+         uint64_t size;
+         ioctl(fd, BLKGETSIZE64, &size);
+         sz = size;
++#elif defined(__APPLE__)
++        uint32_t size;
++        uint64_t count;
++        if (!ioctl(fd, DKIOCGETBLOCKSIZE, &size))
++            sz = size;
++        else if (!ioctl(fd, DKIOCGETBLOCKCOUNT, &count))
++            sz = count;
++        else
++            sz = size * count;
++#else
++#error Unknown BLKGETSIZE impl on this platform
++#endif
+     } else {
+         sz = st.st_size;
+     }
+-- 
+2.40.0
+
