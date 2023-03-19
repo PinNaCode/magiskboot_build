@@ -13,9 +13,7 @@ target_include_directories(libbase PRIVATE
 target_include_directories(libbase PUBLIC
     vendor/Magisk/native/src/include
     vendor/Magisk/native/src/base/include)
-if (APPLE)
-    target_link_libraries(libbase "-framework Kernel")
-else()
+if (NOT APPLE)
     target_link_libraries(libbase PkgConfig::libbsd)
 endif()
 target_link_libraries(libbase android_liblog)
