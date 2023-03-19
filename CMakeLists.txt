@@ -16,11 +16,6 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s -fomit-frame-pointer -flt
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s -fomit-frame-pointer -flto -fdata-sections -ffunction-sections -Wl,--gc-sections")
 set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -s -fomit-frame-pointer -flto -fdata-sections -ffunction-sections -Wl,--gc-sections")
 set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -s -fomit-frame-pointer -flto -fdata-sections -ffunction-sections -Wl,--gc-sections")
-if (APPLE)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_DARWIN_C_SOURCE -D__DARWIN_C_LEVEL=__DARWIN_C_FULL")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_DARWIN_C_SOURCE -D__DARWIN_C_LEVEL=__DARWIN_C_FULL")
-    list(INSERT CMAKE_SYSTEM_PREFIX_PATH 0 /usr/local /usr/local/opt/bzip2)
-endif()
 
 # Option to enable or disable patching vendor projects using patches directory.
 # This helps to build vendor projects with or without any patching. Also if any
@@ -29,6 +24,7 @@ option(PATCH_VENDOR_PROJECTS "Patch vendor projects using patches directory" ON)
 
 add_compile_definitions(_FORTIFY_SOURCE=2)
 
+include(CMakeLists.compat.txt)
 include(CMakeLists.android.txt)
 include(CMakeLists.magisk.txt)
 
