@@ -19,7 +19,7 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -s -fomit-frame-po
 if (APPLE)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_DARWIN_C_SOURCE -D__DARWIN_C_LEVEL=__DARWIN_C_FULL")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_DARWIN_C_SOURCE -D__DARWIN_C_LEVEL=__DARWIN_C_FULL")
-    list(INSERT CMAKE_SYSTEM_PREFIX_PATH 0 /usr/local)
+    list(INSERT CMAKE_SYSTEM_PREFIX_PATH 0 /usr/local /usr/local/opt/bzip2)
 endif()
 
 # Option to enable or disable patching vendor projects using patches directory.
