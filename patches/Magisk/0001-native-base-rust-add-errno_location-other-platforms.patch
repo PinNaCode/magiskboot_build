@@ -1,15 +1,15 @@
-From b7cc47dd88b62040a9bacf86f01e89010250d660 Mon Sep 17 00:00:00 2001
+From 804f8c7b9e13b20ea8e7ac9002f7a6a9f43a5ca0 Mon Sep 17 00:00:00 2001
 From: Ookiineko <chiisaineko@protonmail.com>
 Date: Thu, 9 Mar 2023 20:34:50 +0800
-Subject: [PATCH 1/5] native: base: rust: add errno_location for Linux
+Subject: [PATCH] native: base: rust: add errno_location other platforms
 
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
- native/src/base/misc.rs | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ native/src/base/misc.rs | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
 diff --git a/native/src/base/misc.rs b/native/src/base/misc.rs
-index 521acb6..7538aa6 100644
+index 521acb6..569cf88 100644
 --- a/native/src/base/misc.rs
 +++ b/native/src/base/misc.rs
 @@ -3,6 +3,8 @@ use std::ffi::CStr;
@@ -21,7 +21,7 @@ index 521acb6..7538aa6 100644
  struct BufFmtWriter<'a> {
      buf: &'a mut [u8],
      used: usize,
-@@ -116,7 +118,15 @@ pub fn ptr_to_str<'a, T>(ptr: *const T) -> &'a str {
+@@ -116,7 +118,17 @@ pub fn ptr_to_str<'a, T>(ptr: *const T) -> &'a str {
  }
  
  pub fn errno() -> &'static mut i32 {
@@ -31,6 +31,8 @@ index 521acb6..7538aa6 100644
 +            unsafe { &mut *libc::__errno() }
 +        } else if #[cfg(target_os = "linux")] {
 +            unsafe { &mut *libc::__errno_location() }
++        } else if #[cfg(target_vendor = "apple")] {
++            unsafe { &mut *libc::__error() }
 +        } else {
 +            compile_error!("unknown errno location");
 +        }
@@ -39,5 +41,5 @@ index 521acb6..7538aa6 100644
  
  pub fn error_str() -> &'static str {
 -- 
-2.39.2
+2.40.0
 
