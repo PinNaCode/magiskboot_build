@@ -25,7 +25,7 @@ index 22700ddd..adc9ac76 100644
 @@ -24,7 +24,7 @@ std = ["alloc"]
  
  [dependencies]
- cxxbridge-macro = { version = "=1.0.92", path = "macro" }
+ cxxbridge-macro = { version = "=1.0.93", path = "macro" }
 -link-cplusplus = "1.0"
 +# link-cplusplus = "1.0"
  
