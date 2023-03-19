@@ -1,4 +1,9 @@
-if (APPLE)
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -fdata-sections -ffunction-sections -Wl,--gc-sections")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -fdata-sections -ffunction-sections -Wl,--gc-sections")
+    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_RELEASE} -fdata-sections -ffunction-sections -Wl,--gc-sections")
+    set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_RELEASE} -fdata-sections -ffunction-sections -Wl,--gc-sections")
+elseif (APPLE)
     find_program(HOMEBREW_EXECUTABLE brew REQUIRED)
     execute_process(
         COMMAND ${HOMEBREW_EXECUTABLE} --prefix
