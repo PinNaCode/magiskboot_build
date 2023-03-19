@@ -3,12 +3,12 @@
 if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/Cargo.toml)
     if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/base/lib.rs)
         add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/generated/base-rs.hpp
-                           COMMAND ${CXXBRIDGE_EXECUTABLE} --header ../../vendor/Magisk/native/src/base/lib.rs -o base-rs.hpp
+                           COMMAND ${CXXBRIDGE_EXECUTABLE} ${CXXBRIDGE_FLAGS} --header ../../vendor/Magisk/native/src/base/lib.rs -o base-rs.hpp
                            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/base/lib.rs
                            COMMENT "Generating CXX header base-rs.hpp"
                            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/generated)
         add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/generated/base-rs.cpp
-                           COMMAND ${CXXBRIDGE_EXECUTABLE} ../../vendor/Magisk/native/src/base/lib.rs -o base-rs.cpp
+                           COMMAND ${CXXBRIDGE_EXECUTABLE} ${CXXBRIDGE_FLAGS} ../../vendor/Magisk/native/src/base/lib.rs -o base-rs.cpp
                            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/base/lib.rs
                            COMMENT "Generating CXX Rust binding base-rs.cpp"
                            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/generated)

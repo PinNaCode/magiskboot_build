@@ -3,6 +3,8 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -fdata-sections -ffunction-sections -Wl,--gc-sections")
     set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_RELEASE} -fdata-sections -ffunction-sections -Wl,--gc-sections")
     set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_RELEASE} -fdata-sections -ffunction-sections -Wl,--gc-sections")
+
+    set(CXXBRIDGE_FLAGS --cfg=target_os=\\"linux\\")
 elseif (APPLE)
     find_program(HOMEBREW_EXECUTABLE brew REQUIRED)
     execute_process(
@@ -35,4 +37,8 @@ elseif (APPLE)
     add_compile_definitions(off64_t=off_t)
     add_compile_definitions(lseek64=lseek)
     add_compile_definitions(ftruncate64=ftruncate)
+
+    set(CXXBRIDGE_FLAGS --cfg=target_os=\\"darwin\\")
+else()
+    message(WARNING "Unsupported platform")
 endif()
