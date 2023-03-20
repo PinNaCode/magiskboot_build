@@ -21,7 +21,6 @@ target_include_directories(android_liblog PUBLIC
 add_library(android_libbase STATIC
     vendor/android_libbase/abi_compatibility.cpp
     vendor/android_libbase/chrono_utils.cpp
-    vendor/android_libbase/cmsg.cpp
     vendor/android_libbase/file.cpp
     vendor/android_libbase/hex.cpp
     vendor/android_libbase/logging.cpp
@@ -36,6 +35,10 @@ add_library(android_libbase STATIC
     vendor/android_libbase/threads.cpp
     vendor/android_libbase/test_utils.cpp
     vendor/android_libbase/errors_unix.cpp)
+if (NOT WIN32)
+target_sources(android_libbase PRIVATE
+    vendor/android_libbase/cmsg.cpp)
+endif()
 target_include_directories(android_libbase PUBLIC
     vendor/android_libbase/include vendor/android_core/include)
 target_link_libraries(android_libbase PUBLIC fmt::fmt android_liblog)
