@@ -24,3 +24,7 @@
 	path = vendor/android_core
 	url = https://android.googlesource.com/platform/system/core.git
 	shallow = true
+[submodule "mman-win32"]
+	path = vendor/mman-win32
+	url = https://github.com/alitrack/mman-win32.git
+	shallow = true

@@ -3,7 +3,8 @@ set(vendored_dirs
     android_logging
     android_libbase
     android_core
-    android_fmtlib)
+    android_fmtlib
+    mman-win32)
 
 # XXX: Consider using https://cmake.org/cmake/help/v3.0/module/ExternalProject.html
 if(PATCH_VENDOR_PROJECTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/patches")
