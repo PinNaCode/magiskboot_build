@@ -16,7 +16,7 @@ index 583474d..9bf814b 100644
      }
  
      #[no_mangle]
-+    #[cfg(target_os = "linux")]
++    #[cfg(any(target_os = "linux", target_os = "android"))]
      pub unsafe extern "C" fn xsendfile(
          out_fd: RawFd,
          in_fd: RawFd,
@@ -24,7 +24,7 @@ index 583474d..9bf814b 100644
  }
  
  #[no_mangle]
-+#[cfg(target_os = "linux")]
++#[cfg(any(target_os = "linux", target_os = "android"))]
  pub extern "C" fn xsetns(fd: RawFd, nstype: i32) -> i32 {
      unsafe {
          let r = libc::setns(fd, nstype);
@@ -32,7 +32,7 @@ index 583474d..9bf814b 100644
  }
  
  #[no_mangle]
-+#[cfg(target_os = "linux")]
++#[cfg(any(target_os = "linux", target_os = "android"))]
  pub extern "C" fn xunshare(flags: i32) -> i32 {
      unsafe {
          let r = libc::unshare(flags);
@@ -40,7 +40,7 @@ index 583474d..9bf814b 100644
  }
  
  #[no_mangle]
-+#[cfg(target_os = "linux")]
++#[cfg(any(target_os = "linux", target_os = "android"))]
  pub extern "C" fn xaccept4(
      sockfd: RawFd,
      addr: *mut sockaddr,
@@ -48,7 +48,7 @@ index 583474d..9bf814b 100644
  }
  
  #[no_mangle]
-+#[cfg(target_os = "linux")]
++#[cfg(any(target_os = "linux", target_os = "android"))]
  pub extern "C" fn xmount(
      src: *const c_char,
      target: *const c_char,
@@ -56,7 +56,7 @@ index 583474d..9bf814b 100644
  }
  
  #[no_mangle]
-+#[cfg(target_os = "linux")]
++#[cfg(any(target_os = "linux", target_os = "android"))]
  pub extern "C" fn xumount(target: *const c_char) -> i32 {
      unsafe {
          let r = libc::umount(target);
@@ -64,7 +64,7 @@ index 583474d..9bf814b 100644
  }
  
  #[no_mangle]
-+#[cfg(target_os = "linux")]
++#[cfg(any(target_os = "linux", target_os = "android"))]
  pub extern "C" fn xumount2(target: *const c_char, flags: i32) -> i32 {
      unsafe {
          let r = libc::umount2(target, flags);
@@ -72,7 +72,7 @@ index 583474d..9bf814b 100644
  }
  
  #[inline]
-+#[cfg(target_os = "linux")]
++#[cfg(any(target_os = "linux", target_os = "android"))]
  pub fn xsendfile(out_fd: RawFd, in_fd: RawFd, offset: Option<&mut off_t>, count: usize) -> isize {
      unsafe {
          let p = offset.map_or(ptr::null_mut(), |it| it);

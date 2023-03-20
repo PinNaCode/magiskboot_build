@@ -19,7 +19,7 @@ index 88fffa4..c78400b 100644
  
  #[cxx::bridge(namespace = "rust")]
  pub mod ffi2 {
-+    #[cfg(target_os = "linux")]
++    #[cfg(any(target_os = "linux", target_os = "android"))]
      extern "Rust" {
          fn xpipe2(fds: &mut [i32; 2], flags: i32) -> i32;
 +    }
@@ -75,7 +75,7 @@ index 08a81c6..10e3e82 100644
      }
  }
  
-+#[cfg(target_os = "linux")]
++#[cfg(any(target_os = "linux", target_os = "android"))]
  pub fn xpipe2(fds: &mut [i32; 2], flags: i32) -> i32 {
      unsafe {
          let r = libc::pipe2(fds.as_mut_ptr(), flags);
