@@ -36,7 +36,7 @@ pkg_check_modules(liblz4 REQUIRED IMPORTED_TARGET liblz4)
 find_package(BZip2 REQUIRED)
 find_package(LIBFDT REQUIRED)
 pkg_check_modules(zlib REQUIRED IMPORTED_TARGET zlib)
-if (NOT APPLE)
+if (NOT APPLE AND NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Android")
     pkg_check_modules(libbsd REQUIRED IMPORTED_TARGET libbsd)
 endif()
 

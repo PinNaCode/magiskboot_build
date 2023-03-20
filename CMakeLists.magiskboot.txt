@@ -13,7 +13,7 @@ target_include_directories(libbase PRIVATE
 target_include_directories(libbase PUBLIC
     vendor/Magisk/native/src/include
     vendor/Magisk/native/src/base/include)
-if (NOT APPLE)
+if (NOT APPLE AND NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Android")
     target_link_libraries(libbase PkgConfig::libbsd)
 endif()
 target_link_libraries(libbase android_liblog)
