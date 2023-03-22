@@ -4,7 +4,8 @@ set(vendored_dirs
     android_libbase
     android_core
     android_fmtlib
-    mman-win32)
+    mman-win32
+    msvc_getline)
 
 # XXX: Consider using https://cmake.org/cmake/help/v3.0/module/ExternalProject.html
 if(PATCH_VENDOR_PROJECTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/patches")

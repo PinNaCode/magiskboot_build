@@ -1,0 +1,73 @@
+From ec3c9a9b3a977e8fa26029f2a39a79ffbc8d21e3 Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Wed, 22 Mar 2023 09:24:04 +0800
+Subject: [PATCH] adapt to MinGW
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ getline.c | 10 ++++++++++
+ getline.h |  6 ++++++
+ 2 files changed, 16 insertions(+)
+
+diff --git a/getline.c b/getline.c
+index 6c3f699..5d7f4b6 100644
+--- a/getline.c
++++ b/getline.c
+@@ -4,8 +4,12 @@
+ #include <errno.h>
+ 
+ // MSVC specific implementation
++#ifdef __MSVCRT__
+ static void fseterr(FILE *fp)
+ {
++#ifdef __MINGW64__
++    ((struct _iobuf *)fp)->_flag |= _IOERR;
++#else
+     struct file { // Undocumented implementation detail
+         unsigned char *_ptr;
+         unsigned char *_base;
+@@ -18,7 +22,9 @@ static void fseterr(FILE *fp)
+     #define _IOERR 0x10
+ 
+     ((struct file *)fp)->_flag |= _IOERR;
++#endif
+ }
++#endif
+ 
+ ssize_t getdelim(char **restrict lineptr, size_t *restrict n, int delim, FILE *restrict stream)
+ {
+@@ -66,7 +72,11 @@ ssize_t getdelim(char **restrict lineptr, size_t *restrict n, int delim, FILE *r
+     return nread;
+ }
+ 
++#ifdef __MINGW64__
++ssize_t msvc_getline(char **restrict lineptr, size_t *restrict n, FILE *restrict stream)
++#else
+ ssize_t getline(char **restrict lineptr, size_t *restrict n, FILE *restrict stream)
++#endif
+ {
+     return getdelim(lineptr, n, '\n', stream);
+ }
+diff --git a/getline.h b/getline.h
+index ffbb699..b7bab62 100644
+--- a/getline.h
++++ b/getline.h
+@@ -4,9 +4,15 @@
+ #include <stdio.h>
+ 
+ #define restrict __restrict
++#ifndef __MINGW64__
+ typedef long long ssize_t;
++#endif
+ 
++#ifdef __MINGW64__
++ssize_t msvc_getline(char **restrict lineptr, size_t *restrict n, FILE *restrict stream);
++#else
+ ssize_t getline(char **restrict lineptr, size_t *restrict n, FILE *restrict stream);
++#endif
+ ssize_t getdelim(char **restrict lineptr, size_t *restrict n, int delim, FILE *restrict stream);
+ 
+ /*
+-- 
+2.40.0.windows.1
+

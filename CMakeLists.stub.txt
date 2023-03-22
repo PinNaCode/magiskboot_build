@@ -7,6 +7,11 @@ add_library(libmman STATIC
     vendor/mman-win32/mman.c)
 target_include_directories(libmman PUBLIC vendor/mman-win32)
 target_link_libraries(platform_stubs INTERFACE libmman)
+
+add_library(libgetline STATIC
+        vendor/msvc_getline/getline.c)
+target_include_directories(libgetline PUBLIC vendor/msvc_getline)
+target_link_libraries(platform_stubs INTERFACE libgetline)
 endif()
 
 if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
