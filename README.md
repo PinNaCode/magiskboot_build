@@ -134,3 +134,7 @@ you should be able to find your source package under the `build` folder
 [libbsd]: https://libbsd.freedesktop.org/
 [rustup]: https://rustup.rs/
 [Homebrew]: https://brew.sh/
+
+### See also
+
+[svoboda18/magiskboot](https://github.com/svoboda18/magiskboot.git): a dirty Windows port with custom GNU Make based build system
