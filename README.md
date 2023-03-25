@@ -36,15 +36,19 @@ install nightly Rust via [rustup][rustup] first
 ````shell
 sudo apt update
 sudo apt upgrade  # upgrade all existing packages (optional)
-sudo apt install build-essentials lzma-dev liblzma-dev liblz4-dev libbz2-dev libfdt-dev \
+# replace clang-15 with clang if your Ubuntu is too old, do the same for lld
+sudo apt install build-essential lzma-dev liblzma-dev liblz4-dev libbz2-dev libfdt-dev \
                  zlib1g-dev pkgconf clang-15 lld-15 cmake ninja-build libbsd-dev
 rustup component add rust-src  # install STD library source
+# only for Ubuntu jammy:
 mkdir ~/.bin
 ln -s `which clang-15` ~/.bin/clang
 ln -s `which clang++-15` ~/.bin/clang++
 ln -s `which lld-15` ~/.bin/lld
 export PATH=~/.bin:$PATH
 ````
+
+Note: If you need to use an older version of Clang or LLD, downgrading Rust is probably required (you may need to make sure they are sharing the same LLVM version).
 
 #### macOS Big Sur (or higher verison)
 
