@@ -5,7 +5,7 @@ if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/flags.h)
             COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk"
             OUTPUT_VARIABLE "MAGISK_VERSION"
-            ERROR_QUIET
+            COMMAND_ERROR_IS_FATAL ANY
             OUTPUT_STRIP_TRAILING_WHITESPACE
         )
     else()
