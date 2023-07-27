@@ -7,7 +7,8 @@ add_library(libbase STATIC
     vendor/Magisk/native/src/base/logging.cpp
     vendor/Magisk/native/src/base/stream.cpp
     vendor/Magisk/native/src/base/new.cpp
-    vendor/cxx-rs/src/cxx.cc)
+    vendor/Magisk/native/src/base/base-rs.cpp
+    vendor/Magisk/native/src/external/cxx-rs/src/cxx.cc)
 target_include_directories(libbase PRIVATE
     vendor/Magisk/native/src/base)
 target_include_directories(libbase PUBLIC
@@ -17,17 +18,6 @@ if (NOT APPLE AND NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Android")
     target_link_libraries(libbase PkgConfig::libbsd)
 endif()
 target_link_libraries(libbase android_liblog)
-
-add_library(libmincrypt STATIC
-    vendor/Magisk/native/src/external/mincrypt/dsa_sig.c
-    vendor/Magisk/native/src/external/mincrypt/p256.c
-    vendor/Magisk/native/src/external/mincrypt/p256_ec.c
-    vendor/Magisk/native/src/external/mincrypt/p256_ecdsa.c
-    vendor/Magisk/native/src/external/mincrypt/rsa.c
-    vendor/Magisk/native/src/external/mincrypt/sha.c
-    vendor/Magisk/native/src/external/mincrypt/sha256.c)
-target_include_directories(libmincrypt PUBLIC
-    vendor/Magisk/native/src/external/mincrypt/include)
 
 add_library(libzopfli STATIC
     vendor/Magisk/native/src/external/zopfli/src/zopfli/blocksplitter.c
@@ -45,25 +35,22 @@ add_library(libzopfli STATIC
 target_include_directories(libzopfli PUBLIC
     vendor/Magisk/native/src/external/zopfli/src)
 target_compile_options(libzopfli PRIVATE
-    -Wall -Werror -Wno-unused -Wno-unused-parameter)
+    -Wall -Werror -Wno-unused -Wno-unused-parameter -Wno-deprecated-non-prototype)
 
 add_executable(magiskboot
     vendor/Magisk/native/src/boot/main.cpp
     vendor/Magisk/native/src/boot/bootimg.cpp
-    vendor/Magisk/native/src/boot/hexpatch.cpp
     vendor/Magisk/native/src/boot/compress.cpp
     vendor/Magisk/native/src/boot/format.cpp
     vendor/Magisk/native/src/boot/dtb.cpp
-    vendor/Magisk/native/src/boot/ramdisk.cpp
-    vendor/Magisk/native/src/boot/pattern.cpp
-    vendor/Magisk/native/src/boot/cpio.cpp)
+    vendor/Magisk/native/src/boot/boot-rs.cpp)
 target_include_directories(magiskboot PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/external/cxx-rs/include
     ${LIBLZMA_INCLUDE_DIRS}
     ${BZIP2_INCLUDE_DIRS}
     ${LIBFDT_INCLUDE_DIRS})
 target_link_libraries(magiskboot
     libbase
-    libmincrypt
     ${LIBLZMA_LIBRARIES}
     PkgConfig::liblz4
     ${BZIP2_LIBRARIES}

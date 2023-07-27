@@ -12,15 +12,15 @@ diff --git a/native/src/base/misc.rs b/native/src/base/misc.rs
 index 521acb6..569cf88 100644
 --- a/native/src/base/misc.rs
 +++ b/native/src/base/misc.rs
-@@ -3,6 +3,8 @@ use std::ffi::CStr;
- use std::fmt::Arguments;
- use std::{fmt, slice};
+@@ -13,6 +13,8 @@ use thiserror::Error;
+ 
+ use crate::ffi;
  
 +use cfg_if::cfg_if;
 +
- struct BufFmtWriter<'a> {
-     buf: &'a mut [u8],
-     used: usize,
+ pub fn copy_str<T: AsRef<[u8]>>(dest: &mut [u8], src: T) -> usize {
+     let src = src.as_ref();
+     let len = min(src.len(), dest.len() - 1);
 @@ -116,7 +118,17 @@ pub fn ptr_to_str<'a, T>(ptr: *const T) -> &'a str {
  }
  

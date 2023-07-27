@@ -12,12 +12,12 @@ diff --git a/native/src/base/files.rs b/native/src/base/files.rs
 index e748b84..9752f1e 100644
 --- a/native/src/base/files.rs
 +++ b/native/src/base/files.rs
-@@ -5,7 +5,13 @@ use std::io::BufRead;
+@@ -10,7 +10,13 @@ use std::os::unix::fs::FileTypeExt;
  use std::os::unix::io::{AsRawFd, FromRawFd, OwnedFd, RawFd};
- use std::path::Path;
+ use std::{io, mem, ptr, slice};
  
--use libc::{c_char, c_uint, mode_t, EEXIST, ENOENT, O_CLOEXEC, O_PATH};
-+use libc::{c_char, c_int, c_uint, mode_t, EEXIST, ENOENT, O_CLOEXEC};
+-use libc::{c_char, c_uint, dirent, mode_t, EEXIST, ENOENT, O_CLOEXEC, O_PATH, O_RDONLY, O_RDWR};
++use libc::{c_char, c_int, c_uint, dirent, mode_t, EEXIST, ENOENT, O_CLOEXEC, O_RDONLY, O_RDWR};
 +
 +#[cfg(any(target_os = "linux", target_os = "android"))]
 +use libc::O_PATH;
@@ -25,7 +25,7 @@ index e748b84..9752f1e 100644
 +#[cfg(not(any(target_os = "linux", target_os = "android")))]
 +const O_PATH: c_int = 0x0;
  
- use crate::{bfmt_cstr, errno, xopen};
+ use crate::{bfmt_cstr, copy_cstr, cstr, errno, error, FlatData, LibcReturn, Utf8CStr};
  
 -- 
 2.40.0

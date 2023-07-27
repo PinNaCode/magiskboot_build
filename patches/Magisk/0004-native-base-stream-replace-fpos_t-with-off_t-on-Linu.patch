@@ -12,7 +12,7 @@ diff --git a/native/src/base/stream.cpp b/native/src/base/stream.cpp
 index 1bc7837..7bd7544 100644
 --- a/native/src/base/stream.cpp
 +++ b/native/src/base/stream.cpp
-@@ -22,7 +22,11 @@ static int strm_write(void *v, const char *buf, int len) {
+@@ -18,7 +18,11 @@ static int strm_write(void *v, const char *buf, int len) {
      return len;
  }
  
@@ -21,7 +21,7 @@ index 1bc7837..7bd7544 100644
 +#else
 +static off_t strm_seek(void *v, off_t off, int whence) {
 +#endif
-     auto strm = static_cast<stream *>(v);
+     auto strm = static_cast<channel *>(v);
      return strm->seek(off, whence);
  }
 -- 

@@ -12,70 +12,62 @@ diff --git a/native/src/base/xwrap.rs b/native/src/base/xwrap.rs
 index 583474d..9bf814b 100644
 --- a/native/src/base/xwrap.rs
 +++ b/native/src/base/xwrap.rs
-@@ -91,6 +91,7 @@ mod unsafe_impl {
-     }
- 
-     #[no_mangle]
-+    #[cfg(any(target_os = "linux", target_os = "android"))]
-     pub unsafe extern "C" fn xsendfile(
-         out_fd: RawFd,
-         in_fd: RawFd,
-@@ -246,6 +247,7 @@ pub fn xpipe2(fds: &mut [i32; 2], flags: i32) -> i32 {
+@@ -249,6 +249,7 @@ pub(crate) fn xpipe2(fds: &mut [i32; 2], flags: i32) -> i32 {
  }
  
  #[no_mangle]
 +#[cfg(any(target_os = "linux", target_os = "android"))]
- pub extern "C" fn xsetns(fd: RawFd, nstype: i32) -> i32 {
+ extern "C" fn xsetns(fd: RawFd, nstype: i32) -> i32 {
      unsafe {
          let r = libc::setns(fd, nstype);
-@@ -257,6 +259,7 @@ pub extern "C" fn xsetns(fd: RawFd, nstype: i32) -> i32 {
+@@ -260,6 +261,7 @@ extern "C" fn xsetns(fd: RawFd, nstype: i32) -> i32 {
  }
  
  #[no_mangle]
 +#[cfg(any(target_os = "linux", target_os = "android"))]
- pub extern "C" fn xunshare(flags: i32) -> i32 {
+ extern "C" fn xunshare(flags: i32) -> i32 {
      unsafe {
          let r = libc::unshare(flags);
-@@ -357,6 +360,7 @@ pub extern "C" fn xlisten(socket: i32, backlog: i32) -> i32 {
+@@ -353,6 +355,7 @@ extern "C" fn xlisten(socket: i32, backlog: i32) -> i32 {
  }
  
  #[no_mangle]
 +#[cfg(any(target_os = "linux", target_os = "android"))]
- pub extern "C" fn xaccept4(
+ unsafe extern "C" fn xaccept4(
      sockfd: RawFd,
      addr: *mut sockaddr,
-@@ -558,6 +562,7 @@ pub extern "C" fn xlinkat(
+@@ -524,6 +527,7 @@ unsafe extern "C" fn xlinkat(
  }
  
  #[no_mangle]
 +#[cfg(any(target_os = "linux", target_os = "android"))]
- pub extern "C" fn xmount(
+ unsafe extern "C" fn xmount(
      src: *const c_char,
      target: *const c_char,
-@@ -575,6 +580,7 @@ pub extern "C" fn xmount(
+@@ -539,6 +543,7 @@ unsafe extern "C" fn xmount(
  }
  
  #[no_mangle]
 +#[cfg(any(target_os = "linux", target_os = "android"))]
- pub extern "C" fn xumount(target: *const c_char) -> i32 {
-     unsafe {
-         let r = libc::umount(target);
-@@ -586,6 +592,7 @@ pub extern "C" fn xumount(target: *const c_char) -> i32 {
+ unsafe extern "C" fn xumount(target: *const c_char) -> i32 {
+     let r = libc::umount(target);
+     if r < 0 {
+@@ -548,6 +553,7 @@ unsafe extern "C" fn xumount(target: *const c_char) -> i32 {
  }
  
  #[no_mangle]
 +#[cfg(any(target_os = "linux", target_os = "android"))]
- pub extern "C" fn xumount2(target: *const c_char, flags: i32) -> i32 {
-     unsafe {
-         let r = libc::umount2(target, flags);
-@@ -639,6 +646,7 @@ pub extern "C" fn xmkdirat(dirfd: RawFd, path: *const c_char, mode: mode_t) -> i
+ unsafe extern "C" fn xumount2(target: *const c_char, flags: i32) -> i32 {
+     let r = libc::umount2(target, flags);
+     if r < 0 {
+@@ -594,6 +600,7 @@ unsafe extern "C" fn xmkdirat(dirfd: RawFd, path: *const c_char, mode: mode_t) -
  }
  
- #[inline]
+ #[no_mangle]
 +#[cfg(any(target_os = "linux", target_os = "android"))]
- pub fn xsendfile(out_fd: RawFd, in_fd: RawFd, offset: Option<&mut off_t>, count: usize) -> isize {
-     unsafe {
-         let p = offset.map_or(ptr::null_mut(), |it| it);
+ unsafe extern "C" fn xsendfile(
+     out_fd: RawFd,
+     in_fd: RawFd,
 -- 
 2.40.0
 

@@ -13,17 +13,15 @@ Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
  native/src/base/selinux.cpp  |  6 ++++++
  native/src/base/stream.cpp   |  4 ++++
  native/src/base/xwrap.hpp    |  4 ++++
- native/src/boot/cpio.cpp     |  1 +
  native/src/boot/format.hpp   |  1 +
- native/src/boot/hexpatch.cpp |  1 +
- native/src/boot/pattern.cpp  |  2 ++
- 12 files changed, 50 insertions(+)
+ 9 files changed, 46 insertions(+)
 
 diff --git a/native/src/base/files.cpp b/native/src/base/files.cpp
 index 4012d2e..de7e46c 100644
 --- a/native/src/base/files.cpp
 +++ b/native/src/base/files.cpp
-@@ -1,9 +1,16 @@
+@@ -1,10 +1,17 @@
+ #include <sys/mman.h>
 +#ifdef __linux__
  #include <sys/sendfile.h>
  #include <sys/sysmacros.h>
@@ -39,41 +37,38 @@ index 4012d2e..de7e46c 100644
 +#include <cstring>
  
  #include <base.hpp>
- #include <misc.hpp>
+ #include <selinux.hpp>
 diff --git a/native/src/base/files.hpp b/native/src/base/files.hpp
 index ea27cfd..9d62e69 100644
 --- a/native/src/base/files.hpp
 +++ b/native/src/base/files.hpp
-@@ -2,11 +2,14 @@
- 
- #include <sys/mman.h>
- #include <sys/stat.h>
-+#ifdef __linux__
- #include <mntent.h>
-+#endif
- #include <functional>
+@@ -5,8 +5,11 @@
  #include <string_view>
  #include <string>
  #include <vector>
 +#include <memory>
  
- #include "xwrap.hpp"
++#ifdef __linux__
+ #include <linux/fs.h>
++#endif
+ #include "misc.hpp"
  
+ template <typename T>
 diff --git a/native/src/base/logging.hpp b/native/src/base/logging.hpp
 index ac0a3dc..6c370e8 100644
 --- a/native/src/base/logging.hpp
 +++ b/native/src/base/logging.hpp
-@@ -5,6 +5,10 @@
- 
- #include <base-rs.hpp>
+@@ -3,6 +3,10 @@
+ #include <cerrno>
+ #include <cstdarg>
  
 +#if !defined(__ANDROID__) && !defined(__APPLE__)
 +#include <bsd/sys/cdefs.h>
 +#endif
 +
- extern int (*cpp_logger)(LogLevel level, const char *fmt, va_list ap);
- 
  void LOGD(const char *fmt, ...) __printflike(1, 2);
+ void LOGI(const char *fmt, ...) __printflike(1, 2);
+ void LOGW(const char *fmt, ...) __printflike(1, 2);
 diff --git a/native/src/base/misc.cpp b/native/src/base/misc.cpp
 index 0dc6189..66f2f9d 100644
 --- a/native/src/base/misc.cpp
@@ -112,13 +107,13 @@ diff --git a/native/src/base/misc.hpp b/native/src/base/misc.hpp
 index c193a2c..48e6082 100644
 --- a/native/src/base/misc.hpp
 +++ b/native/src/base/misc.hpp
-@@ -5,6 +5,7 @@
- #include <functional>
- #include <string_view>
+@@ -7,6 +7,7 @@
  #include <bitset>
+ #include <random>
+ #include <cxx.h>
 +#include <memory>
  
- #include <base-rs.hpp>
+ #include "xwrap.hpp"
  
 diff --git a/native/src/base/selinux.cpp b/native/src/base/selinux.cpp
 index dcf3cb0..269d35f 100644
@@ -174,17 +169,6 @@ index 8c4c1d1..71be943 100644
  pid_t xfork();
  int xpoll(pollfd *fds, nfds_t nfds, int timeout);
  ssize_t xrealpath(const char * __restrict__ path, char * __restrict__ buf, size_t bufsiz);
-diff --git a/native/src/boot/cpio.cpp b/native/src/boot/cpio.cpp
-index 079cb10..5bec150 100644
---- a/native/src/boot/cpio.cpp
-+++ b/native/src/boot/cpio.cpp
-@@ -2,6 +2,7 @@
- #include <fcntl.h>
- #include <libgen.h>
- #include <algorithm>
-+#include <cstring>
- 
- #include <base.hpp>
  
 diff --git a/native/src/boot/format.hpp b/native/src/boot/format.hpp
 index 5901938..ae14f4d 100644
@@ -198,26 +182,6 @@ index 5901938..ae14f4d 100644
  
  typedef enum {
      UNKNOWN,
-diff --git a/native/src/boot/hexpatch.cpp b/native/src/boot/hexpatch.cpp
-index bd7bd5c..48c1b92 100644
---- a/native/src/boot/hexpatch.cpp
-+++ b/native/src/boot/hexpatch.cpp
-@@ -1,4 +1,5 @@
- #include <sys/mman.h>
-+#include <cstring>
- 
- #include <base.hpp>
- 
-diff --git a/native/src/boot/pattern.cpp b/native/src/boot/pattern.cpp
-index bc29398..fc69b6a 100644
---- a/native/src/boot/pattern.cpp
-+++ b/native/src/boot/pattern.cpp
-@@ -1,3 +1,5 @@
-+#include <cstring>
-+
- #include <base.hpp>
- 
- #include "magiskboot.hpp"
 -- 
 2.40.0
 

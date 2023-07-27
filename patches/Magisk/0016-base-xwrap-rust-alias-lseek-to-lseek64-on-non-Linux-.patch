@@ -5,22 +5,13 @@ Subject: [PATCH] base: xwrap: rust: alias lseek to lseek64 on non-Linux system
 
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
- native/src/base/xwrap.rs | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ native/src/base/xwrap.rs | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/native/src/base/xwrap.rs b/native/src/base/xwrap.rs
 index a0f560f..83129a5 100644
 --- a/native/src/base/xwrap.rs
 +++ b/native/src/base/xwrap.rs
-@@ -10,6 +10,8 @@ use libc::{
- #[cfg(target_os = "linux")]
- use libc::SYS_dup3;
- 
-+use cfg_if::cfg_if;
-+
- use crate::{cstr, errno, error, mkdirs, perror, ptr_to_str, realpath};
- 
- mod unsafe_impl {
 @@ -218,7 +220,13 @@ pub fn xxread(fd: RawFd, data: &mut [u8]) -> isize {
  #[no_mangle]
  pub extern "C" fn xlseek64(fd: RawFd, offset: i64, whence: i32) -> i64 {

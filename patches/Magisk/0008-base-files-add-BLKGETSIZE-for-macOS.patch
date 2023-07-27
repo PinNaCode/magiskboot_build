@@ -5,36 +5,71 @@ Subject: [PATCH 2/6] base: files: add BLKGETSIZE for macOS
 
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
- native/src/base/files.cpp | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ native/src/base/files.rs | 14 ++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/native/src/base/files.cpp b/native/src/base/files.cpp
-index 8ee3c7f..f315b49 100644
---- a/native/src/base/files.cpp
-+++ b/native/src/base/files.cpp
-@@ -559,9 +559,22 @@ mmap_data::mmap_data(const char *name, bool rw) {
-     if (fstat(fd, &st))
-         return;
-     if (S_ISBLK(st.st_mode)) {
-+#ifdef __linux__
-         uint64_t size;
-         ioctl(fd, BLKGETSIZE64, &size);
-         sz = size;
-+#elif defined(__APPLE__)
-+        uint32_t size;
-+        uint64_t count;
-+        if (!ioctl(fd, DKIOCGETBLOCKSIZE, &size))
-+            sz = size;
-+        else if (!ioctl(fd, DKIOCGETBLOCKCOUNT, &count))
-+            sz = count;
-+        else
-+            sz = size * count;
-+#else
-+#error Unknown BLKGETSIZE impl on this platform
-+#endif
-     } else {
-         sz = st.st_size;
+diff --git a/native/src/base/files.rs b/native/src/base/files.rs
+index f107c34..465d63a 100644
+--- a/native/src/base/files.rs
++++ b/native/src/base/files.rs
+@@ -29,6 +29,8 @@ const O_PATH: c_int = 0x0;
+ 
+ use crate::{bfmt_cstr, copy_cstr, cstr, errno, error, FlatData, LibcReturn, Utf8CStr};
+ 
++use cfg_if::cfg_if;
++
+ pub fn __open_fd_impl(path: &Utf8CStr, flags: i32, mode: mode_t) -> io::Result<OwnedFd> {
+     unsafe {
+         let fd = libc::open(path.as_ptr(), flags, mode as c_uint).check_os_err()?;
+@@ -483,20 +483,41 @@ pub(crate) fn map_file(path: &Utf8CStr, rw: bool) -> io::Result<&'static mut [u8
+         fn ioctl(fd: RawFd, request: u32, ...) -> i32;
      }
--- 
+ 
+-    #[cfg(target_pointer_width = "64")]
+-    const BLKGETSIZE64: u32 = 0x80081272;
+-
+-    #[cfg(target_pointer_width = "32")]
+-    const BLKGETSIZE64: u32 = 0x80041272;
++    cfg_if! {
++        if #[cfg(target_vendor = "apple")] {
++            const DKIOCGETBLOCKSIZE: u32 = 0x40046418;
++            const DKIOCGETBLOCKCOUNT: u32 = 0x40086419;
++        } else if #[cfg(target_os = "linux")] {
++            #[cfg(target_pointer_width = "64")]
++            const BLKGETSIZE64: u32 = 0x80081272;
++
++            #[cfg(target_pointer_width = "32")]
++            const BLKGETSIZE64: u32 = 0x80041272;
++        } else {
++            compile_error!("Unknown BLKGETSIZE impl on this platform");
++        }
++    }
+ 
+     let flag = if rw { O_RDWR } else { O_RDONLY };
+     let f = File::from(open_fd!(path, flag | O_CLOEXEC)?);
+ 
+     let st = f.metadata()?;
+     let sz = if st.file_type().is_block_device() {
+-        let mut sz = 0_u64;
+-        unsafe { ioctl(f.as_raw_fd(), BLKGETSIZE64, &mut sz) }.check_os_err()?;
+-        sz
++        cfg_if! {
++            if #[cfg(target_vendor = "apple")] {
++                let mut sz = 0_u32;
++                let mut cnt = 0_u64;
++                unsafe { ioctl(f.as_raw_fd(), DKIOCGETBLOCKSIZE, &mut sz) }.check_os_err()?;
++                unsafe { ioctl(f.as_raw_fd(), DKIOCGETBLOCKCOUNT, &mut cnt) }.check_os_err()?;
++                (sz as u64) * cnt
++            } else if #[cfg(target_os = "linux")] {
++                let mut sz = 0_u64;
++                unsafe { ioctl(f.as_raw_fd(), BLKGETSIZE64, &mut sz) }.check_os_err()?;
++                sz
++            } else {
++                compile_error!("Unknown BLKGETSIZE impl on this platform");
++            }
++        }
+     } else {
+         st.st_size()
+     };-- 
 2.40.0
 

@@ -5,44 +5,43 @@ Subject: [PATCH] base: rust: add macOS fd_path impl
 
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
- native/src/base/files.rs | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ native/src/base/files.rs | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
 diff --git a/native/src/base/files.rs b/native/src/base/files.rs
 index 892d375..25ed2e7 100644
 --- a/native/src/base/files.rs
 +++ b/native/src/base/files.rs
-@@ -80,12 +80,30 @@ pub fn readlink(path: &CStr, data: &mut [u8]) -> isize {
-     unsafe { unsafe_impl::readlink(path.as_ptr(), data.as_mut_ptr(), data.len()) }
+@@ -45,12 +45,29 @@ pub fn readlink(path: &Utf8CStr, data: &mut [u8]) -> io::Result<usize> {
+     Ok(r as usize)
  }
  
 +#[cfg(not(target_vendor = "apple"))]
- pub fn fd_path(fd: RawFd, buf: &mut [u8]) -> isize {
-     let mut fd_buf: [u8; 40] = [0; 40];
+ pub fn fd_path(fd: RawFd, buf: &mut [u8]) -> io::Result<usize> {
+     let mut fd_buf = [0_u8; 40];
      let fd_path = bfmt_cstr!(&mut fd_buf, "/proc/self/fd/{}", fd);
      readlink(fd_path, buf)
  }
  
 +#[cfg(target_vendor = "apple")]
-+pub fn fd_path(fd: RawFd, buf: &mut [u8]) -> isize {
++pub fn fd_path(fd: RawFd, buf: &mut [u8]) -> io::Result<usize> {
 +    unsafe {
 +        let mut path_buf: [u8; libc::PATH_MAX as usize] = [0; libc::PATH_MAX as usize];
 +        let ret: isize = libc::fcntl(fd, libc::F_GETPATH, path_buf.as_mut_ptr()) as isize;
 +        if ret < 0 {
-+            ret
-+        } else {
-+            let len = path_buf.iter().position(|&x| x == 0).unwrap();
-+            let copy_len: isize = len.min(buf.len()) as isize;
-+            let copy_max_off: usize = copy_len as usize;
-+            buf[..copy_max_off].copy_from_slice(&path_buf[..copy_max_off]);
-+            copy_len
++            return Err(io::Error::last_os_error())
 +        }
++        let len = path_buf.iter().position(|&x| x == 0).unwrap();
++        let copy_len: usize = len.min(buf.len());
++        let copy_max_off: usize = copy_len as usize;
++        buf[..copy_max_off].copy_from_slice(&path_buf[..copy_max_off]);
++        Ok(copy_len)
 +    }
 +}
 +
  // Inspired by https://android.googlesource.com/platform/bionic/+/master/libc/bionic/realpath.cpp
- pub fn realpath(path: &CStr, buf: &mut [u8]) -> isize {
-     if let Some(fd) = open_fd!(path, O_PATH | O_CLOEXEC) {
+ pub fn realpath(path: &Utf8CStr, buf: &mut [u8]) -> io::Result<usize> {
+     let fd = open_fd!(path, O_PATH | O_CLOEXEC)?;
 -- 
 2.40.0
 

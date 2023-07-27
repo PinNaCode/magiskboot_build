@@ -17,82 +17,16 @@ diff --git a/native/src/.cargo/config.toml b/native/src/.cargo/config.toml
 index 6f2e104..93a1723 100644
 --- a/native/src/.cargo/config.toml
 +++ b/native/src/.cargo/config.toml
-@@ -1,4 +1,4 @@
+@@ -1,7 +1,7 @@
 -[build]
 +# [build]
- # This is only used to make the IDE happy, the actual compilation will
- # have the target overriden by command-line
+ # Choose arm64 as the default target to make the IDE happy.
+ # The actual compilation will have the target overriden by command-line.
 -target = "aarch64-linux-android"
 +# target = "aarch64-linux-android"
-diff --git a/native/src/Cargo.lock b/native/src/Cargo.lock
-index 4da9ca5..7e7c6a9 100644
---- a/native/src/Cargo.lock
-+++ b/native/src/Cargo.lock
-@@ -25,7 +25,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
  
- [[package]]
- name = "cxx"
--version = "1.0.72"
-+version = "1.0.93"
- dependencies = [
-  "cc",
-  "cxxbridge-flags",
-@@ -34,11 +34,11 @@ dependencies = [
- 
- [[package]]
- name = "cxxbridge-flags"
--version = "1.0.72"
-+version = "1.0.93"
- 
- [[package]]
- name = "cxxbridge-macro"
--version = "1.0.72"
-+version = "1.0.93"
- dependencies = [
-  "proc-macro2",
-  "quote",
-diff --git a/native/src/Cargo.toml b/native/src/Cargo.toml
-index 82a2c6f..10c448e 100644
---- a/native/src/Cargo.toml
-+++ b/native/src/Cargo.toml
-@@ -17,4 +17,4 @@ panic = "abort"
- strip = true
- 
- [patch.crates-io]
--cxx = { path = "external/cxx-rs" }
-+cxx = { path = "../../../cxx-rs" }
-diff --git a/native/src/base/Cargo.toml b/native/src/base/Cargo.toml
-index a487fb0..96933ec 100644
---- a/native/src/base/Cargo.toml
-+++ b/native/src/base/Cargo.toml
-@@ -7,6 +7,6 @@ edition = "2021"
- path = "lib.rs"
- 
- [dependencies]
--cxx = { path = "../external/cxx-rs" }
-+cxx = { path = "../../../../cxx-rs" }
- libc = "0.2"
- cfg-if = "1.0"
-diff --git a/native/src/core/Cargo.toml b/native/src/core/Cargo.toml
-index bd7422b..e37e23a 100644
---- a/native/src/core/Cargo.toml
-+++ b/native/src/core/Cargo.toml
-@@ -9,4 +9,4 @@ path = "lib.rs"
- 
- [dependencies]
- base = { path = "../base" }
--cxx = { path = "../external/cxx-rs" }
-+cxx = { path = "../../../../cxx-rs" }
-diff --git a/native/src/init/Cargo.toml b/native/src/init/Cargo.toml
-index 19cebe6..1aca40e 100644
---- a/native/src/init/Cargo.toml
-+++ b/native/src/init/Cargo.toml
-@@ -9,4 +9,4 @@ path = "lib.rs"
- 
- [dependencies]
- base = { path = "../base" }
--cxx = "1.0.69"
-+cxx = { path = "../../../../cxx-rs" }
+ [unstable]
+ build-std = ["std", "panic_abort"
 -- 
 2.39.2
 

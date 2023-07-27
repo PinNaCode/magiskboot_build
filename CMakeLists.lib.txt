@@ -1,28 +1,13 @@
 # mostly copied from Magisk's build.py
 
 if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/Cargo.toml)
-    if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/base/lib.rs)
-        add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/generated/base-rs.hpp
-                           COMMAND ${CXXBRIDGE_EXECUTABLE} ${CXXBRIDGE_FLAGS} --header ../../vendor/Magisk/native/src/base/lib.rs -o base-rs.hpp
-                           DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/base/lib.rs
-                           COMMENT "Generating CXX header base-rs.hpp"
-                           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/generated)
-        add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/generated/base-rs.cpp
-                           COMMAND ${CXXBRIDGE_EXECUTABLE} ${CXXBRIDGE_FLAGS} ../../vendor/Magisk/native/src/base/lib.rs -o base-rs.cpp
-                           DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/base/lib.rs
-                           COMMENT "Generating CXX Rust binding base-rs.cpp"
-                           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/generated)
-        add_custom_target(libbase_binding
-                          DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/generated/base-rs.hpp
-                                  ${CMAKE_CURRENT_BINARY_DIR}/generated/base-rs.cpp)
-        add_dependencies(libbase_binding prepare_generated_directory)
-        add_dependencies(libbase_binding cxxbridge)
-    else()
-        message(FATAL_ERROR "Cannot find native component \"base\"")
-    endif()
     if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/boot/lib.rs)
         add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/libmagiskboot-rs.a
-                           COMMAND ${CMAKE_COMMAND} -E env RUSTFLAGS=-Clinker-plugin-lto\ -Cllvm-args=-opaque-pointers CARGO_TARGET_DIR="${CMAKE_CURRENT_BINARY_DIR}/libmagiskboot_target" ${CARGO_EXECUTABLE} build --target ${RUSTC_TARGET} -p magiskboot ${CARGO_FLAGS} -q
+				  ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/base/base-rs.hpp
+				  ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/boot/boot-rs.hpp
+				  ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/base/base-rs.cpp
+				  ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/boot/boot-rs.cpp
+                           COMMAND ${CMAKE_COMMAND} -E env CXXBRIDGE_GEN_TARGET_OS=${CXXBRIDGE_GEN_TARGET_OS} RUSTFLAGS=-Clinker-plugin-lto\ -Cllvm-args=-opaque-pointers CARGO_TARGET_DIR="${CMAKE_CURRENT_BINARY_DIR}/libmagiskboot_target" ${CARGO_EXECUTABLE} build --target ${RUSTC_TARGET} -p magiskboot ${CARGO_FLAGS} -q
                            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/libmagiskboot_target/${RUSTC_TARGET}/${CARGO_OUT}/libmagiskboot.a ${CMAKE_CURRENT_BINARY_DIR}/libmagiskboot-rs.a
                            COMMENT "Building Rust static library libmagiskboot-rs.a"
                            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src)
@@ -39,6 +24,7 @@ else()
     message(FATAL_ERROR "Cannot find native component config")
 endif()
 
-add_dependencies(libbase libbase_binding)
+add_dependencies(libbase prepare_generated_directory)
 target_include_directories(libbase PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/generated)
+target_include_directories(libbase PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/external/cxx-rs/include)
 target_link_libraries(magiskboot libmagiskboot-rs)
