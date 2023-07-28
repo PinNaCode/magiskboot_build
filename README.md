@@ -2,7 +2,11 @@
 
 a simple CMake-based build system for magiskboot
 
-for static version please use the [static](../../tree/static) branch
+~~for static version please use the [static](../../tree/static) branch~~
+
+Static builds is deprecated, while it's still possible, you need to patch the CMakeLists yourself if you want to build static version.
+
+I just no longer have the interest to maintain the static version.
 
 ### Requirements
 
