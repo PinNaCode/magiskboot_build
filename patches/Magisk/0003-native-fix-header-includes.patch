@@ -1,44 +1,44 @@
-From 6697011818e9c539f0367ddf2a626d682b8bf805 Mon Sep 17 00:00:00 2001
+From 84df261f5b5cfd5cda74bb02df99495fc873fe81 Mon Sep 17 00:00:00 2001
 From: Ookiineko <chiisaineko@protonmail.com>
 Date: Thu, 9 Mar 2023 23:29:40 +0800
 Subject: [PATCH] native: fix header includes
 
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
- native/src/base/files.cpp    |  7 +++++++
- native/src/base/files.hpp    |  3 +++
- native/src/base/logging.hpp  |  4 ++++
- native/src/base/misc.cpp     | 16 ++++++++++++++++
- native/src/base/misc.hpp     |  1 +
- native/src/base/selinux.cpp  |  6 ++++++
- native/src/base/stream.cpp   |  4 ++++
- native/src/base/xwrap.hpp    |  4 ++++
- native/src/boot/format.hpp   |  1 +
- 9 files changed, 46 insertions(+)
+ native/src/base/files.cpp   |  8 ++++++++
+ native/src/base/files.hpp   |  6 ++++++
+ native/src/base/logging.hpp |  4 ++++
+ native/src/base/misc.cpp    | 17 +++++++++++++++++
+ native/src/base/selinux.cpp |  7 +++++++
+ native/src/base/stream.cpp  |  3 +++
+ native/src/base/xwrap.hpp   |  5 +++++
+ 7 files changed, 50 insertions(+)
 
 diff --git a/native/src/base/files.cpp b/native/src/base/files.cpp
-index 4012d2e..de7e46c 100644
+index 6829de2..8aef651 100644
 --- a/native/src/base/files.cpp
 +++ b/native/src/base/files.cpp
-@@ -1,7 +1,13 @@
+@@ -1,7 +1,15 @@
  #include <sys/mman.h>
 +#ifdef __linux__
  #include <sys/sendfile.h>
  #include <sys/sysmacros.h>
  #include <linux/fs.h>
 +#elif defined(__APPLE__)
-+#include <sys/types.h>
 +#include <sys/disk.h>
++#endif
++#if defined(__APPLE__) || defined(__CYGWIN__)
++#include <sys/types.h>
 +#endif
 +#include <sys/ioctl.h>
  #include <fcntl.h>
  #include <unistd.h>
  #include <libgen.h>
 diff --git a/native/src/base/files.hpp b/native/src/base/files.hpp
-index ea27cfd..9d62e69 100644
+index 0d8d11c..c4bb952 100644
 --- a/native/src/base/files.hpp
 +++ b/native/src/base/files.hpp
-@@ -5,7 +5,11 @@
+@@ -6,7 +6,13 @@
  #include <string>
  #include <vector>
  
@@ -46,12 +46,14 @@ index ea27cfd..9d62e69 100644
  #include <linux/fs.h>
 +#elif defined(__APPLE__)
 +#include <sys/disk.h>
++#elif defined(__CYGWIN__)
++#include <cygwin/fs.h>
 +#endif
  #include "misc.hpp"
  
  template <typename T>
 diff --git a/native/src/base/logging.hpp b/native/src/base/logging.hpp
-index ac0a3dc..6c370e8 100644
+index 405864c..d006b65 100644
 --- a/native/src/base/logging.hpp
 +++ b/native/src/base/logging.hpp
 @@ -3,6 +3,10 @@
@@ -66,16 +68,16 @@ index ac0a3dc..6c370e8 100644
  void LOGI(const char *fmt, ...) __printflike(1, 2);
  void LOGW(const char *fmt, ...) __printflike(1, 2);
 diff --git a/native/src/base/misc.cpp b/native/src/base/misc.cpp
-index 0dc6189..66f2f9d 100644
+index 313d136..f0188b5 100644
 --- a/native/src/base/misc.cpp
 +++ b/native/src/base/misc.cpp
-@@ -1,13 +1,28 @@
+@@ -1,13 +1,31 @@
  #include <sys/types.h>
  #include <sys/wait.h>
 +#ifdef __linux__
  #include <sys/prctl.h>
  #include <sys/sysmacros.h>
-+#elif defined(__APPLE__)
++#elif defined(__APPLE__) || defined(__CYGWIN__)
 +#include <sys/types.h>
 +#endif
  #include <fcntl.h>
@@ -85,10 +87,13 @@ index 0dc6189..66f2f9d 100644
 +#include <sys/syscall.h>
 +#include <crt_externs.h>
 +#define environ (*_NSGetEnviron())
++#endif
++#ifndef __CYGWIN__
+ #include <syscall.h>
++#endif
++#if defined(__APPLE__) || defined(__CYGWIN__)
 +#include <signal.h>
 +#include <pthread.h>
-+#else
- #include <syscall.h>
 +#endif
  #include <random>
  #include <string>
@@ -99,12 +104,14 @@ index 0dc6189..66f2f9d 100644
  #include <base.hpp>
  
 diff --git a/native/src/base/selinux.cpp b/native/src/base/selinux.cpp
-index dcf3cb0..269d35f 100644
+index dcf3cb0..e404984 100644
 --- a/native/src/base/selinux.cpp
 +++ b/native/src/base/selinux.cpp
-@@ -1,6 +1,11 @@
+@@ -1,6 +1,13 @@
  #include <unistd.h>
++#ifndef __CYGWIN__
  #include <sys/syscall.h>
++#endif
  #include <sys/xattr.h>
 +#ifdef __linux__
 +#include <linux/xattr.h>
@@ -115,7 +122,7 @@ index dcf3cb0..269d35f 100644
  #include <base.hpp>
  #include <selinux.hpp>
 diff --git a/native/src/base/stream.cpp b/native/src/base/stream.cpp
-index dcde87e..8411512 100644
+index b7a775c..9a77dde 100644
 --- a/native/src/base/stream.cpp
 +++ b/native/src/base/stream.cpp
 @@ -1,5 +1,8 @@
@@ -128,7 +135,7 @@ index dcde87e..8411512 100644
  #include <base.hpp>
  #include <stream.hpp>
 diff --git a/native/src/base/xwrap.hpp b/native/src/base/xwrap.hpp
-index 8c4c1d1..71be943 100644
+index ce7a6dd..b4ba2c0 100644
 --- a/native/src/base/xwrap.hpp
 +++ b/native/src/base/xwrap.hpp
 @@ -4,6 +4,9 @@
@@ -139,9 +146,9 @@ index 8c4c1d1..71be943 100644
 +#include <sys/socket.h>
 +#include <sys/types.h>
  
- #include <base-rs.hpp>
+ extern "C" {
  
-@@ -52,7 +54,9 @@ int xmkdir(const char *pathname, mode_t mode);
+@@ -52,7 +55,9 @@ int xmkdir(const char *pathname, mode_t mode);
  int xmkdirs(const char *pathname, mode_t mode);
  int xmkdirat(int dirfd, const char *pathname, mode_t mode);
  void *xmmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);
@@ -152,5 +159,5 @@ index 8c4c1d1..71be943 100644
  int xpoll(pollfd *fds, nfds_t nfds, int timeout);
  ssize_t xrealpath(const char * __restrict__ path, char * __restrict__ buf, size_t bufsiz);
 -- 
-2.40.0
+2.41.0
 

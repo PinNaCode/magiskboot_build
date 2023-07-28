@@ -19,10 +19,10 @@ index e748b84..9752f1e 100644
 -use libc::{c_char, c_uint, dirent, mode_t, EEXIST, ENOENT, O_CLOEXEC, O_PATH, O_RDONLY, O_RDWR};
 +use libc::{c_char, c_int, c_uint, dirent, mode_t, EEXIST, ENOENT, O_CLOEXEC, O_RDONLY, O_RDWR};
 +
-+#[cfg(any(target_os = "linux", target_os = "android"))]
++#[cfg(any(target_os = "linux", target_os = "android", target_os = "cygwin"))]
 +use libc::O_PATH;
 +
-+#[cfg(not(any(target_os = "linux", target_os = "android")))]
++#[cfg(not(any(target_os = "linux", target_os = "android", target_os = "cygwin")))]
 +const O_PATH: c_int = 0x0;
  
  use crate::{bfmt_cstr, copy_cstr, cstr, errno, error, FlatData, LibcReturn, Utf8CStr};

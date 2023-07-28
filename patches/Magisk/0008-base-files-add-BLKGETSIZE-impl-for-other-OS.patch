@@ -1,7 +1,7 @@
 From 350222e64d496615ece40de309b6c9ba9e6b7740 Mon Sep 17 00:00:00 2001
 From: Ookiineko <chiisaineko@protonmail.com>
 Date: Mon, 20 Mar 2023 01:42:32 +0800
-Subject: [PATCH 2/6] base: files: add BLKGETSIZE for macOS
+Subject: [PATCH 2/6] base: files: add BLKGETSIZE impl for other OS
 
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
@@ -22,7 +22,7 @@ index f107c34..465d63a 100644
  pub fn __open_fd_impl(path: &Utf8CStr, flags: i32, mode: mode_t) -> io::Result<OwnedFd> {
      unsafe {
          let fd = libc::open(path.as_ptr(), flags, mode as c_uint).check_os_err()?;
-@@ -483,20 +483,41 @@ pub(crate) fn map_file(path: &Utf8CStr, rw: bool) -> io::Result<&'static mut [u8
+@@ -483,20 +485,43 @@ pub(crate) fn map_file(path: &Utf8CStr, rw: bool) -> io::Result<&'static mut [u8
          fn ioctl(fd: RawFd, request: u32, ...) -> i32;
      }
  
@@ -41,6 +41,8 @@ index f107c34..465d63a 100644
 +
 +            #[cfg(target_pointer_width = "32")]
 +            const BLKGETSIZE64: u32 = 0x80041272;
++        } else if #[cfg(target_os = "cygwin")] {
++            const BLKGETSIZE64: u32 = 0x00041268;
 +        } else {
 +            compile_error!("Unknown BLKGETSIZE impl on this platform");
 +        }
@@ -61,7 +63,7 @@ index f107c34..465d63a 100644
 +                unsafe { ioctl(f.as_raw_fd(), DKIOCGETBLOCKSIZE, &mut sz) }.check_os_err()?;
 +                unsafe { ioctl(f.as_raw_fd(), DKIOCGETBLOCKCOUNT, &mut cnt) }.check_os_err()?;
 +                (sz as u64) * cnt
-+            } else if #[cfg(any(target_os = "linux", target_os = "android"))] {
++            } else if #[cfg(any(target_os = "linux", target_os = "android", target_os = "cygwin"))] {
 +                let mut sz = 0_u64;
 +                unsafe { ioctl(f.as_raw_fd(), BLKGETSIZE64, &mut sz) }.check_os_err()?;
 +                sz
@@ -76,7 +78,7 @@ diff --git a/native/src/base/files.hpp b/native/src/base/files.hpp
 index 0d8d11c..3fda87d 100644
 --- a/native/src/base/files.hpp
 +++ b/native/src/base/files.hpp
-@@ -43,8 +43,15 @@ struct mount_info {
+@@ -43,8 +43,17 @@ struct mount_info {
  };
  
  struct mmap_data : public byte_data {
@@ -86,6 +88,8 @@ index 0d8d11c..3fda87d 100644
 +#elif defined(__APPLE__)
 +    static_assert(DKIOCGETBLOCKSIZE == 0x40046418 &&
 +                  DKIOCGETBLOCKCOUNT == 0x40086419);
++#elif defined(__CYGWIN__)
++    static_assert(BLKGETSIZE64 == 0x00041268);
 +#else
 +#error "Unknown BLKGETSIZE impl on this platform"
 +#endif

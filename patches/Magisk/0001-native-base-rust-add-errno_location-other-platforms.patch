@@ -27,7 +27,7 @@ index 521acb6..569cf88 100644
  pub fn errno() -> &'static mut i32 {
 -    unsafe { &mut *libc::__errno() }
 +    cfg_if! {
-+        if #[cfg(target_os = "android")] {
++        if #[cfg(any(target_os = "android", target_os = "cygwin"))] {
 +            unsafe { &mut *libc::__errno() }
 +        } else if #[cfg(target_os = "linux")] {
 +            unsafe { &mut *libc::__errno_location() }

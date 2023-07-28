@@ -112,6 +112,27 @@ apt install build-essentials liblzma liblz4 libbz2 dtc zlib pkg-config \
             clang lld rustc-nightly rust-src-nightly cmake ninja libbsd
 ````
 
+#### Windows / MinGW
+
+This project depends on many POSIX APIs, therefore it's probably hard to be directly ported to Windows or MinGW.\
+And even if you can, it will be extremely painful to maintain if the changes are not contributed to the upstream (while it's unlikely you can for now).
+
+So try to run it in an virtual machine or WSL with a Linux distribution. Or, try the Cygwin port below.
+
+There is an old MinGW port for magiskboot too:
+
+[svoboda18/magiskboot](https://github.com/svoboda18/magiskboot.git): a dirty Windows port with custom GNU Make based build system
+
+#### Cygwin (WIP)
+
+To build for Cygwin, you need to compile a nightly Rust toolchain from source, for more info: [Cygwin Rust porting](https://gist.github.com/ookiineko/057eb3a91825313caeaf6d793a33b0b2)
+
+Currently Cygwin Rust has no host tools support, so you have patch the CMakeLists and make it cross-compile for Cygwin.
+
+NOTE: This project doesn't support cross-compiling for now, but it should be easy to get patched to support that.
+
+You will also need to compile the LLVM/Clang from source to add Cygwin target, see: [my unofficial cygports](https://github.com/orgs/ookiineko-cygpkg/repositories)
+
 ### Build & Install
 
 ````shell
@@ -162,7 +183,3 @@ you should be able to find your source package under the `build` folder
 [rustup]: https://rustup.rs/
 [Homebrew]: https://brew.sh/
 [Libcxx]: https://libcxx.llvm.org/
-
-### See also
-
-[svoboda18/magiskboot](https://github.com/svoboda18/magiskboot.git): a dirty Windows port with custom GNU Make based build system
