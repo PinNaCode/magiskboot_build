@@ -96,6 +96,14 @@ rustup component add rust-src  # install STD library source
 
 #### Termux
 
+Building on Termux is no longer supported.
+
+while it's still possible, you will need to compile a nightly Rust toolchain from source, by yourself.
+
+NOTE: the one provided by `tur-repo` is outdated and no longer work in the latest Termux distribution.
+
+Recommend directly using `libmagiskboot.so` extracted from the Magisk APK, it's just a static ELF program.
+
 ````shell
 apt update
 apt upgrade  # upgrade all existing packages (optional)
