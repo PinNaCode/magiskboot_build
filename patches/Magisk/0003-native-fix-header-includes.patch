@@ -131,12 +131,13 @@ diff --git a/native/src/base/xwrap.hpp b/native/src/base/xwrap.hpp
 index 8c4c1d1..71be943 100644
 --- a/native/src/base/xwrap.hpp
 +++ b/native/src/base/xwrap.hpp
-@@ -4,6 +4,8 @@
+@@ -4,6 +4,9 @@
  #include <stdio.h>
  #include <poll.h>
  #include <fcntl.h>
 +#include <unistd.h>
 +#include <sys/socket.h>
++#include <sys/types.h>
  
  #include <base-rs.hpp>
  

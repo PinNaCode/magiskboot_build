@@ -9,11 +9,25 @@ if (NOT APPLE)
     set(CARGO_FLAGS ${CARGO_FLAGS} -Z build-std=std,panic_abort -Z build-std-features=panic_immediate_abort)
 endif()
 
+set(SHOULD_DEFINE_STUBS 0)
+
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     set(CXXBRIDGE_GEN_TARGET_OS "linux")
+    include(CheckCSourceCompiles)
+    check_c_source_compiles("
+        #define _GNU_SOURCE
+        #include <features.h>
+        #ifndef __USE_GNU
+            #error System is not using Glibc
+        #endif
+        int main() { return 0; }" LINUX_IS_USING_GLIBC)
+    if (NOT LINUX_IS_USING_GLIBC)
+        set(SHOULD_DEFINE_STUBS 1)
+    endif()
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Android")
     set(CXXBRIDGE_GEN_TARGET_OS "android")
 elseif (APPLE)
+    set(SHOULD_DEFINE_STUBS 1)
     find_program(HOMEBREW_EXECUTABLE brew REQUIRED)
     execute_process(
         COMMAND ${HOMEBREW_EXECUTABLE} --prefix
@@ -42,11 +56,13 @@ elseif (APPLE)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_DARWIN_C_SOURCE -D__DARWIN_C_LEVEL=__DARWIN_C_FULL")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_DARWIN_C_SOURCE -D__DARWIN_C_LEVEL=__DARWIN_C_FULL")
 
-    add_compile_definitions(off64_t=off_t)
-    add_compile_definitions(lseek64=lseek)
-    add_compile_definitions(ftruncate64=ftruncate)
-
     set(CXXBRIDGE_GEN_TARGET_OS "darwin")
 else()
     message(WARNING "Unsupported platform: ${CMAKE_SYSTEM_NAME}")
+endif()
+
+if(SHOULD_DEFINE_STUBS)
+    add_compile_definitions(off64_t=off_t)
+    add_compile_definitions(lseek64=lseek)
+    add_compile_definitions(ftruncate64=ftruncate)
 endif()
