@@ -26,6 +26,7 @@ for build-time dependencies:
 4. [Rust][Rust] (nightly)
 5. [Cargo][Cargo]
 6. [CMake][CMake]
+7. [Libc++][Libcxx]
 
 for Linux systems, please install [libbsd][libbsd] as well
 
@@ -40,9 +41,9 @@ install nightly Rust via [rustup][rustup] first
 ````shell
 sudo apt update
 sudo apt upgrade  # upgrade all existing packages (optional)
-# replace clang-15 with clang if your Ubuntu is too old, do the same for lld if you want to use it
+# replace clang-15, libc++-15-dev with clang and libc++-dev if your Ubuntu is too old, do the same for lld if you want to use it
 sudo apt install build-essential lzma-dev liblzma-dev liblz4-dev libbz2-dev libfdt-dev \
-                 zlib1g-dev pkgconf clang-15 cmake ninja-build libbsd-dev  # optional: lld-15
+                 zlib1g-dev pkgconf clang-15 libc++-15-dev cmake ninja-build libbsd-dev  # optional: lld-15
 rustup component add rust-src  # install STD library source
 # the following cmds are only for Ubuntu jammy:
 mkdir ~/.bin
@@ -79,7 +80,7 @@ install nightly Rust via [rustup][rustup] (can be installed with `apk`) first
 sudo apk update
 sudo apk upgrade  # upgrade all existing packages (recommended)
 sudo apk add build-base xz-dev lz4-dev bzip2-dev dtc-dev zlib-dev \
-        pkgconf clang cmake samurai libbsd-dev  # optional: lld
+        pkgconf clang libc++-dev cmake samurai libbsd-dev  # optional: lld
 rustup component add rust-src  # install STD library source
 ````
 
@@ -89,7 +90,7 @@ install nightly Rust via [rustup][rustup] (can be installed with `pacman`) first
 
 ````shell
 sudo pacman -Su  # sync and upgrade all existing packages
-sudo pacman -S --needed base-dev xz lz4 bzip2 dtc zlib pkgconf clang cmake ninja libbsd  # optional: lld
+sudo pacman -S --needed base-dev xz lz4 bzip2 dtc zlib pkgconf clang libc++ cmake ninja libbsd  # optional: lld
 rustup component add rust-src  # install STD library source
 ````
 
@@ -152,6 +153,7 @@ you should be able to find your source package under the `build` folder
 [libbsd]: https://libbsd.freedesktop.org/
 [rustup]: https://rustup.rs/
 [Homebrew]: https://brew.sh/
+[Libcxx]: https://libcxx.llvm.org/
 
 ### See also
 

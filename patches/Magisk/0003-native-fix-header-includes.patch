@@ -20,7 +20,7 @@ diff --git a/native/src/base/files.cpp b/native/src/base/files.cpp
 index 4012d2e..de7e46c 100644
 --- a/native/src/base/files.cpp
 +++ b/native/src/base/files.cpp
-@@ -1,10 +1,17 @@
+@@ -1,7 +1,13 @@
  #include <sys/mman.h>
 +#ifdef __linux__
  #include <sys/sendfile.h>
@@ -34,19 +34,13 @@ index 4012d2e..de7e46c 100644
  #include <fcntl.h>
  #include <unistd.h>
  #include <libgen.h>
-+#include <cstring>
- 
- #include <base.hpp>
- #include <selinux.hpp>
 diff --git a/native/src/base/files.hpp b/native/src/base/files.hpp
 index ea27cfd..9d62e69 100644
 --- a/native/src/base/files.hpp
 +++ b/native/src/base/files.hpp
-@@ -5,8 +5,11 @@
- #include <string_view>
+@@ -5,7 +5,9 @@
  #include <string>
  #include <vector>
-+#include <memory>
  
 +#ifdef __linux__
  #include <linux/fs.h>
@@ -73,7 +67,7 @@ diff --git a/native/src/base/misc.cpp b/native/src/base/misc.cpp
 index 0dc6189..66f2f9d 100644
 --- a/native/src/base/misc.cpp
 +++ b/native/src/base/misc.cpp
-@@ -1,13 +1,29 @@
+@@ -1,13 +1,28 @@
  #include <sys/types.h>
  #include <sys/wait.h>
 +#ifdef __linux__
@@ -96,30 +90,17 @@ index 0dc6189..66f2f9d 100644
 +#endif
  #include <random>
  #include <string>
-+#include <cstring>
 +#if !defined(__ANDROID__) && !defined(__APPLE__)
 +#include <bsd/string.h>
 +#endif
  
  #include <base.hpp>
  
-diff --git a/native/src/base/misc.hpp b/native/src/base/misc.hpp
-index c193a2c..48e6082 100644
---- a/native/src/base/misc.hpp
-+++ b/native/src/base/misc.hpp
-@@ -7,6 +7,7 @@
- #include <bitset>
- #include <random>
- #include <cxx.h>
-+#include <memory>
- 
- #include "xwrap.hpp"
- 
 diff --git a/native/src/base/selinux.cpp b/native/src/base/selinux.cpp
 index dcf3cb0..269d35f 100644
 --- a/native/src/base/selinux.cpp
 +++ b/native/src/base/selinux.cpp
-@@ -1,6 +1,12 @@
+@@ -1,6 +1,11 @@
  #include <unistd.h>
  #include <sys/syscall.h>
  #include <sys/xattr.h>
@@ -128,7 +109,6 @@ index dcf3cb0..269d35f 100644
 +#else
 +#define XATTR_NAME_SELINUX	"security.selinux"
 +#endif
-+#include <cstring>
  
  #include <base.hpp>
  #include <selinux.hpp>
@@ -136,10 +116,9 @@ diff --git a/native/src/base/stream.cpp b/native/src/base/stream.cpp
 index dcde87e..8411512 100644
 --- a/native/src/base/stream.cpp
 +++ b/native/src/base/stream.cpp
-@@ -1,5 +1,9 @@
+@@ -1,5 +1,8 @@
  #include <unistd.h>
  #include <cstddef>
-+#include <cstring>
 +#if !defined(__ANDROID__) && !defined(__APPLE__)
 +#include <bsd/stdio.h>
 +#endif
@@ -159,7 +138,7 @@ index 8c4c1d1..71be943 100644
  
  #include <base-rs.hpp>
  
-@@ -56,7 +58,9 @@ int xmkdir(const char *pathname, mode_t mode);
+@@ -52,7 +54,9 @@ int xmkdir(const char *pathname, mode_t mode);
  int xmkdirs(const char *pathname, mode_t mode);
  int xmkdirat(int dirfd, const char *pathname, mode_t mode);
  void *xmmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);
@@ -169,19 +148,6 @@ index 8c4c1d1..71be943 100644
  pid_t xfork();
  int xpoll(pollfd *fds, nfds_t nfds, int timeout);
  ssize_t xrealpath(const char * __restrict__ path, char * __restrict__ buf, size_t bufsiz);
- 
-diff --git a/native/src/boot/format.hpp b/native/src/boot/format.hpp
-index 5901938..ae14f4d 100644
---- a/native/src/boot/format.hpp
-+++ b/native/src/boot/format.hpp
-@@ -1,6 +1,7 @@
- #pragma once
- 
- #include <string_view>
-+#include <cstring>
- 
- typedef enum {
-     UNKNOWN,
 -- 
 2.40.0
 
