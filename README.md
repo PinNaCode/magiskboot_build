@@ -22,7 +22,7 @@ for build-time dependencies:
 
 1. [pkg-config][pkg-config]
 2. [Clang][Clang]
-3. [LLD][LLD] (optional)
+3. [LLD][LLD] (optional on Linux)
 4. [Rust][Rust] (nightly)
 5. [Cargo][Cargo]
 6. [CMake][CMake]
@@ -101,7 +101,7 @@ apt update
 apt upgrade  # upgrade all existing packages (optional)
 apt install tur-repo  # for nightly Rust package
 apt install build-essentials liblzma liblz4 libbz2 dtc zlib pkg-config \
-            clang rustc-nightly rust-src-nightly cmake ninja libbsd  # optional: lld
+            clang lld rustc-nightly rust-src-nightly cmake ninja libbsd
 ````
 
 ### Build & Install
@@ -114,7 +114,7 @@ cmake --build build -j $(nproc)  # build
 sudo cmake --install install
 ````
 
-#### LTO
+#### LTO on Linux
 
 If you want to perform LTO at the final link time, pass `-DUSE_LTO_LINKER_PLUGIN=ON` to CMake during configuring.
 

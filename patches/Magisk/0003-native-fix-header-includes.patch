@@ -38,12 +38,14 @@ diff --git a/native/src/base/files.hpp b/native/src/base/files.hpp
 index ea27cfd..9d62e69 100644
 --- a/native/src/base/files.hpp
 +++ b/native/src/base/files.hpp
-@@ -5,7 +5,9 @@
+@@ -5,7 +5,11 @@
  #include <string>
  #include <vector>
  
 +#ifdef __linux__
  #include <linux/fs.h>
++#elif defined(__APPLE__)
++#include <sys/disk.h>
 +#endif
  #include "misc.hpp"
  
