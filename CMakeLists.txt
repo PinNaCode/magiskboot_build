@@ -10,8 +10,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fuse-ld=lld -Wno-unused-command-line-argument")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=lld -Wno-unused-command-line-argument")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -fomit-frame-pointer -flto")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fomit-frame-pointer -flto")
 set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -fomit-frame-pointer -flto")
@@ -21,6 +19,16 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -fomit-frame-point
 # This helps to build vendor projects with or without any patching. Also if any
 # files are changed in vendor projects those can be retained with this option.
 option(PATCH_VENDOR_PROJECTS "Patch vendor projects using patches directory" ON)
+
+option(USE_LTO_LINKER_PLUGIN "Deley LTO to linking time (require linking with LLD)" OFF)
+
+if (USE_LTO_LINKER_PLUGIN)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fuse-ld=lld -Wno-unused-command-line-argument")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=lld -Wno-unused-command-line-argument")
+set(RUSTFLAGS -Clinker-plugin-lto\ -Cllvm-args=-opaque-pointers)
+else()
+set(RUSTFLAGS -Cllvm-args=-opaque-pointers)
+endif()
 
 add_compile_options(-U_FORTIFY_SOURCE)
 
