@@ -35,7 +35,7 @@ index f107c34..465d63a 100644
 +        if #[cfg(target_vendor = "apple")] {
 +            const DKIOCGETBLOCKSIZE: u32 = 0x40046418;
 +            const DKIOCGETBLOCKCOUNT: u32 = 0x40086419;
-+        } else if #[cfg(target_os = "linux")] {
++        } else if #[cfg(any(target_os = "linux", target_os = "android"))] {
 +            #[cfg(target_pointer_width = "64")]
 +            const BLKGETSIZE64: u32 = 0x80081272;
 +
@@ -61,7 +61,7 @@ index f107c34..465d63a 100644
 +                unsafe { ioctl(f.as_raw_fd(), DKIOCGETBLOCKSIZE, &mut sz) }.check_os_err()?;
 +                unsafe { ioctl(f.as_raw_fd(), DKIOCGETBLOCKCOUNT, &mut cnt) }.check_os_err()?;
 +                (sz as u64) * cnt
-+            } else if #[cfg(target_os = "linux")] {
++            } else if #[cfg(any(target_os = "linux", target_os = "android"))] {
 +                let mut sz = 0_u64;
 +                unsafe { ioctl(f.as_raw_fd(), BLKGETSIZE64, &mut sz) }.check_os_err()?;
 +                sz
