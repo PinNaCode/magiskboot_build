@@ -83,7 +83,7 @@ index 0d8d11c..3fda87d 100644
 +#ifdef __linux__
      static_assert((sizeof(void *) == 8 && BLKGETSIZE64 == 0x80081272) ||
                    (sizeof(void *) == 4 && BLKGETSIZE64 == 0x80041272));
-+#elif __APPLE__
++#elif defined(__APPLE__)
 +    static_assert(DKIOCGETBLOCKSIZE == 0x40046418 &&
 +                  DKIOCGETBLOCKCOUNT == 0x40086419);
 +#else
