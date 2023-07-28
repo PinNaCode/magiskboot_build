@@ -22,7 +22,7 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -fomit-frame-point
 # files are changed in vendor projects those can be retained with this option.
 option(PATCH_VENDOR_PROJECTS "Patch vendor projects using patches directory" ON)
 
-add_compile_definitions(_FORTIFY_SOURCE=2)
+add_compile_options(-U_FORTIFY_SOURCE)
 
 include(CMakeLists.compat.txt)
 include(CMakeLists.android.txt)
