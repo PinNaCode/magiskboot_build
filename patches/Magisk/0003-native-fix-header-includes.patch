@@ -94,7 +94,7 @@ index 313d136..f0188b5 100644
 +#include <crt_externs.h>
 +#define environ (*_NSGetEnviron())
 +#endif
-+#ifndef __CYGWIN__
++#if !defined(__CYGWIN__) && !defined(__APPLE__)
  #include <syscall.h>
 +#endif
 +#if defined(__APPLE__) || defined(__CYGWIN__)
