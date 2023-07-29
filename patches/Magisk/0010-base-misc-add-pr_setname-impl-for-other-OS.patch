@@ -1,7 +1,7 @@
 From c7ecebf8e00579d5848a889ab5584ecc1f24857a Mon Sep 17 00:00:00 2001
 From: Ookiineko <chiisaineko@protonmail.com>
 Date: Mon, 20 Mar 2023 01:46:07 +0800
-Subject: [PATCH 4/6] base: misc: add pr_setname impl for macOS
+Subject: [PATCH 4/6] base: misc: add pr_setname impl for other OS
 
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
