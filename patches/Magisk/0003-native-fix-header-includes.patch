@@ -18,7 +18,7 @@ diff --git a/native/src/base/files.cpp b/native/src/base/files.cpp
 index 6829de2..8aef651 100644
 --- a/native/src/base/files.cpp
 +++ b/native/src/base/files.cpp
-@@ -1,7 +1,15 @@
+@@ -1,10 +1,21 @@
  #include <sys/mman.h>
 +#ifdef __linux__
  #include <sys/sendfile.h>
@@ -34,6 +34,12 @@ index 6829de2..8aef651 100644
  #include <fcntl.h>
  #include <unistd.h>
  #include <libgen.h>
++#ifndef __linux__
++#include <sendfile_compat.h>
++#endif
+ 
+ #include <base.hpp>
+ #include <selinux.hpp>
 diff --git a/native/src/base/files.hpp b/native/src/base/files.hpp
 index 0d8d11c..c4bb952 100644
 --- a/native/src/base/files.hpp

@@ -14,94 +14,26 @@ diff --git a/native/src/base/files.cpp b/native/src/base/files.cpp
 index de7e46c..8ee3c7f 100644
 --- a/native/src/base/files.cpp
 +++ b/native/src/base/files.cpp
-@@ -136,7 +136,45 @@ void cp_afc(const char *src, const char *dest) {
+@@ -136,7 +136,11 @@ void cp_afc(const char *src, const char *dest) {
          if (S_ISREG(a.st.st_mode)) {
              int sfd = xopen(src, O_RDONLY | O_CLOEXEC);
              int dfd = xopen(dest, O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0);
 +#ifdef __linux__
              xsendfile(dfd, sfd, nullptr, a.st.st_size);
 +#else
-+            {
-+		#define sf_buf_size	8192
-+
-+                char sf_buf[sf_buf_size];
-+                size_t n_read, n_write, n_write_new;
-+                off_t n_left = a.st.st_size;
-+
-+                while (n_left) {
-+                    n_read = read(sfd, &sf_buf, (n_left < sf_buf_size) ? n_left : sf_buf_size);
-+                    if (n_read == 0)
-+                        break;
-+                    if (n_read < 0) {
-+                        perror("sendfile");
-+                        break;
-+                    }
-+                    n_write = write(dfd, &sf_buf, n_read);
-+                    while (n_write < n_read) {
-+                        assert(n_write != 0);
-+                        if (n_write < 0) {
-+                            perror("sendfile");
-+                            goto sendfile_end;
-+                        }
-+                        n_write_new = write(dfd, (&sf_buf) + n_write, n_read - n_write);
-+                        assert(n_write_new != 0);
-+                        if (n_write_new < 0) {
-+                            perror("sendfile");
-+                            goto sendfile_end;
-+                        }
-+                        n_write += n_write_new;
-+                    }
-+                    n_left -= n_write;
-+                }
-+sendfile_end:
-+                ;
-+            }
++            _sendfile_stub(dfd, sfd, a.st.st_size);
 +#endif
              close(sfd);
              close(dfd);
          } else if (S_ISLNK(a.st.st_mode)) {
-@@ -166,7 +204,45 @@ void clone_dir(int src, int dest) {
+@@ -166,7 +204,11 @@ void clone_dir(int src, int dest) {
              case DT_REG: {
                  int sfd = xopenat(src, entry->d_name, O_RDONLY | O_CLOEXEC);
                  int dfd = xopenat(dest, entry->d_name, O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0);
 +#ifdef __linux__
                  xsendfile(dfd, sfd, nullptr, a.st.st_size);
 +#else
-+                {
-+                    #define sf_buf_size     8192
-+
-+                    char sf_buf[sf_buf_size];
-+                    size_t n_read, n_write, n_write_new;
-+                    off_t n_left = a.st.st_size;
-+
-+                    while (n_left) {
-+                        n_read = read(sfd, &sf_buf, (n_left < sf_buf_size) ? n_left : sf_buf_size);
-+                        if (n_read == 0)
-+                            break;
-+                        if (n_read < 0) {
-+                            perror("sendfile");
-+                            break;
-+                        }
-+                        n_write = write(dfd, &sf_buf, n_read);
-+                        while (n_write < n_read) {
-+                            assert(n_write != 0);
-+                            if (n_write < 0) {
-+                                perror("sendfile");
-+                                goto sendfile_end;
-+                            }
-+                            n_write_new = write(dfd, (&sf_buf) + n_write, n_read - n_write);
-+                            assert(n_write_new != 0);
-+                            if (n_write_new < 0) {
-+                                perror("sendfile");
-+                                goto sendfile_end;
-+                            }
-+                            n_write += n_write_new;
-+                        }
-+                        n_left -= n_write;
-+                    }
-+sendfile_end:
-+                    ;
-+                }
++                _sendfile_stub(dfd, sfd, a.st.st_size);
 +#endif
                  fsetattr(dfd, &a);
                  close(dfd);
@@ -110,48 +42,24 @@ diff --git a/native/src/boot/bootimg.cpp b/native/src/boot/bootimg.cpp
 index 5b84e23..c87500a 100644
 --- a/native/src/boot/bootimg.cpp
 +++ b/native/src/boot/bootimg.cpp
-@@ -44,7 +44,45 @@ static size_t restore(int fd, const char *filename) {
+@@ -2,6 +2,9 @@
+ #include <memory>
+ 
+ #include <libfdt.h>
++#ifndef __linux__
++#include <sendfile_compat.h>
++#endif
+ #include <base.hpp>
+ 
+ #include "boot-rs.hpp"
+@@ -44,7 +44,11 @@ static size_t restore(int fd, const char *filename) {
      int ifd = xopen(filename, O_RDONLY);
      size_t size = lseek(ifd, 0, SEEK_END);
      lseek(ifd, 0, SEEK_SET);
 +#ifdef __linux__
      xsendfile(fd, ifd, nullptr, size);
 +#else
-+    {
-+        #define sf_buf_size     8192
-+
-+        char sf_buf[sf_buf_size];
-+        size_t n_read, n_write, n_write_new;
-+        size_t n_left = size;
-+
-+        while (n_left) {
-+            n_read = read(ifd, &sf_buf, (n_left < sf_buf_size) ? n_left : sf_buf_size);
-+            if (n_read == 0)
-+                break;
-+            if (n_read < 0) {
-+                perror("sendfile");
-+                break;
-+            }
-+            n_write = write(fd, &sf_buf, n_read);
-+            while (n_write < n_read) {
-+                assert(n_write != 0);
-+                if (n_write < 0) {
-+                    perror("sendfile");
-+                    goto sendfile_end;
-+                }
-+                n_write_new = write(fd, (&sf_buf) + n_write, n_read - n_write);
-+                assert(n_write_new != 0);
-+                if (n_write_new < 0) {
-+                    perror("sendfile");
-+                    goto sendfile_end;
-+                }
-+                n_write += n_write_new;
-+            }
-+            n_left -= n_write;
-+        }
-+sendfile_end:
-+        ;
-+    }
++    _sendfile_stub(fd, ifd, size);
 +#endif
      close(ifd);
      return size;

@@ -54,6 +54,7 @@ add_compile_options(-Wall)
 
 include(CMakeLists.rust.txt)
 include(CMakeLists.magiskboot.txt)
+include(CMakeLists.stub.txt)
 include(CMakeLists.lib.txt)
 include(CMakeLists.patch.txt)
 
