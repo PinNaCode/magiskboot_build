@@ -1,0 +1,40 @@
+From 37bac5dd3e725d9f09a295766499b643d02b0c5c Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Sat, 29 Jul 2023 16:19:35 +0800
+Subject: [PATCH] handle funopen funcptr prototype diffs on Cygwin
+
+* unfortunately the stub is not available in Cygwin libbsd and idk why
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ native/src/base/stream.cpp | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/native/src/base/stream.cpp b/native/src/base/stream.cpp
+index 54923a2..3bccc58 100644
+--- a/native/src/base/stream.cpp
++++ b/native/src/base/stream.cpp
+@@ -9,12 +9,20 @@
+ 
+ using namespace std;
+ 
++#ifdef __CYGWIN__
++static int strm_read(void *v, char *buf, size_t len) {
++#else
+ static int strm_read(void *v, char *buf, int len) {
++#endif
+     auto strm = static_cast<channel *>(v);
+     return strm->read(buf, len);
+ }
+ 
++#ifdef __CYGWIN__
++static int strm_write(void *v, const char *buf, size_t len) {
++#else
+ static int strm_write(void *v, const char *buf, int len) {
++#endif
+     auto strm = static_cast<channel *>(v);
+     if (!strm->write(buf, len))
+         return -1;
+-- 
+2.41.0
+

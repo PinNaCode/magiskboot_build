@@ -1,0 +1,41 @@
+From 585833bb79b7cbb86a95e30d080132cfaa8c867e Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Sat, 29 Jul 2023 16:15:51 +0800
+Subject: [PATCH] fix cmsg_space to msg_controllen static_cast on Cygwin
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ cmsg.cpp | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/cmsg.cpp b/cmsg.cpp
+index aa36686..8e090f0 100644
+--- a/cmsg.cpp
++++ b/cmsg.cpp
+@@ -50,7 +50,11 @@ ssize_t SendFileDescriptorVector(borrowed_fd sockfd, const void* data, size_t le
+       .msg_iovlen = 1,
+       .msg_control = cmsg_buf,
+       // We can't cast to the actual type of the field, because it's different across platforms.
++#ifdef __CYGWIN__
++      .msg_controllen = static_cast<socklen_t>(cmsg_space),
++#else
+       .msg_controllen = static_cast<unsigned int>(cmsg_space),
++#endif
+       .msg_flags = 0,
+   };
+ 
+@@ -93,7 +97,11 @@ ssize_t ReceiveFileDescriptorVector(borrowed_fd sockfd, void* data, size_t len,
+       .msg_iovlen = 1,
+       .msg_control = cmsg_buf,
+       // We can't cast to the actual type of the field, because it's different across platforms.
++#ifdef __CYGWIN__
++      .msg_controllen = static_cast<socklen_t>(cmsg_space),
++#else
+       .msg_controllen = static_cast<unsigned int>(cmsg_space),
++#endif
+       .msg_flags = 0,
+   };
+ 
+-- 
+2.41.0
+

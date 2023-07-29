@@ -1,0 +1,26 @@
+From 9e32730427f4045158ff7a643b25ab3e7ba73b75 Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Sat, 29 Jul 2023 16:49:40 +0800
+Subject: [PATCH] Cygwin has getprogname
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ liblog/logger_write.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/liblog/logger_write.cpp b/liblog/logger_write.cpp
+index 7057a605..397ece1a 100644
+--- a/liblog/logger_write.cpp
++++ b/liblog/logger_write.cpp
+@@ -120,7 +120,7 @@ void __android_log_close() {
+ }
+ 
+ // BSD-based systems like Android/macOS have getprogname(). Others need us to provide one.
+-#if !defined(__APPLE__) && !defined(__BIONIC__)
++#if !defined(__APPLE__) && !defined(__BIONIC__) && !defined(__CYGWIN__)
+ static const char* getprogname() {
+ #ifdef _WIN32
+   static bool first = true;
+-- 
+2.41.0
+

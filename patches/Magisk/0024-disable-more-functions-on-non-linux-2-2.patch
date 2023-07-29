@@ -1,0 +1,64 @@
+From 90fd60db826362081ccd0802775faa0cd031e587 Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Sat, 29 Jul 2023 16:30:25 +0800
+Subject: [PATCH] disable more functions on non-linux (2/2)
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ native/src/base/misc.cpp  | 2 ++
+ native/src/base/misc.hpp  | 2 ++
+ native/src/base/xwrap.hpp | 2 ++
+ 3 files changed, 6 insertions(+)
+
+diff --git a/native/src/base/misc.cpp b/native/src/base/misc.cpp
+index fb7d7ca..903da92 100644
+--- a/native/src/base/misc.cpp
++++ b/native/src/base/misc.cpp
+@@ -270,6 +270,7 @@ uint32_t binary_gcd(uint32_t u, uint32_t v) {
+     return u << shift;
+ }
+ 
++#ifdef __linux__
+ int switch_mnt_ns(int pid) {
+     char mnt[32];
+     ssprintf(mnt, sizeof(mnt), "/proc/%d/ns/mnt", pid);
+@@ -283,6 +284,7 @@ int switch_mnt_ns(int pid) {
+     close(fd);
+     return ret;
+ }
++#endif
+ 
+ string &replace_all(string &str, string_view from, string_view to) {
+     size_t pos = 0;
+diff --git a/native/src/base/misc.hpp b/native/src/base/misc.hpp
+index ab94bc6..7d7d3e5 100644
+--- a/native/src/base/misc.hpp
++++ b/native/src/base/misc.hpp
+@@ -256,7 +256,9 @@ int fork_no_orphan();
+ void init_argv0(int argc, char **argv);
+ void set_nice_name(const char *name);
+ uint32_t binary_gcd(uint32_t u, uint32_t v);
++#ifdef __linux__
+ int switch_mnt_ns(int pid);
++#endif
+ std::string &replace_all(std::string &str, std::string_view from, std::string_view to);
+ std::vector<std::string> split(std::string_view s, std::string_view delims);
+ std::vector<std::string_view> split_view(std::string_view, std::string_view delims);
+diff --git a/native/src/base/xwrap.hpp b/native/src/base/xwrap.hpp
+index 863264d..40cd6bf 100644
+--- a/native/src/base/xwrap.hpp
++++ b/native/src/base/xwrap.hpp
+@@ -18,8 +18,10 @@ ssize_t xwrite(int fd, const void *buf, size_t count);
+ ssize_t xread(int fd, void *buf, size_t count);
+ ssize_t xxread(int fd, void *buf, size_t count);
+ off64_t xlseek64(int fd, off64_t offset, int whence);
++#ifdef __linux__
+ int xsetns(int fd, int nstype);
+ int xunshare(int flags);
++#endif
+ DIR *xopendir(const char *name);
+ DIR *xfdopendir(int fd);
+ dirent *xreaddir(DIR *dirp);
+-- 
+2.41.0
+
