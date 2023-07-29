@@ -9,6 +9,13 @@ if (NOT APPLE)
     set(CARGO_FLAGS ${CARGO_FLAGS} -Z build-std=std,panic_abort -Z build-std-features=panic_immediate_abort)
 endif()
 
+if (NOT CYGWIN)
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -flto")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -flto")
+    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -flto")
+    set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -flto")
+endif()
+
 set(SHOULD_DEFINE_STUBS 0)
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
