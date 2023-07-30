@@ -14,7 +14,7 @@ if(PATCH_VENDOR_PROJECTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/patches")
         if(patches)
 	    foreach(patch_filename ${patches})
 	            message(STATUS "Applying ${patch_filename} for: ${vendor_dir}")
-	            execute_process(COMMAND patch -p1 -i ${patch_filename}
+	            execute_process(COMMAND patch -p1 -i ${patch_filename} --no-backup-if-mismatch
 				    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/vendor/${vendor_dir}
 	                            RESULT_VARIABLE ret)
 	            if(NOT "${ret}" STREQUAL "0")
