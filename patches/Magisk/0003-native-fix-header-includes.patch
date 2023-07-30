@@ -77,7 +77,7 @@ diff --git a/native/src/base/misc.cpp b/native/src/base/misc.cpp
 index 313d136..f0188b5 100644
 --- a/native/src/base/misc.cpp
 +++ b/native/src/base/misc.cpp
-@@ -1,13 +1,31 @@
+@@ -1,13 +1,30 @@
  #include <sys/types.h>
  #include <sys/wait.h>
 +#ifdef __linux__
@@ -98,7 +98,6 @@ index 313d136..f0188b5 100644
  #include <syscall.h>
 +#endif
 +#if defined(__APPLE__) || defined(__CYGWIN__)
-+#include <signal.h>
 +#include <pthread.h>
 +#endif
  #include <random>
