@@ -20,7 +20,7 @@ index cf16b3b..c5bcfd7 100644
      prctl(PR_SET_NAME, name);
 +#elif defined(__APPLE__)
 +    pthread_setname_np(name);
-+#elif defined(__CYGWIN__)
++#elif defined(__CYGWIN__) || defined(_WIN32)
 +    pthread_setname_np(pthread_self(), name);
 +#else
 +#error unknown PR_SET_NAME impl on this platform

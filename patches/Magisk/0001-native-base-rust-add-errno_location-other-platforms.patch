@@ -12,9 +12,15 @@ diff --git a/native/src/base/misc.rs b/native/src/base/misc.rs
 index 521acb6..569cf88 100644
 --- a/native/src/base/misc.rs
 +++ b/native/src/base/misc.rs
-@@ -116,7 +118,17 @@ pub fn ptr_to_str<'a, T>(ptr: *const T) -> &'a str {
+@@ -115,8 +117,25 @@ pub fn ptr_to_str<'a, T>(ptr: *const T) -> &'a str {
+     }
  }
  
++#[cfg(all(target_os = "windows", target_env = "gnu"))]
++extern "cdecl" {
++    pub fn _errno() -> *mut libc::c_int;
++}
++
  pub fn errno() -> &'static mut i32 {
 -    unsafe { &mut *libc::__errno() }
 +    cfg_if::cfg_if! {
@@ -24,6 +30,8 @@ index 521acb6..569cf88 100644
 +            unsafe { &mut *libc::__errno_location() }
 +        } else if #[cfg(target_vendor = "apple")] {
 +            unsafe { &mut *libc::__error() }
++        } else if #[cfg(all(target_os = "windows", target_env = "gnu"))] {
++            unsafe { &mut *_errno() }
 +        } else {
 +            compile_error!("unknown errno location");
 +        }

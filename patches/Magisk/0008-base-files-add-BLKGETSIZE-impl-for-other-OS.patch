@@ -13,7 +13,7 @@ diff --git a/native/src/base/files.rs b/native/src/base/files.rs
 index f107c34..465d63a 100644
 --- a/native/src/base/files.rs
 +++ b/native/src/base/files.rs
-@@ -483,20 +485,43 @@ pub(crate) fn map_file(path: &Utf8CStr, rw: bool) -> io::Result<&'static mut [u8
+@@ -483,20 +485,47 @@ pub(crate) fn map_file(path: &Utf8CStr, rw: bool) -> io::Result<&'static mut [u8
          fn ioctl(fd: RawFd, request: u32, ...) -> i32;
      }
  
@@ -34,6 +34,8 @@ index f107c34..465d63a 100644
 +            const BLKGETSIZE64: u32 = 0x80041272;
 +        } else if #[cfg(target_os = "cygwin")] {
 +            const BLKGETSIZE64: u32 = 0x00041268;
++        } else if #[cfg(target_os = "windows")] {
++            // no-op
 +        } else {
 +            compile_error!("Unknown BLKGETSIZE impl on this platform");
 +        }
@@ -58,6 +60,8 @@ index f107c34..465d63a 100644
 +                let mut sz = 0_u64;
 +                unsafe { ioctl(f.as_raw_fd(), BLKGETSIZE64, &mut sz) }.check_os_err()?;
 +                sz
++            } else if #[cfg(target_os = "windows")] {
++                panic!("Unreachable code");
 +            } else {
 +                compile_error!("Unknown BLKGETSIZE impl on this platform");
 +            }
@@ -81,7 +85,7 @@ index 0d8d11c..3fda87d 100644
 +                  DKIOCGETBLOCKCOUNT == 0x40086419);
 +#elif defined(__CYGWIN__)
 +    static_assert(BLKGETSIZE64 == 0x00041268);
-+#else
++#elif !defined(_WIN32)
 +#error "Unknown BLKGETSIZE impl on this platform"
 +#endif
      ALLOW_MOVE_ONLY(mmap_data)

@@ -1,22 +1,23 @@
 From 18d027606fe53bbb25fc3faa9cd4c5593af4427d Mon Sep 17 00:00:00 2001
 From: Ookiineko <chiisaineko@protonmail.com>
 Date: Mon, 20 Mar 2023 03:51:40 +0800
-Subject: [PATCH] base: rust: add macOS fd_path impl
+Subject: [PATCH] base: rust: add fd_path impl for other OS
 
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
- native/src/base/files.rs | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ native/src/base/files.rs   | 17 +++++++++++++++++
+ native/src/base/Cargo.toml | 3  +++
+ 2 file changed, 20 insertions(+)
 
 diff --git a/native/src/base/files.rs b/native/src/base/files.rs
 index 892d375..25ed2e7 100644
 --- a/native/src/base/files.rs
 +++ b/native/src/base/files.rs
-@@ -45,12 +45,29 @@ pub fn readlink(path: &Utf8CStr, data: &mut [u8]) -> io::Result<usize> {
+@@ -45,12 +45,55 @@ pub fn readlink(path: &Utf8CStr, data: &mut [u8]) -> io::Result<usize> {
      Ok(r as usize)
  }
  
-+#[cfg(not(target_vendor = "apple"))]
++#[cfg(not(any(target_vendor = "apple", target_os = "windows")))]
  pub fn fd_path(fd: RawFd, buf: &mut [u8]) -> io::Result<usize> {
      let mut fd_buf = [0_u8; 40];
      let fd_path = bfmt_cstr!(&mut fd_buf, "/proc/self/fd/{}", fd);
@@ -39,9 +40,47 @@ index 892d375..25ed2e7 100644
 +    }
 +}
 +
++#[cfg(target_os = "windows")]
++use filepath::FilePath;
++
++#[cfg(target_os = "windows")]
++pub fn fd_path(fd: RawFd, buf: &mut [u8]) -> io::Result<usize> {
++    unsafe {
++        let file = File::from_raw_handle(fd);
++        let path = match file.path() {
++           Ok(p) => p,
++           Err(_) => {
++               return Err(io::Error::last_os_error())
++           }
++       };
++       let path_str = match path.to_str() {
++           Some(s) => s,
++           None => {
++               return Err(io::Error::last_os_error())
++           }
++       };
++       let bytes_to_copy = path_str.len().min(buf.len());
++       buf[..bytes_to_copy].copy_from_slice(&path_str.as_bytes()[..bytes_to_copy]);
++
++       Ok(bytes_to_copy)
++   }
++}
++
  // Inspired by https://android.googlesource.com/platform/bionic/+/master/libc/bionic/realpath.cpp
  pub fn realpath(path: &Utf8CStr, buf: &mut [u8]) -> io::Result<usize> {
      let fd = open_fd!(path, O_PATH | O_CLOEXEC)?;
--- 
+
+diff --git a/native/src/base/Cargo.toml b/native/src/base/Cargo.toml
+index bfb8e57..f89abca 100644
+--- a/native/src/base/Cargo.toml
++++ b/native/src/base/Cargo.toml
+@@ -15,3 +15,6 @@ libc = { workspace = true }
+ cfg-if = { workspace = true }
+ thiserror = { workspace = true }
+ argh = { workspace = true }
++
++[target.'cfg(target_os = "windows")'.dependencies]
++filepath = "*"
+--
 2.40.0
 

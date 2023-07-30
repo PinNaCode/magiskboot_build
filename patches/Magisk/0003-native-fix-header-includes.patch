@@ -27,7 +27,7 @@ index 6829de2..8aef651 100644
 +#elif defined(__APPLE__)
 +#include <sys/disk.h>
 +#endif
-+#if defined(__APPLE__) || defined(__CYGWIN__)
++#if defined(__APPLE__) || defined(__CYGWIN__) || defined(_WIN32)
 +#include <sys/types.h>
 +#endif
 +#include <sys/ioctl.h>
@@ -83,7 +83,7 @@ index 313d136..f0188b5 100644
 +#ifdef __linux__
  #include <sys/prctl.h>
  #include <sys/sysmacros.h>
-+#elif defined(__APPLE__) || defined(__CYGWIN__)
++#elif defined(__APPLE__) || defined(__CYGWIN__) || defined(_WIN32)
 +#include <sys/types.h>
 +#endif
  #include <fcntl.h>
@@ -94,10 +94,10 @@ index 313d136..f0188b5 100644
 +#include <crt_externs.h>
 +#define environ (*_NSGetEnviron())
 +#endif
-+#if !defined(__CYGWIN__) && !defined(__APPLE__)
++#if !defined(__CYGWIN__) && !defined(__APPLE__) && !defined(_WIN32)
  #include <syscall.h>
 +#endif
-+#if defined(__APPLE__) || defined(__CYGWIN__)
++#if defined(__APPLE__) || defined(__CYGWIN__) || defined(_WIN32)
 +#include <signal.h>
 +#include <pthread.h>
 +#endif
