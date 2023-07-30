@@ -114,14 +114,13 @@ apt install build-essentials liblzma liblz4 libbz2 dtc zlib pkg-config \
 
 #### Windows / MinGW
 
-This project depends on many POSIX APIs, therefore it's probably hard to be directly ported to Windows or MinGW.\
-And even if you can, it will be extremely painful to maintain if the changes are not contributed to the upstream (while it's unlikely you can for now).
+This project is currently not completely ported to Windows / MinGW, the effort for a MinGW port is ongoing.
 
-So try to run it in an virtual machine or WSL with a Linux distribution. Or, try the Cygwin port below.
-
-There is an old MinGW port for magiskboot too:
+There is an old MinGW port:
 
 [svoboda18/magiskboot](https://github.com/svoboda18/magiskboot.git): a dirty Windows port with custom GNU Make based build system
+
+Or you can try the Cygwin port below (it already kinda works).
 
 #### Cygwin (WIP)
 
