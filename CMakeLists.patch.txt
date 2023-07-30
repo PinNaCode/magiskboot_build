@@ -7,6 +7,9 @@ set(vendored_dirs
 
 # XXX: Consider using https://cmake.org/cmake/help/v3.0/module/ExternalProject.html
 if(PATCH_VENDOR_PROJECTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/patches")
+    if (WIN32)
+        execute_process(COMMAND git submodule foreach --recursive git config core.symlinks true)
+    endif()
     execute_process(COMMAND git submodule update --force --recursive)
     execute_process(COMMAND git submodule foreach --recursive git clean -fd)
     foreach(vendor_dir ${vendored_dirs})
