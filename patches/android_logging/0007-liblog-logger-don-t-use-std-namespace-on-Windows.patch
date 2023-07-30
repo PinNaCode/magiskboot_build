@@ -1,0 +1,32 @@
+From c1163f7c74113301e7a2a66de371e78e728c1c40 Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Mon, 20 Mar 2023 08:27:45 +0800
+Subject: [PATCH] liblog: logger: don't use std namespace on Windows
+
+- it causes std::byte to conflict with the one in MinGW headers
+  (when you include windows.h it will appear)
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ liblog/logger.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/liblog/logger.h b/liblog/logger.h
+index 4636173..bcf6e0f 100644
+--- a/liblog/logger.h
++++ b/liblog/logger.h
+@@ -18,7 +18,11 @@
+ 
+ #ifdef __cplusplus
+ #include <atomic>
++#ifdef _WIN32
++using std::atomic_int;
++#else
+ using namespace std;
++#endif
+ #else
+ #include <stdatomic.h>
+ #endif
+-- 
+2.40.0.windows.1
+
