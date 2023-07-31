@@ -5,28 +5,19 @@ Subject: [PATCH] native: base: rust: add errno_location other platforms
 
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
- native/src/base/misc.rs | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ native/src/base/misc.rs | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/native/src/base/misc.rs b/native/src/base/misc.rs
 index 521acb6..569cf88 100644
 --- a/native/src/base/misc.rs
 +++ b/native/src/base/misc.rs
-@@ -13,6 +13,8 @@ use thiserror::Error;
- 
- use crate::ffi;
- 
-+use cfg_if::cfg_if;
-+
- pub fn copy_str<T: AsRef<[u8]>>(dest: &mut [u8], src: T) -> usize {
-     let src = src.as_ref();
-     let len = min(src.len(), dest.len() - 1);
 @@ -116,7 +118,17 @@ pub fn ptr_to_str<'a, T>(ptr: *const T) -> &'a str {
  }
  
  pub fn errno() -> &'static mut i32 {
 -    unsafe { &mut *libc::__errno() }
-+    cfg_if! {
++    cfg_if::cfg_if! {
 +        if #[cfg(any(target_os = "android", target_os = "cygwin"))] {
 +            unsafe { &mut *libc::__errno() }
 +        } else if #[cfg(target_os = "linux")] {
