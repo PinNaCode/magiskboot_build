@@ -20,7 +20,7 @@ index dcf3cb0..412980a 100644
      int rc = syscall(__NR_getxattr, path, XATTR_NAME_SELINUX, buf, sizeof(buf) - 1);
 +#elif defined(__APPLE__)
 +    int rc = getxattr(path, XATTR_NAME_SELINUX, buf, sizeof(buf) - 1, 0, 0);
-+#elif defined(__CYGWIN__)
++#elif defined(__CYGWIN__) || defined(_WIN32)
 +    int rc = getxattr(path, XATTR_NAME_SELINUX, buf, sizeof(buf) - 1);
 +#else
 +#error Unknown getxattr impl on this platform
@@ -36,7 +36,7 @@ index dcf3cb0..412980a 100644
      int rc = syscall(__NR_lgetxattr, path, XATTR_NAME_SELINUX, buf, sizeof(buf) - 1);
 +#elif defined(__APPLE__)
 +    int rc = getxattr(path, XATTR_NAME_SELINUX, buf, sizeof(buf) - 1, 0, XATTR_NOFOLLOW);
-+#elif defined(__CYGWIN__)
++#elif defined(__CYGWIN__) || defined(_WIN32)
 +    int rc = lgetxattr(path, XATTR_NAME_SELINUX, buf, sizeof(buf) - 1);
 +#else
 +#error Unknown getxattr impl on this platform
@@ -52,7 +52,7 @@ index dcf3cb0..412980a 100644
      int rc = syscall(__NR_fgetxattr, fd, XATTR_NAME_SELINUX, buf, sizeof(buf) - 1);
 +#elif defined(__APPLE__)
 +    int rc = fgetxattr(fd, XATTR_NAME_SELINUX, buf, sizeof(buf) - 1, 0, 0);
-+#elif defined(__CYGWIN__)
++#elif defined(__CYGWIN__) || defined(_WIN32)
 +    int rc = fgetxattr(fd, XATTR_NAME_SELINUX, buf, sizeof(buf) - 1);
 +#else
 +#error Unknown getxattr impl on this platform
@@ -67,7 +67,7 @@ index dcf3cb0..412980a 100644
      return syscall(__NR_setxattr, path, XATTR_NAME_SELINUX, ctx, strlen(ctx) + 1, 0);
 +#elif defined(__APPLE__)
 +    return setxattr(path, XATTR_NAME_SELINUX, ctx, strlen(ctx) + 1, 0, 0);
-+#elif defined(__CYGWIN__)
++#elif defined(__CYGWIN__) || defined(_WIN32)
 +    return setxattr(path, XATTR_NAME_SELINUX, ctx, strlen(ctx) + 1, 0);
 +#else
 +#error Unknown getxattr impl on this platform
@@ -79,7 +79,7 @@ index dcf3cb0..412980a 100644
      return syscall(__NR_lsetxattr, path, XATTR_NAME_SELINUX, ctx, strlen(ctx) + 1, 0);
 +#elif defined(__APPLE__)
 +    return setxattr(path, XATTR_NAME_SELINUX, ctx, strlen(ctx) + 1, 0, XATTR_NOFOLLOW);
-+#elif defined(__CYGWIN__)
++#elif defined(__CYGWIN__) || defined(_WIN32)
 +    return lsetxattr(path, XATTR_NAME_SELINUX, ctx, strlen(ctx) + 1, 0);
 +#else
 +#error Unknown getxattr impl on this platform
@@ -91,7 +91,7 @@ index dcf3cb0..412980a 100644
      return syscall(__NR_fsetxattr, fd, XATTR_NAME_SELINUX, ctx, strlen(ctx) + 1, 0);
 +#elif defined(__APPLE__)
 +    return fsetxattr(fd, XATTR_NAME_SELINUX, ctx, strlen(ctx) + 1, 0, 0);
-+#elif defined(__CYGWIN__)
++#elif defined(__CYGWIN__) || defined(_WIN32)
 +    return fsetxattr(fd, XATTR_NAME_SELINUX, ctx, strlen(ctx) + 1, 0);
 +#else
 +#error Unknown getxattr impl on this platform

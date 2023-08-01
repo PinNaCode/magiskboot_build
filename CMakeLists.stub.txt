@@ -3,6 +3,20 @@ add_library(platform_stubs STATIC
 target_include_directories(platform_stubs PUBLIC include)
 
 if (WIN32)
+target_sources(platform_stubs PRIVATE
+    src/winsup/mkdir_compat.c
+    src/winsup/io_compat.c
+    src/winsup/stat_compat.c
+    src/winsup/dirent_compat.c
+    src/winsup/symlink_compat.c
+    src/winsup/variants_compat.c
+    src/winsup/mknod_compat.c
+    src/winsup/acl_compat.c
+    src/winsup/str_compat.c
+    src/winsup/libbsd_compat.c
+    src/winsup/xattr_compat.c
+    src/winsup/uio_compat.c)
+
 add_library(libmman STATIC
     vendor/mman-win32/mman.c)
 target_include_directories(libmman PUBLIC vendor/mman-win32)

@@ -1,0 +1,37 @@
+From 1361cc5d12a62c3caad765bd13a5de22233fe244 Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Tue, 1 Aug 2023 18:10:39 +0800
+Subject: [PATCH] support c++
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ getline.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/getline.h b/getline.h
+index b7bab62..3a33017 100644
+--- a/getline.h
++++ b/getline.h
+@@ -1,6 +1,10 @@
+ #ifndef GETLINE_H
+ #define GETLINE_H
+ 
++#ifdef __cplusplus
++extern "C" {
++#endif
++
+ #include <stdio.h>
+ 
+ #define restrict __restrict
+@@ -135,4 +139,8 @@ COLOPHON
+ GNU                               2019-03-06                        GETLINE(3)
+ */
+ 
++#ifdef __cplusplus
++}
++#endif
++
+ #endif /* GETLINE_H */
+-- 
+2.41.0.windows.3
+

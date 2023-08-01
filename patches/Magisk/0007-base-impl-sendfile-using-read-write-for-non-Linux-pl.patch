@@ -42,16 +42,6 @@ diff --git a/native/src/boot/bootimg.cpp b/native/src/boot/bootimg.cpp
 index 5b84e23..c87500a 100644
 --- a/native/src/boot/bootimg.cpp
 +++ b/native/src/boot/bootimg.cpp
-@@ -2,6 +2,9 @@
- #include <memory>
- 
- #include <libfdt.h>
-+#ifndef __linux__
-+#include <sendfile_compat.h>
-+#endif
- #include <base.hpp>
- 
- #include "boot-rs.hpp"
 @@ -44,7 +44,11 @@ static size_t restore(int fd, const char *filename) {
      int ifd = xopen(filename, O_RDONLY);
      size_t size = lseek(ifd, 0, SEEK_END);
