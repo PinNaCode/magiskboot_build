@@ -164,7 +164,7 @@ you should be able to find your source package under the `build` folder
 
 - [android-tools][android-tools] developers for many code and inspiration of this repository
 - [Magisk][Magisk] developers for the magiskboot utility
-- all other used projects' developers (mentioned in the [Requirements](#Requirements) section)
+- all other used projects' developers (mentioned in the [Requirements](#requirements) section)
 
 [pkg-config]: https://www.freedesktop.org/wiki/Software/pkg-config/
 [LZMA]: https://tukaani.org/lzma/
