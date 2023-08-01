@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <assert.h>
+#include <errno.h>
 
 #define sf_min(a, b)  (((a) < (b)) ? (a) : (b))
 
@@ -17,19 +18,27 @@ void _sendfile_stub(int out_fd, int in_fd, size_t count) {
         if (n_read == 0)
             break;
         if (n_read < 0) {
+            if (errno == EINTR)  // operation interrupted by signal
+                continue;  // retry the read
             perror("sendfile");
             break;
         }
         n_write = write(out_fd, &sf_buf, n_read);
         assert(n_write != 0);
         if (n_write < 0) {
-            perror("sendfile");
-            return;
+            if (errno == EINTR)  // operation interrupted by signal
+                n_write = 0;  // allow retrying the write
+            else {
+                perror("sendfile");
+                return;
+            }
         }
         while (n_write < n_read) {
             n_write_new = write(out_fd, (&sf_buf) + n_write, n_read - n_write);
             assert(n_write_new != 0);
             if (n_write_new < 0) {
+                if (errno == EINTR)  // operation interrupted by signal
+                    continue;  // retry the write
                 perror("sendfile");
                 return;
             }
