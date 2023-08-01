@@ -46,7 +46,7 @@ index 892d375..25ed2e7 100644
 +#[cfg(target_os = "windows")]
 +pub fn fd_path(fd: RawFd, buf: &mut [u8]) -> io::Result<usize> {
 +    unsafe {
-+        let file = File::from_raw_handle(fd);
++        let file = File::from_raw_fd(fd);
 +        let path = match file.path() {
 +           Ok(p) => p,
 +           Err(_) => {

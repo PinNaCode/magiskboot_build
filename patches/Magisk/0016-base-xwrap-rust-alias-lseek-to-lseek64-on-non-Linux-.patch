@@ -18,7 +18,7 @@ index a0f560f..83129a5 100644
      unsafe {
 -        let r = libc::lseek64(fd, offset, whence);
 +        cfg_if! {
-+            if #[cfg(target_os = "linux")] {
++            if #[cfg(any(target_os = "linux", all(target_os = "windows", target_env = "gnu")))] {
 +                let r = libc::lseek64(fd, offset, whence);
 +            } else {
 +                let r = libc::lseek(fd, offset, whence);

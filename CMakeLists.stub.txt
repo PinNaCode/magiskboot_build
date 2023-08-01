@@ -26,6 +26,9 @@ add_library(libgetline STATIC
         vendor/msvc_getline/getline.c)
 target_include_directories(libgetline PUBLIC vendor/msvc_getline)
 target_link_libraries(platform_stubs INTERFACE libgetline)
+
+# needed by some random Rust stuffs
+target_link_libraries(magiskboot ntdll bcrypt)
 endif()
 
 if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")

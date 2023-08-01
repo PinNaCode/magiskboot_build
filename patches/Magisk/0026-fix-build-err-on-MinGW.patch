@@ -1,0 +1,387 @@
+From 938b55549ae6e70cc3d95556443ca860b787dcf3 Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Mon, 31 Jul 2023 21:44:45 +0800
+Subject: [PATCH] fix build err on MinGW
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ native/src/Cargo.toml         |  1 +
+ native/src/base/Cargo.toml    |  7 ++++++-
+ native/src/base/cxx_extern.rs | 19 ++++++++++++++++---
+ native/src/base/files.rs      | 15 +++++++++++++++
+ native/src/base/misc.cpp      |  2 ++
+ native/src/base/misc.hpp      |  8 ++++++++
+ native/src/base/xwrap.hpp     |  4 ++++
+ native/src/base/xwrap.rs      | 15 +++++++++++++++
+ native/src/boot/Cargo.toml    |  1 +
+ native/src/boot/cpio.rs       | 22 +++++++++++++++++++++-
+ native/src/boot/payload.rs    |  5 +++++
+ 11 files changed, 94 insertions(+), 5 deletions(-)
+
+diff --git a/native/src/Cargo.toml b/native/src/Cargo.toml
+index 114b55c..0b6e3c0 100644
+--- a/native/src/Cargo.toml
++++ b/native/src/Cargo.toml
+@@ -6,7 +6,7 @@ resolver = "2"
+ [workspace.dependencies]
+ cxx = { path = "external/cxx-rs" }
+ cxx-gen = { path = "external/cxx-rs/gen/lib" }
+-libc = "0.2"
++libc = { path = "../../../../src/winsup/libc-compat-rs" }
+ cfg-if = "1.0"
+ num-traits = "0.2"
+ num-derive = "0.3"
+diff --git a/native/src/base/Cargo.toml b/native/src/base/Cargo.toml
+index f89abca..42baccf 100644
+--- a/native/src/base/Cargo.toml
++++ b/native/src/base/Cargo.toml
+@@ -3,3 +3,4 @@ cxx-gen = { workspace = true }
+ 
+ [target.'cfg(windows)'.dependencies]
+ filepath = "*"
++winsup = { path = "../../../../../src/winsup/rs" }
+diff --git a/native/src/base/cxx_extern.rs b/native/src/base/cxx_extern.rs
+index 86f56a8..a83b1df 100644
+--- a/native/src/base/cxx_extern.rs
++++ b/native/src/base/cxx_extern.rs
+@@ -2,8 +2,13 @@
+ 
+ use std::fmt::Write;
+ use std::io;
++
++#[cfg(not(target_os = "windows"))]
+ use std::os::fd::{BorrowedFd, OwnedFd, RawFd};
+ 
++#[cfg(target_os = "windows")]
++use winsup::fd_compat::{BorrowedFd, OwnedFd, RawFd};
++
+ use cxx::private::c_char;
+ use libc::mode_t;
+ 
+@@ -61,8 +66,16 @@ pub(crate) fn map_file_for_cxx(path: &[u8], rw: bool) -> &'static mut [u8] {
+ 
+ pub(crate) fn map_fd_for_cxx(fd: RawFd, sz: usize, rw: bool) -> &'static mut [u8] {
+     unsafe {
+-        map_fd(BorrowedFd::borrow_raw(fd), sz, rw)
+-            .log_cxx()
+-            .unwrap_or(&mut [])
++        cfg_if::cfg_if! {
++            if #[cfg(not(target_os = "windows"))] {
++                map_fd(BorrowedFd::borrow_raw(fd), sz, rw)
++                    .log_cxx()
++                    .unwrap_or(&mut [])
++            } else {
++                map_fd(BorrowedFd::borrow_raw(libc::get_osfhandle(fd) as *mut libc::c_void), sz, rw)
++                    .log_cxx()
++                    .unwrap_or(&mut [])
++            }
++        }
+     }
+ }
+diff --git a/native/src/base/files.rs b/native/src/base/files.rs
+index bb1a1f7..0b4929b 100644
+--- a/native/src/base/files.rs
++++ b/native/src/base/files.rs
+@@ -20,9 +20,18 @@ use std::os::windows::fs::MetadataExt;
+ #[cfg(target_os = "cygwin")]
+ use std::os::cygwin::fs::MetadataExt;
+ 
++cfg_if::cfg_if! {
++if #[cfg(not(target_os = "windows"))] {
+ use std::os::fd::{AsFd, BorrowedFd, IntoRawFd};
+ use std::os::unix::fs::FileTypeExt;
+ use std::os::unix::io::{AsRawFd, FromRawFd, OwnedFd, RawFd};
++} else {
++use winsup::fd_compat::{AsFd, BorrowedFd, IntoRawFd};
++use std::os::windows::fs::FileTypeExt;
++use winsup::fs_compat::{IsBlockDevice, StatSize};
++use winsup::fd_compat::{AsRawFd, FromRawFd, OwnedFd, RawFd};
++}
++}
+ use std::{io, mem, ptr, slice};
+ 
+ use libc::{c_char, c_int, c_uint, dirent, mode_t, EEXIST, ENOENT, O_CLOEXEC, O_RDONLY, O_RDWR};
+@@ -478,9 +487,15 @@ impl AsRawFd for Directory {
+ }
+ 
+ impl AsFd for Directory {
++    #[cfg(not(target_os = "windows"))]
+     fn as_fd(&self) -> BorrowedFd {
+         unsafe { BorrowedFd::borrow_raw(self.as_raw_fd()) }
+     }
++
++    #[cfg(target_os = "windows")]
++    fn as_fd(&self) -> BorrowedFd {
++        unsafe { BorrowedFd::borrow_raw(libc::get_osfhandle(self.as_raw_fd()) as *mut libc::c_void) }
++    }
+ }
+ 
+ impl Drop for Directory {
+diff --git a/native/src/base/misc.cpp b/native/src/base/misc.cpp
+index ee97878..0040ee3 100644
+--- a/native/src/base/misc.cpp
++++ b/native/src/base/misc.cpp
+@@ -76,6 +76,7 @@ rust::Vec<size_t> mut_u8_patch(
+     return data.patch(from, to);
+ }
+ 
++#ifndef _WIN32
+ int fork_dont_care() {
+     if (int pid = xfork()) {
+         waitpid(pid, nullptr, 0);
+@@ -170,6 +169,7 @@ int exec_command_sync(exec_t &exec) {
+     waitpid(pid, &status, 0);
+     return WEXITSTATUS(status);
+ }
++#endif
+ 
+ int new_daemon_thread(thread_entry entry, void *arg) {
+     pthread_t thread;
+diff --git a/native/src/base/misc.hpp b/native/src/base/misc.hpp
+index 3bead41..d097388 100644
+--- a/native/src/base/misc.hpp
++++ b/native/src/base/misc.hpp
+@@ -251,10 +251,12 @@ static inline std::string rtrim(std::string &&s) {
+     return std::move(s);
+ }
+ 
++#ifndef _WIN32
+ int fork_dont_care();
+ #ifdef __linux__
+ int fork_no_orphan();
+ #endif
++#endif
+ void init_argv0(int argc, char **argv);
+ void set_nice_name(const char *name);
+ uint32_t binary_gcd(uint32_t u, uint32_t v);
+@@ -282,7 +284,11 @@ struct exec_t {
+     bool err = false;
+     int fd = -2;
+     void (*pre_exec)() = nullptr;
++#ifdef _WIN32
++    int (*fork)() = nullptr;
++#else
+     int (*fork)() = xfork;
++#endif
+     const char **argv = nullptr;
+ };
+ 
+@@ -292,6 +292,7 @@ struct exec_t {
+     const char **argv = nullptr;
+ };
+ 
++#ifndef _WIN32
+ int exec_command(exec_t &exec);
+ template <class ...Args>
+ int exec_command(exec_t &exec, Args &&...args) {
+@@ -322,3 +323,4 @@ void exec_command_async(Args &&...args) {
+     };
+     exec_command(exec);
+ }
++#endif
+diff --git a/native/src/base/xwrap.hpp b/native/src/base/xwrap.hpp
+index 40cd6bf..b10a74e 100644
+--- a/native/src/base/xwrap.hpp
++++ b/native/src/base/xwrap.hpp
+@@ -25,6 +25,7 @@ int xunshare(int flags);
+ DIR *xopendir(const char *name);
+ DIR *xfdopendir(int fd);
+ dirent *xreaddir(DIR *dirp);
++#ifndef _WIN32
+ pid_t xsetsid();
+ int xsocket(int domain, int type, int protocol);
+ int xbind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+@@ -32,6 +33,7 @@ int xlisten(int sockfd, int backlog);
+ int xaccept4(int sockfd, struct sockaddr *addr, socklen_t *addrlen, int flags);
+ ssize_t xsendmsg(int sockfd, const struct msghdr *msg, int flags);
+ ssize_t xrecvmsg(int sockfd, struct msghdr *msg, int flags);
++#endif
+ int xaccess(const char *path, int mode);
+ int xfaccessat(int dirfd, const char *pathname, int mode, int flags);
+ int xstat(const char *pathname, struct stat *buf);
+diff --git a/native/src/base/xwrap.rs b/native/src/base/xwrap.rs
+index 7e7a894..04fb1f9 100644
+--- a/native/src/base/xwrap.rs
++++ b/native/src/base/xwrap.rs
+@@ -2,15 +2,24 @@
+ 
+ use std::ffi::CStr;
+ use std::fmt::Write;
++
++#[cfg(not(target_os = "windows"))]
+ use std::os::unix::io::RawFd;
++
++#[cfg(target_os = "windows")]
++use winsup::fd_compat::RawFd;
++
+ use std::ptr;
+ 
+ use cfg_if::cfg_if;
+ use libc::{
+-    c_char, c_uint, c_ulong, c_void, dev_t, mode_t, nfds_t, off_t, pollfd, sockaddr, socklen_t,
++    c_char, c_uint, c_ulong, c_void, dev_t, mode_t, off_t, sockaddr,
+     ssize_t,
+ };
+ 
++#[cfg(not(target_os = "windows"))]
++use libc::{nfds_t, pollfd, socklen_t};
++
+ #[cfg(target_os = "linux")]
+ use libc::SYS_dup3;
+ 
+@@ -53,8 +59,12 @@ macro_rules! perror {
+ }
+ 
+ mod c_export {
++    #[cfg(not(target_os = "windows"))]
+     use std::os::unix::io::RawFd;
+ 
++    #[cfg(target_os = "windows")]
++    use winsup::fd_compat::RawFd;
++
+     use crate::{slice_from_ptr, slice_from_ptr_mut};
+ 
+     #[no_mangle]
+@@ -312,6 +322,8 @@ unsafe extern "C" fn xreaddir(dirp: *mut libc::DIR) -> *mut libc::dirent {
+     }
+ }
+ 
++cfg_if::cfg_if! {
++if #[cfg(not(target_os = "windows"))] {
+ #[no_mangle]
+ extern "C" fn xsetsid() -> i32 {
+     unsafe {
+@@ -335,6 +351,7 @@ extern "C" fn xsocket(domain: i32, ty: i32, protocol: i32) -> RawFd {
+ }
+ 
+ #[no_mangle]
++#[cfg(not(target_os = "windows"))]
+ unsafe extern "C" fn xbind(socket: i32, address: *const sockaddr, len: socklen_t) -> i32 {
+     let r = libc::bind(socket, address, len);
+     if r < 0 {
+@@ -386,6 +398,8 @@ unsafe extern "C" fn xrecvmsg(fd: RawFd, msg: *mut libc::msghdr, flags: i32) ->
+     }
+     r
+ }
++}
++}
+ 
+ #[no_mangle]
+ unsafe extern "C" fn xaccess(path: *const c_char, mode: i32) -> i32 {
+@@ -632,6 +646,7 @@ unsafe extern "C" fn xmmap(
+ }
+ 
+ #[no_mangle]
++#[cfg(not(target_os = "windows"))]
+ extern "C" fn xfork() -> i32 {
+     unsafe {
+         let r = libc::fork();
+@@ -625,6 +662,7 @@ extern "C" fn xfork() -> i32 {
+ }
+ 
+ #[no_mangle]
++#[cfg(not(target_os = "windows"))]
+ unsafe extern "C" fn xpoll(fds: *mut pollfd, nfds: nfds_t, timeout: i32) -> i32 {
+     let r = libc::poll(fds, nfds, timeout);
+     if r < 0 {
+diff --git a/native/src/boot/Cargo.toml b/native/src/boot/Cargo.toml
+index bcf3b25..c0aa236 100644
+--- a/native/src/boot/Cargo.toml
++++ b/native/src/boot/Cargo.toml
+@@ -26,3 +26,6 @@ p384 = { workspace = true }
+ rsa = { workspace = true, features = ["sha2"] }
+ x509-cert = { workspace = true }
+ der = { workspace = true, features = ["derive"] }
++
++[target.'cfg(windows)'.dependencies]
++winsup = { path = "../../../../../src/winsup/rs" }
+diff --git a/native/src/boot/cpio.rs b/native/src/boot/cpio.rs
+index 0e36b4d..0c353e2 100644
+--- a/native/src/boot/cpio.rs
++++ b/native/src/boot/cpio.rs
+@@ -1,10 +1,30 @@
+ use std::collections::BTreeMap;
+ use std::ffi::CStr;
+ use std::fmt::{Display, Formatter, Write as FmtWrite};
+-use std::fs::{metadata, read, DirBuilder, File};
++
++use std::fs::{read, File};
++
++#[cfg(not(target_os = "windows"))]
++use std::fs::metadata;
++
++#[cfg(target_os = "windows")]
++use winsup::fs_compat::metadata;
++
++#[cfg(not(target_os = "windows"))]
++use std::fs::DirBuilder;
++
++#[cfg(target_os = "windows")]
++use winsup::fs_compat::DirBuilder;
++
+ use std::io::Write;
+ use std::mem::size_of;
++
++#[cfg(not(target_os = "windows"))]
+ use std::os::unix::fs::{symlink, DirBuilderExt, FileTypeExt, MetadataExt};
++
++#[cfg(target_os = "windows")]
++use winsup::fs_compat::{symlink, DirBuilderExt, FileTypeExt, MetadataExt};
++
+ use std::path::Path;
+ use std::process::exit;
+ 
+diff --git a/native/src/boot/payload.rs b/native/src/boot/payload.rs
+index dab86d8..c0aca63 100644
+--- a/native/src/boot/payload.rs
++++ b/native/src/boot/payload.rs
+@@ -1,8 +1,13 @@
+ use std::fmt::Write as FmtWrite;
+ use std::fs::File;
+ use std::io::{BufReader, Read, Seek, SeekFrom, Write};
++
++#[cfg(not(target_os = "windows"))]
+ use std::os::fd::{AsRawFd, FromRawFd};
+ 
++#[cfg(target_os = "windows")]
++use winsup::fd_compat::{AsRawFd, FromRawFd};
++
+ use byteorder::{BigEndian, ReadBytesExt};
+ use quick_protobuf::{BytesReader, MessageRead};
+ 
+diff --git a/native/src/base/include/stream.hpp b/native/src/base/include/stream.hpp
+index 4742085..2b791b7 100644
+--- a/native/src/base/include/stream.hpp
++++ b/native/src/base/include/stream.hpp
+@@ -116,6 +120,7 @@ private:
+     sFILE fp;
+ };
+ 
++#ifndef _WIN32
+ // channel_ptr -> sFILE
+ sFILE make_channel_fp(channel_ptr &&strm);
+ 
+@@ -123,3 +128,4 @@ template <class T, class... Args>
+ sFILE make_channel_fp(Args &&... args) {
+     return make_channel_fp(channel_ptr(new T(std::forward<Args>(args)...)));
+ }
++#endif
+diff --git a/native/src/boot/format.hpp b/native/src/boot/format.hpp
+index 79dac8f..e0634ba 100644
+--- a/native/src/boot/format.hpp
++++ b/native/src/boot/format.hpp
+@@ -9,7 +9,12 @@ typedef enum {
+     AOSP,
+     AOSP_VENDOR,
+     DHTB,
++#ifdef _WIN32
++    FORMAT_BLOB,
++#define BLOB FORMAT_BLOB
++#else
+     BLOB,
++#endif
+ /* Compression formats */
+     GZIP,
+     ZOPFLI,
+-- 
+2.41.0.windows.3

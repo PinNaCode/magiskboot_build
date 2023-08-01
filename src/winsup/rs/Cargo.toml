@@ -1,0 +1,11 @@
+[package]
+name = "winsup"
+version = "0.0.0"
+edition = "2021"
+
+[lib]
+path = "lib.rs"
+
+[dependencies]
+libc = { path = "../libc-compat-rs" }
+cvt = "*"
