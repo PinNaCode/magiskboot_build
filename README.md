@@ -112,11 +112,27 @@ apt install build-essentials liblzma liblz4 libbz2 dtc zlib pkg-config \
             clang lld rustc-nightly rust-src-nightly cmake ninja libbsd
 ````
 
-#### Windows / MinGW
+#### Windows (MinGW)
 
-This project is currently not completely ported to Windows / MinGW, the effort for a MinGW port is ongoing.
+NOTE: MinGW port is not yet 100% complete, currently it can build and most functions are working.\
+However, some POSIX functions in `src/winsup/*_compat.c` are still unimplemented, feel free to contribute by opening a Pull Request :)
 
-There is an old MinGW port:
+Install [MSYS2][MSYS2] first, use the MINGW64 Terminal.
+
+set this environtment variable to allow symlinks to work properly: `export MSYS=winsymlinks:nativestrict` (required for the build I guess)
+
+Follow this [Wiki page](https://github.com/git-for-windows/git/wiki/Install-inside-MSYS2-proper) to install [Git for Windows][Git-for-Windows] for your MINGW64 Environment in MSYS2.
+
+install nightly Rust via [rustup][rustup] (Please choose the GNU ABI)
+
+
+````shell
+pacman -Syu  # upgrade all existing packages (optional, you may need to do this for multiple times)
+pacman -S mingw-w64-x86_64-{xz,lz4,bzip2,dtc,zlib,pkgconf,clang,lld,cmake,libc++,ninja}
+rustup component add rust-src  # install STD library source
+````
+
+There is also an old MinGW port, it works great:
 
 [svoboda18/magiskboot](https://github.com/svoboda18/magiskboot.git): a dirty Windows port with custom GNU Make based build system
 
@@ -182,3 +198,5 @@ you should be able to find your source package under the `build` folder
 [rustup]: https://rustup.rs/
 [Homebrew]: https://brew.sh/
 [Libcxx]: https://libcxx.llvm.org/
+[MSYS2]: https://www.msys2.org/
+[Git-for-Windows]: https://gitforwindows.org/
