@@ -30,5 +30,5 @@
 	shallow = true
 [submodule "msvc_getline"]
 	path = vendor/msvc_getline
-	url = git@github.com:CostantinoGrana/msvc_getline.git
+	url = https://github.com/CostantinoGrana/msvc_getline.git
 	shallow = true
