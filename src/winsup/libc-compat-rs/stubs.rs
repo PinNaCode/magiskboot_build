@@ -84,15 +84,27 @@ extern "C" {
 // mman
 
 extern "C" {
-    pub fn mmap(
+    #[link_name = "mmap"]
+    pub fn __mmap_impl(
         addr: *mut crate::c_void,
         len: crate::size_t,
         prot: crate::c_int,
         flags: crate::c_int,
         fd: crate::c_int,
-        offset: crate::off_t,
+        offset: crate::c_longlong,
     ) -> *mut crate::c_void;
     pub fn munmap(addr: *mut crate::c_void, len: crate::size_t) -> crate::c_int;
+}
+
+pub fn mmap(
+    addr: *mut crate::c_void,
+    len: crate::size_t,
+    prot: crate::c_int,
+    flags: crate::c_int,
+    fd: crate::c_int,
+    offset: crate::off_t,
+) -> *mut crate::c_void {
+    unsafe { __mmap_impl(addr, len, prot, flags, fd, offset as crate::c_longlong) }
 }
 
 pub const MAP_SHARED: crate::c_int = 1;

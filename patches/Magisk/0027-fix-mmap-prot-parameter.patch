@@ -1,0 +1,40 @@
+From 7786f89f793cb54521073e037648f8ea3d326805 Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Fri, 4 Aug 2023 21:38:36 +0800
+Subject: [PATCH] fix mmap prot parameter
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ native/src/base/files.rs | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/native/src/base/files.rs b/native/src/base/files.rs
+index 0b4929b..c6e3337 100644
+--- a/native/src/base/files.rs
++++ b/native/src/base/files.rs
+@@ -611,16 +611,18 @@ pub(crate) fn map_file(path: &Utf8CStr, rw: bool) -> io::Result<&'static mut [u8
+ }
+ 
+ pub(crate) fn map_fd(fd: BorrowedFd, sz: usize, rw: bool) -> io::Result<&'static mut [u8]> {
+-    let flag = if rw {
+-        libc::MAP_SHARED
++    let (flag, prot) = if rw {
++        (libc::MAP_SHARED,
++        libc::PROT_READ | libc::PROT_WRITE)
+     } else {
+-        libc::MAP_PRIVATE
++        (libc::MAP_PRIVATE,
++        libc::PROT_READ)
+     };
+     unsafe {
+         let ptr = libc::mmap(
+             ptr::null_mut(),
+             sz,
+-            libc::PROT_READ | libc::PROT_WRITE,
++            prot,
+             flag,
+             fd.as_raw_fd(),
+             0,
+-- 
+2.41.0.windows.3
+
