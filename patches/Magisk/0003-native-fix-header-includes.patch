@@ -18,8 +18,12 @@ diff --git a/native/src/base/files.cpp b/native/src/base/files.cpp
 index 6829de2..8aef651 100644
 --- a/native/src/base/files.cpp
 +++ b/native/src/base/files.cpp
-@@ -1,10 +1,35 @@
+@@ -1,10 +1,39 @@
++#ifdef _WIN32
++#include <mman.h>
++#else
  #include <sys/mman.h>
++#endif
 +#ifdef __linux__
  #include <sys/sendfile.h>
  #include <sys/sysmacros.h>
