@@ -16,7 +16,9 @@ target_sources(platform_stubs PRIVATE
     src/winsup/libbsd_compat.c
     src/winsup/xattr_compat.c
     src/winsup/uio_compat.c
-    src/winsup/internal/assert.c)
+    src/winsup/internal/assert.c
+    src/winsup/internal/errno.c
+    src/winsup/internal/fd.c)
 
 add_library(libmman STATIC
     vendor/mman-win32/mman.c)

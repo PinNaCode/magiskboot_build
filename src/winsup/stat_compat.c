@@ -1,13 +1,9 @@
 #include <sys/stat.h>
 
-#include "internal/assert.h"
-
 int _stat_stub(const char *name, struct stat *buf) {
-    TODO(stat)
-    return -1;
+    return stat(name, buf);
 }
 
 int _fstat_stub(int fd, struct stat *buf) {
-    TODO(fstat)
-    return -1;
+    return fstat(fd, buf);
 }
