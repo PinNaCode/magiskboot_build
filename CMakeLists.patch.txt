@@ -1,3 +1,6 @@
+find_program(PATCH_EXECUTABLE patch REQUIRED)
+find_package(Git REQUIRED)
+
 set(vendored_dirs
     Magisk
     android_logging
@@ -10,16 +13,16 @@ set(vendored_dirs
 # XXX: Consider using https://cmake.org/cmake/help/v3.0/module/ExternalProject.html
 if(PATCH_VENDOR_PROJECTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/patches")
     if (WIN32)
-        execute_process(COMMAND git submodule foreach --recursive git config core.symlinks true)
+        execute_process(COMMAND ${GIT_EXECUTABLE} submodule foreach --recursive ${GIT_EXECUTABLE} config core.symlinks true)
     endif()
-    execute_process(COMMAND git submodule update --force --recursive)
-    execute_process(COMMAND git submodule foreach --recursive git clean -fd)
+    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --force --recursive)
+    execute_process(COMMAND ${GIT_EXECUTABLE} submodule foreach --recursive ${GIT_EXECUTABLE} clean -fd)
     foreach(vendor_dir ${vendored_dirs})
         file(GLOB patches ${CMAKE_CURRENT_SOURCE_DIR}/patches/${vendor_dir}/*.patch)
         if(patches)
 	    foreach(patch_filename ${patches})
 	            message(STATUS "Applying ${patch_filename} for: ${vendor_dir}")
-	            execute_process(COMMAND patch -p1 -i ${patch_filename} --no-backup-if-mismatch
+	            execute_process(COMMAND ${PATCH_EXECUTABLE} -p1 -i ${patch_filename} --no-backup-if-mismatch
 				    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/vendor/${vendor_dir}
 	                            RESULT_VARIABLE ret)
 	            if(NOT "${ret}" STREQUAL "0")
