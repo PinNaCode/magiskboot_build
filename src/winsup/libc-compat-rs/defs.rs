@@ -46,3 +46,12 @@ extern "C" {
     #[link_name = "_stat_stub"]
     pub fn stat(path: *const c_char, buf: *mut stat) -> c_int;
 }
+
+// open
+
+// to support opening dir fd
+
+extern "C" {
+    #[link_name = "_open_stub"]
+    pub fn open(path: *const c_char, oflag: c_int, ...) -> c_int;
+}
