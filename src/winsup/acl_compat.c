@@ -1,10 +1,11 @@
+#include <unistd.h>
+
 #include "../../include/winsup/acl_compat.h"
 
 #include "internal/assert.h"
 
 int _chmod_stub(const char *path, int mode) {
-    TODO(chmod)
-    return -1;
+    return chmod(path, mode);  // TODO: implement a real POSIX chmod
 }
 
 int fchmod (int fd, mode_t mode) {
@@ -13,8 +14,7 @@ int fchmod (int fd, mode_t mode) {
 }
 
 int     chown (const char *path, uid_t owner, gid_t group) {
-    TODO(chown)
-    return -1;
+    return 0;  // TODO: implement
 }
 
 int     fchown (int fildes, uid_t owner, gid_t group) {
