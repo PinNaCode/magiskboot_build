@@ -8,8 +8,8 @@ target_sources(platform_stubs PRIVATE
     src/winsup/io_compat.c
     src/winsup/stat_compat.c
     src/winsup/dirent_compat.c
-    src/winsup/symlink_compat.c
-    src/winsup/variants_compat.c
+    src/winsup/link_compat.c
+    src/winsup/at_compat.c
     src/winsup/mknod_compat.c
     src/winsup/acl_compat.c
     src/winsup/str_compat.c

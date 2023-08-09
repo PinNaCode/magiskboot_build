@@ -1,5 +1,5 @@
-#ifndef _MAGISKBOOT_BUILD_WINSUP_SYMLINK_COMPAT
-#define _MAGISKBOOT_BUILD_WINSUP_SYMLINK_COMPAT
+#ifndef _MAGISKBOOT_BUILD_WINSUP_LINK_COMPAT
+#define _MAGISKBOOT_BUILD_WINSUP_LINK_COMPAT
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,8 +14,6 @@ ssize_t readlink (const char *__restrict path,
 ssize_t readlinkat (int dirfd, const char *__restrict path,
                             char *__restrict buf, size_t len);
 
-int lstat (const char *__restrict path, struct stat *__restrict buf);
-
 int     symlink (const char *name1, const char *name2);
 
 int       symlinkat (const char *, int, const char *);
@@ -26,4 +24,4 @@ int     linkat (int dirfd1, const char *path1, int dirfd2, const char *path2, in
 }
 #endif
 
-#endif /* _MAGISKBOOT_BUILD_WINSUP_SYMLINK_COMPAT */
+#endif /* _MAGISKBOOT_BUILD_WINSUP_LINK_COMPAT */

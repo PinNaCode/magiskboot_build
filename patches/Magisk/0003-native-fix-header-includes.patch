@@ -46,7 +46,7 @@ index 6829de2..8aef651 100644
 +#ifdef _WIN32
 +#define O_CLOEXEC 0
 +#include <winsup/dirent_compat.h>
-+#include <winsup/variants_compat.h>
++#include <winsup/at_compat.h>
 +#include <winsup/stat_compat.h>
 +#include <winsup/mknod_compat.h>
 +#include <winsup/acl_compat.h>
@@ -62,7 +62,7 @@ diff --git a/native/src/base/files.hpp b/native/src/base/files.hpp
 index 0d8d11c..c4bb952 100644
 --- a/native/src/base/files.hpp
 +++ b/native/src/base/files.hpp
-@@ -6,7 +6,13 @@
+@@ -6,7 +6,18 @@
  #include <string>
  #include <vector>
  
@@ -72,6 +72,11 @@ index 0d8d11c..c4bb952 100644
 +#include <sys/disk.h>
 +#elif defined(__CYGWIN__)
 +#include <cygwin/fs.h>
++#elif defined(_WIN32)
++#include <winsup/dirent_compat.h>
++#define opendir _opendir_stub
++#define closedir _closedir_stub
++#define DIR _DIR_stub
 +#endif
  #include "misc.hpp"
  
@@ -201,7 +206,7 @@ diff --git a/native/src/base/xwrap.hpp b/native/src/base/xwrap.hpp
 index ce7a6dd..b4ba2c0 100644
 --- a/native/src/base/xwrap.hpp
 +++ b/native/src/base/xwrap.hpp
-@@ -2,8 +2,15 @@
+@@ -2,8 +2,20 @@
  
  #include <dirent.h>
  #include <stdio.h>
@@ -214,6 +219,11 @@ index ce7a6dd..b4ba2c0 100644
 +#include <sys/socket.h>
 +#endif
 +#include <sys/types.h>
++#ifdef _WIN32
++#include <winsup/dirent_compat.h>
++#define dirent _dirent_stub
++#define DIR _DIR_stub
++#endif
  
  extern "C" {
  

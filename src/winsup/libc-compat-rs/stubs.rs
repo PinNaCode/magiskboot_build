@@ -17,22 +17,40 @@ pub const DT_REG: u8 = 1;
 pub const DT_LNK: u8 = 2;
 pub const DT_DIR: u8 = 3;
 
-// replace the MinGW impls bcs we've modified dirent struct
+// replace the MinGW impls bcs we've modified dirent struct and added dir fd support
 
-extern "C" {
-    #[link_name = "_readdir_stub"]
-    pub fn readdir(dirp: *mut crate::DIR) -> *mut crate::dirent;
+pub enum DIR {}
+impl crate::Copy for DIR {}
+impl crate::Clone for DIR {
+    fn clone(&self) -> DIR {
+        *self
+    }
 }
 
 extern "C" {
-    pub fn dirfd(dirp: *mut crate::DIR) -> crate::c_int;
+    #[link_name = "_opendir_stub"]
+    pub fn opendir(dirname: *const crate::c_char) -> *mut DIR;
+
+    #[link_name = "_readdir_stub"]
+    pub fn readdir(dirp: *mut DIR) -> *mut crate::dirent;
+
+    #[link_name = "_rewinddir_stub"]
+    pub fn rewinddir(dirp: *mut DIR);
+
+    #[link_name = "_closedir_stub"]
+    pub fn closedir(dirp: *mut DIR) -> crate::c_int;
+}
+
+extern "C" {
+    pub fn fdopendir(fd: crate::c_int) -> *mut DIR;
+    pub fn dirfd(dirp: *mut DIR) -> crate::c_int;
 }
 
 // no-op
 
 pub const O_CLOEXEC: crate::c_int = 0;
 
-// symlink
+// link
 
 extern "C" {
     pub fn readlink(path: *const crate::c_char, buf: *mut crate::c_char, bufsz: crate::size_t) -> crate::ssize_t;
@@ -40,7 +58,6 @@ extern "C" {
         pathname: *const crate::c_char,
         buf: *mut crate::c_char,
         bufsiz: crate::size_t) -> crate::ssize_t;
-    pub fn lstat(path: *const crate::c_char, buf: *mut crate::stat) -> crate::c_int;
     pub fn symlink(path1: *const crate::c_char, path2: *const crate::c_char) -> crate::c_int;
     pub fn symlinkat(
         target: *const crate::c_char,
@@ -56,7 +73,7 @@ extern "C" {
     ) -> crate::c_int;
 }
 
-// missing variants
+// at
 
 pub const AT_REMOVEDIR: crate::c_int = 1;
 
@@ -64,7 +81,6 @@ extern "C" {
     pub fn unlinkat(dirfd: crate::c_int, pathname: *const crate::c_char, flags: crate::c_int) -> crate::c_int;
     pub fn openat(dirfd: crate::c_int, pathname: *const crate::c_char,
                           flags: crate::c_int, ...) -> crate::c_int;
-    pub fn fdopendir(fd: crate::c_int) -> *mut crate::DIR;
     pub fn faccessat(
         dirfd: crate::c_int,
         pathname: *const crate::c_char,
@@ -141,6 +157,10 @@ safe_f! {
 
 pub const S_IFBLK: crate::mode_t = 24576;
 pub const S_IFLNK: crate::mode_t = 40960;
+
+extern "C" {
+    pub fn lstat(path: *const crate::c_char, buf: *mut crate::stat) -> crate::c_int;
+}
 
 pub const S_IRGRP: crate::mode_t = 32;
 pub const S_IROTH: crate::mode_t = 4;

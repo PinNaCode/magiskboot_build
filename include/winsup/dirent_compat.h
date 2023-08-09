@@ -17,13 +17,33 @@ struct _dirent_stub
         char            d_name[260]; /* [FILENAME_MAX] */ /* File name. */
 };
 
+#define DT_UNKNOWN 0
 #define DT_REG 1
 #define DT_LNK 2
 #define DT_DIR 3
 
-struct _dirent_stub* _readdir_stub (DIR*);
+struct _DIR_wrap {
+    DIR *dirp;
+    int fd;
+};
 
-int dirfd (DIR*);
+typedef struct _DIR_wrap _DIR_stub;
+
+_DIR_stub *_opendir_stub (const char*);
+
+_DIR_stub *fdopendir(int fd);
+
+struct _dirent_stub* _readdir_stub (_DIR_stub*);
+
+int _closedir_stub (_DIR_stub*);
+
+void _rewinddir_stub (_DIR_stub*);
+
+long _telldir_stub (_DIR_stub*);
+
+void _seekdir_stub (_DIR_stub*, long);
+
+int dirfd (_DIR_stub*);
 
 #ifdef __cplusplus
 }

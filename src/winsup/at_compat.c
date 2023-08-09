@@ -14,11 +14,6 @@ int openat (int dirfd, const char *pathname, int flags, mode_t mode) {
     return -1;
 }
 
-DIR *fdopendir(int fd) {
-    TODO(fdopendir)
-    return NULL;
-}
-
 int faccessat (int dirfd, const char *path, int mode, int flags) {
     TODO(faccessat)
     return -1;

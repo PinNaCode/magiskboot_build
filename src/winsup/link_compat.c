@@ -15,11 +15,6 @@ ssize_t readlinkat (int dirfd, const char *__restrict path,
     return -1;
 }
 
-int lstat (const char *__restrict path, struct stat *__restrict buf) {
-    TODO(lstat)
-    return -1;
-}
-
 int     symlink (const char *name1, const char *name2) {
     TODO(symlink)
     return -1;
