@@ -54,11 +54,18 @@ pub const O_CLOEXEC: crate::c_int = 0;
 
 extern "C" {
     pub fn readlink(path: *const crate::c_char, buf: *mut crate::c_char, bufsz: crate::size_t) -> crate::ssize_t;
+    pub fn symlink(path1: *const crate::c_char, path2: *const crate::c_char) -> crate::c_int;
+}
+
+// at
+
+pub const AT_REMOVEDIR: crate::c_int = 1;
+
+extern "C" {
     pub fn readlinkat(dirfd: crate::c_int,
         pathname: *const crate::c_char,
         buf: *mut crate::c_char,
         bufsiz: crate::size_t) -> crate::ssize_t;
-    pub fn symlink(path1: *const crate::c_char, path2: *const crate::c_char) -> crate::c_int;
     pub fn symlinkat(
         target: *const crate::c_char,
         newdirfd: crate::c_int,
@@ -71,13 +78,6 @@ extern "C" {
         newpath: *const crate::c_char,
         flags: crate::c_int,
     ) -> crate::c_int;
-}
-
-// at
-
-pub const AT_REMOVEDIR: crate::c_int = 1;
-
-extern "C" {
     pub fn unlinkat(dirfd: crate::c_int, pathname: *const crate::c_char, flags: crate::c_int) -> crate::c_int;
     pub fn openat(dirfd: crate::c_int, pathname: *const crate::c_char,
                           flags: crate::c_int, ...) -> crate::c_int;

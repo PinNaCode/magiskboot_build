@@ -4,6 +4,22 @@
 
 #include "internal/assert.h"
 
+ssize_t readlinkat (int dirfd, const char *__restrict path,
+                            char *__restrict buf, size_t len) {
+    TODO(readlinkat)
+    return -1;
+}
+
+int       symlinkat (const char *oldpath, int newdirfd, const char *newpath) {
+    TODO(symlinkat)
+    return -1;
+}
+
+int     linkat (int dirfd1, const char *path1, int dirfd2, const char *path2, int flags) {
+    TODO(linkat)
+    return -1;
+}
+
 int unlinkat (int dirfd, const char *pathname, int flags) {
     TODO(unlinkat)
     return -1;

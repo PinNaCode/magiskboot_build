@@ -11,14 +11,9 @@ extern "C" {
 ssize_t readlink (const char *__restrict path,
                           char *__restrict buf, size_t len);
 
-ssize_t readlinkat (int dirfd, const char *__restrict path,
-                            char *__restrict buf, size_t len);
+int link(const char *path1, const char *path2);
 
 int     symlink (const char *name1, const char *name2);
-
-int       symlinkat (const char *, int, const char *);
-
-int     linkat (int dirfd1, const char *path1, int dirfd2, const char *path2, int flags);
 
 #ifdef __cplusplus
 }

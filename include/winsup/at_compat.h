@@ -9,6 +9,13 @@ extern "C" {
 #include <dirent.h>
 #include <sys/stat.h>
 
+ssize_t readlinkat (int dirfd, const char *__restrict path,
+                            char *__restrict buf, size_t len);
+
+int       symlinkat (const char *, int, const char *);
+
+int     linkat (int dirfd1, const char *path1, int dirfd2, const char *path2, int flags);
+
 int unlinkat (int dirfd, const char *pathname, int flags);
 
 int openat (int dirfd, const char *pathname, int flags, mode_t mode);
