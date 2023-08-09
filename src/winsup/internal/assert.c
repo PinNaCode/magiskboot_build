@@ -13,7 +13,7 @@
 void log_err(const char *tag, const char *fmt, ...) {
     va_list ap;
 
-    fprintf(stderr, "magiskboot_build %s: ", tag);
+    fprintf(stderr, "winsup %s: ", tag);
 
     va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);
