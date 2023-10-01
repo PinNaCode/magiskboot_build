@@ -22,14 +22,14 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -fomit-frame-point
 # files are changed in vendor projects those can be retained with this option.
 option(PATCH_VENDOR_PROJECTS "Patch vendor projects using patches directory" ON)
 
-option(USE_LTO_LINKER_PLUGIN "Deley LTO to linking time (require linking with LLD, this option is only for Linux)" OFF)
+option(USE_LTO_LINKER_PLUGIN "Keep LLVM bitcode in objects for LTO (requires LLD)" OFF)
 
-if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR USE_LTO_LINKER_PLUGIN AND NOT CYGWIN)
+if (USE_LTO_LINKER_PLUGIN)
+find_program(LLD_EXECUTABLE lld REQUIRED)
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fuse-ld=lld -Wno-unused-command-line-argument")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=lld -Wno-unused-command-line-argument")
-set(RUSTFLAGS -Clinker-plugin-lto\ -Cllvm-args=-opaque-pointers)
-else()
-set(RUSTFLAGS -Cllvm-args=-opaque-pointers)
+set(RUSTFLAGS -Clinker-plugin-lto)
 endif()
 
 add_compile_options(-U_FORTIFY_SOURCE)
