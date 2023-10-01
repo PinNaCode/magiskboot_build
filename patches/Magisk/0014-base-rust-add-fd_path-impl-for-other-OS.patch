@@ -80,7 +80,7 @@ index bfb8e57..f89abca 100644
  argh = { workspace = true }
 +
 +[target.'cfg(target_os = "windows")'.dependencies]
-+filepath = "*"
++filepath = "0.1.2"
 --
 2.40.0
 

@@ -38,7 +38,7 @@ index f89abca..42baccf 100644
 @@ -3,3 +3,4 @@ cxx-gen = { workspace = true }
  
  [target.'cfg(windows)'.dependencies]
- filepath = "*"
+ filepath = "0.1.2"
 +winsup = { path = "../../../../../src/winsup/rs" }
 diff --git a/native/src/base/cxx_extern.rs b/native/src/base/cxx_extern.rs
 index 86f56a8..a83b1df 100644
