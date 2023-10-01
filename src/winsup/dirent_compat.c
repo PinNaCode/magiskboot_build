@@ -74,7 +74,7 @@ _DIR_stub *fdopendir(int fd) {
     // fstat would fail if fd is invalid
     // no need to check it here
 
-    if (fstat(fd, &buf) < 0)
+    if (_fstat_stub(fd, &buf) < 0)
         goto error;
 
     if (!S_ISDIR(buf.st_mode)) {
@@ -94,6 +94,8 @@ _DIR_stub *fdopendir(int fd) {
 
     if (!(real_dirp = opendir(path)))
         goto error;
+
+    free(path);
 
     res->dirp = real_dirp;
     res->fd = fd;
