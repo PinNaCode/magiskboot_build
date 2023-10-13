@@ -181,6 +181,10 @@ you should be able to find your source package under the `build` folder
 - [Magisk][Magisk] developers for the magiskboot utility
 - all other used projects' developers (mentioned in the [Requirements](#requirements) section)
 
+### See also
+
+[xiaoxindada/magiskboot_ndk_on_linux][magiskboot_ndk_on_linux]: minimal build system for magiskboot with ondk on Linux
+
 [pkg-config]: https://www.freedesktop.org/wiki/Software/pkg-config/
 [LZMA]: https://tukaani.org/lzma/
 [lz4]: https://lz4.github.io/lz4/
@@ -200,3 +204,4 @@ you should be able to find your source package under the `build` folder
 [Libcxx]: https://libcxx.llvm.org/
 [MSYS2]: https://www.msys2.org/
 [Git-for-Windows]: https://gitforwindows.org/
+[magiskboot_ndk_on_linux]: https://github.com/xiaoxindada/magiskboot_ndk_on_linux
