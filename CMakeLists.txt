@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.22)
+if (NOT NO_TARGETS_OR_DEPS)
 set(CMAKE_C_COMPILER "clang")
 set(CMAKE_CXX_COMPILER "clang++")
+endif()
 project(magiskboot_build)
 enable_language(C CXX)
 set(CMAKE_C_STANDARD 11)
@@ -10,8 +12,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+if (NOT NO_TARGETS_OR_DEPS)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++")
+endif()
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -fomit-frame-pointer")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fomit-frame-pointer")
 set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -fomit-frame-pointer")
@@ -22,6 +26,8 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -fomit-frame-point
 # files are changed in vendor projects those can be retained with this option.
 option(PATCH_VENDOR_PROJECTS "Patch vendor projects using patches directory" ON)
 
+option(NO_TARGETS_OR_DEPS "Turn this on if you are creating source tarball only" OFF)
+
 option(USE_LTO_LINKER_PLUGIN "Keep LLVM bitcode in objects for LTO (requires LLD)" OFF)
 
 # XXX: can be detected if dump target JSON (rustc)
@@ -29,20 +35,25 @@ if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" AND NOT CYGWIN)
 set(USE_LTO_LINKER_PLUGIN ON)
 endif()
 
+if (NOT NO_TARGETS_OR_DEPS)
 if (USE_LTO_LINKER_PLUGIN)
 find_program(LLD_EXECUTABLE lld REQUIRED)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fuse-ld=lld -Wno-unused-command-line-argument")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=lld -Wno-unused-command-line-argument")
 set(RUSTFLAGS -Clinker-plugin-lto)
-endif()
+endif() # USE_LTO_LINKER_PLUGIN
+endif() # NO_TARGETS_OR_DEPS
 
 add_compile_options(-U_FORTIFY_SOURCE)
 
+if (NOT NO_TARGETS_OR_DEPS)
 include(CMakeLists.compat.txt)
 include(CMakeLists.android.txt)
+endif()
 include(CMakeLists.magisk.txt)
 
+if (NOT NO_TARGETS_OR_DEPS)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
@@ -54,13 +65,16 @@ pkg_check_modules(zlib REQUIRED IMPORTED_TARGET zlib)
 if (NOT APPLE AND NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Android" AND NOT WIN32)
     pkg_check_modules(libbsd REQUIRED IMPORTED_TARGET libbsd)
 endif()
+endif() # NO_TARGETS_OR_DEPS
 
 add_compile_options(-Wall)
 
+if (NOT NO_TARGETS_OR_DEPS)
 include(CMakeLists.rust.txt)
 include(CMakeLists.magiskboot.txt)
 include(CMakeLists.stub.txt)
 include(CMakeLists.lib.txt)
+endif()
 include(CMakeLists.patch.txt)
 
 # CPack configuration for creating source tarballs which already include

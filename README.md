@@ -182,9 +182,11 @@ Note: you may need to make sure your LLVM and LLD are sharing the same LLVM vers
 ### Generating source tarball
 
 ````shell
-cmake -G Ninja -B build  # configure
+cmake -G Ninja -B build -DNO_TARGETS_OR_DEPS=ON  # configure
 cmake --build build -t package_source  # make a source package
 ````
+
+Make sure you passed `-DNO_TARGETS_OR_DEPS=ON` to CMake while configuring, which will allow creating source tarball without installing the [build dependencies](#requirements).
 
 you should be able to find your source package under the `build` folder
 
