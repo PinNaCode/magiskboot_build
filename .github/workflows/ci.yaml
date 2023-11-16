@@ -1,0 +1,40 @@
+name: CI
+on:
+  push:
+    paths-ignore:
+      - 'LICENSE'
+      - 'README.md'
+  pull_request:
+    paths-ignore:
+      - 'LICENSE'
+      - 'README.md'
+
+jobs:
+  src:
+    name: Source
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Prepare
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential cmake ninja-build
+
+      - name: Setup Git
+        run: |
+          git config --global user.email "user@example.com"
+          git config --global user.name "Example user"
+
+      - name: Package source
+        run: |
+          cmake -B build -G Ninja -DNO_TARGETS_OR_DEPS=ON
+          cmake --build build -t package_source
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: srcpkg
+          path: ${{ github.workspace }}/build/magiskboot_*-src.tar.xz
