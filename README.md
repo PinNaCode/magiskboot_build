@@ -210,6 +210,12 @@ That means you have installed a non-nightly Rust toolchain, and that is not supp
 
 You may also run into issues if you don't have `rust-src` (STD library sources) installed, just install it like in the [Requirements](#requirements) section or simply follow the hint cargo gives you.
 
+#### Is this thing using the latest Magisk source?
+
+This project is very similiar to [android-tools][android-tools] which just maintains a set of patches on top of a specific upstream Magisk commit and require manual adaption for compiling with newer version source.
+
+Although I may update the version once in a while, [Pull requests](../../pulls) are welcome.
+
 #### I want static builds!
 
 ~~for static version please use the [static](../../tree/static) branch~~
