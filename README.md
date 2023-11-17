@@ -1,12 +1,6 @@
 ## magiskboot_build
 
-a simple CMake-based build system for magiskboot
-
-~~for static version please use the [static](../../tree/static) branch~~
-
-Static builds is deprecated, while it's still possible, you need to patch the CMakeLists yourself if you want to build static version.
-
-I just no longer have the interest to maintain the static version.
+a simple portable CMake-based build system for magiskboot
 
 ### Requirements
 
@@ -196,6 +190,10 @@ you should be able to find your source package under the `build` folder
 
 ### FAQ
 
+#### Where to download?
+
+CI builds are not yet available, this may get changed recently, I already have some plans to add it.
+
 #### Help, my Rust build has failed
 
 Since we are using nightly, random breakage is expected. Report it by filing an [Issue](../../issues).
@@ -211,6 +209,16 @@ See https://doc.rust-lang.org/book/appendix-07-nightly-rust.html for more inform
 That means you have installed a non-nightly Rust toolchain, and that is not supported currently, since the upstream uses nightly.
 
 You may also run into issues if you don't have `rust-src` (STD library sources) installed, just install it like in the [Requirements](#requirements) section or simply follow the hint cargo gives you.
+
+#### I want static builds!
+
+~~for static version please use the [static](../../tree/static) branch~~
+
+Static builds is deprecated, while it's still possible, you need to patch the CMakeLists yourself if you want to build static version.
+
+I just no longer have the interest to maintain the static version.
+
+Maybe I will add it back at some point.
 
 ### Development
 
