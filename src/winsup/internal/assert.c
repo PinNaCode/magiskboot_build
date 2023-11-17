@@ -29,7 +29,7 @@ void abort_unimpl(const char *s) {
     abort();
 }
 
-static char __win_strerror_buf[64 * 1024];
+static char __win_strerror_buf[64 * 1024 - 1];
 static pthread_mutex_t __win_strerror_lck;
 static const char *__unknown_strerror = "Unknown error";
 
