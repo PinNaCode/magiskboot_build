@@ -23,6 +23,7 @@ target_sources(platform_stubs PRIVATE
 
 add_library(libmman STATIC
     vendor/mman-win32/mman.c)
+target_compile_definitions(libmman PRIVATE -DWITH_WINSUP)
 target_include_directories(libmman PUBLIC vendor/mman-win32)
 target_link_libraries(platform_stubs INTERFACE libmman)
 

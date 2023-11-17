@@ -1,0 +1,120 @@
+From 7b13afa5bf72cac57118029ec8529b8f07d721f9 Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Fri, 17 Nov 2023 16:01:37 +0800
+Subject: [PATCH] set winerr via winsup
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ mman.c | 33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
+
+diff --git a/mman.c b/mman.c
+index e71666c..97b0408 100644
+--- a/mman.c
++++ b/mman.c
+@@ -9,6 +9,10 @@
+ #define FILE_MAP_EXECUTE    0x0020
+ #endif /* FILE_MAP_EXECUTE */
+ 
++#ifdef WITH_WINSUP
++// this function is defined in src/winsup/internal/errno.c
++extern void __set_errno_via_winerr(DWORD winerr);
++#else
+ static int __map_mman_error(const DWORD err, const int deferr)
+ {
+     if (err == 0)
+@@ -16,6 +20,7 @@ static int __map_mman_error(const DWORD err, const int deferr)
+     //TODO: implement
+     return err;
+ }
++#endif
+ 
+ static DWORD __map_mmap_prot_page(const int prot)
+ {
+@@ -107,7 +112,11 @@ void* mmap(void *addr, size_t len, int prot, int flags, int fildes, OffsetType o
+ 
+     if (fm == NULL)
+     {
++#ifdef WITH_WINSUP
++        __set_errno_via_winerr(GetLastError());
++#else
+         errno = __map_mman_error(GetLastError(), EPERM);
++#endif
+         return MAP_FAILED;
+     }
+   
+@@ -124,7 +133,11 @@ void* mmap(void *addr, size_t len, int prot, int flags, int fildes, OffsetType o
+   
+     if (map == NULL)
+     {
++#ifdef WITH_WINSUP
++        __set_errno_via_winerr(GetLastError());
++#else
+         errno = __map_mman_error(GetLastError(), EPERM);
++#endif
+         return MAP_FAILED;
+     }
+ 
+@@ -136,7 +149,11 @@ int munmap(void *addr, size_t len)
+     if (UnmapViewOfFile(addr))
+         return 0;
+         
++#ifdef WITH_WINSUP
++    __set_errno_via_winerr(GetLastError());
++#else
+     errno =  __map_mman_error(GetLastError(), EPERM);
++#endif
+     
+     return -1;
+ }
+@@ -149,7 +166,11 @@ int _mprotect(void *addr, size_t len, int prot)
+     if (VirtualProtect(addr, len, newProtect, &oldProtect))
+         return 0;
+     
++#ifdef WITH_WINSUP
++    __set_errno_via_winerr(GetLastError());
++#else
+     errno =  __map_mman_error(GetLastError(), EPERM);
++#endif
+     
+     return -1;
+ }
+@@ -159,7 +180,11 @@ int msync(void *addr, size_t len, int flags)
+     if (FlushViewOfFile(addr, len))
+         return 0;
+     
++#ifdef WITH_WINSUP
++    __set_errno_via_winerr(GetLastError());
++#else
+     errno =  __map_mman_error(GetLastError(), EPERM);
++#endif
+     
+     return -1;
+ }
+@@ -169,7 +194,11 @@ int mlock(const void *addr, size_t len)
+     if (VirtualLock((LPVOID)addr, len))
+         return 0;
+         
++#ifdef WITH_WINSUP
++    __set_errno_via_winerr(GetLastError());
++#else
+     errno =  __map_mman_error(GetLastError(), EPERM);
++#endif
+     
+     return -1;
+ }
+@@ -179,7 +208,11 @@ int munlock(const void *addr, size_t len)
+     if (VirtualUnlock((LPVOID)addr, len))
+         return 0;
+         
++#ifdef WITH_WINSUP
++    __set_errno_via_winerr(GetLastError());
++#else
+     errno =  __map_mman_error(GetLastError(), EPERM);
++#endif
+     
+     return -1;
+ }
+-- 
+2.42.0
+
