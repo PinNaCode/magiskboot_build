@@ -41,9 +41,11 @@ install nightly Rust via [rustup][rustup] first
 ````shell
 sudo apt update
 sudo apt upgrade  # upgrade all existing packages (optional)
-# replace clang-15, libc++-15-dev with clang and libc++-dev if your Ubuntu is too old, do the same for lld if you want to use it
+# replace clang-15, libc++-15-dev, libc++abi-15-dev with clang, libc++-dev and libc++abi-dev
+#  if your Ubuntu is too old, do the same for lld if you want to use it
 sudo apt install build-essential lzma-dev liblzma-dev liblz4-dev libbz2-dev libfdt-dev \
-                 zlib1g-dev pkgconf clang-15 libc++-15-dev cmake ninja-build libbsd-dev  # optional: lld-15
+                 zlib1g-dev pkgconf clang-15 libc++-15-dev libc++abi-15-dev cmake \
+                 ninja-build libbsd-dev  # optional: lld-15
 rustup component add rust-src  # install STD library source
 # the following cmds are only for Ubuntu jammy:
 mkdir ~/.bin
