@@ -186,6 +186,8 @@ If you modify something in the Rust part, you will have to perform `rm build/lib
 
 Pass `-DCMAKE_BUILD_TYPE=Debug` to CMake instead of `Release` during configuring to make some error log more verbose.
 
+For `vendor/` submodules with their name starting with `android_`, most of the patches are imported from [android-tools][android-tools], and don't always require updating.
+
 ### Special thanks to
 
 - [android-tools][android-tools] developers for many code and inspiration of this repository
