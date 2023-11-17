@@ -1,3 +1,4 @@
+use std::ffi::CString;
 use std::fs::{FileType as HostFileType, Metadata as HostMetadata};
 use std::os::windows::fs::MetadataExt as HostMetadataExt;
 use std::{path::Path, io, mem};
@@ -41,10 +42,15 @@ impl DirBuilder {
 
     fn mkdir(&self, p: &Path) -> io::Result<()> {
         let s = match p.to_str() {
-            Some(x) => x.as_ptr() as *mut i8,
+            Some(x) => x,
             None => return Err(io::Error::last_os_error())
         };
-        cvt(unsafe { libc::mkdir(s, self.mode) })?;
+        let cs = match CString::new(s) {
+            Ok(c) => c,
+            Err(_) => return Err(io::Error::last_os_error())
+        };
+
+        cvt(unsafe { libc::mkdir(cs.as_ptr(), self.mode) })?;
         Ok(())
     }
 
@@ -108,14 +114,22 @@ impl DirBuilderExt for DirBuilder {
 
 pub fn symlink<P: AsRef<Path>, Q: AsRef<Path>>(original: P, link: Q) -> io::Result<()> {
     let p = match original.as_ref().to_str() {
-        Some(x) => x.as_ptr() as *mut i8,
+        Some(x) => x,
         None => return Err(io::Error::last_os_error())
     };
     let q = match link.as_ref().to_str() {
-        Some(x) => x.as_ptr() as *mut i8,
+        Some(x) => x,
         None => return Err(io::Error::last_os_error())
     };
-    cvt(unsafe { libc::symlink(p, q) })?;
+    let ps = match CString::new(p) {
+        Ok(c) => c,
+        Err(_) => return Err(io::Error::last_os_error())
+    };
+    let qs = match CString::new(q) {
+        Ok(c) => c,
+        Err(_) => return Err(io::Error::last_os_error())
+    };
+    cvt(unsafe { libc::symlink(ps.as_ptr(), qs.as_ptr()) })?;
     Ok(())
 }
 
@@ -217,12 +231,16 @@ impl MetadataExt for Metadata {
 
 pub fn stat(p: &Path) -> io::Result<FileAttr> {
     let s = match p.to_str() {
-        Some(x) => x.as_ptr() as *mut i8,
+        Some(x) => x,
         None => return Err(io::Error::last_os_error())
+    };
+    let cs = match CString::new(s) {
+        Ok(c) => c,
+        Err(_) => return Err(io::Error::last_os_error())
     };
 
     let mut stat: libc::stat = unsafe { mem::zeroed() };
-    cvt(unsafe { libc::stat(s, &mut stat) })?;
+    cvt(unsafe { libc::stat(cs.as_ptr(), &mut stat) })?;
     Ok(FileAttr::from_stat(stat))
 }
 
