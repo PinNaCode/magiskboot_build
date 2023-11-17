@@ -184,6 +184,8 @@ To quickly discard the current `build` directory and dirty `vendor/` submodule c
 
 If you modify something in the Rust part, you will have to perform `rm build/libmagiskboot-rs.a` manually before rebuilding. (TODO: let CMake detect source changes)
 
+Pass `-DCMAKE_BUILD_TYPE=Debug` to CMake instead of `Release` during configuring to make some error log more verbose.
+
 ### Special thanks to
 
 - [android-tools][android-tools] developers for many code and inspiration of this repository
