@@ -1,4 +1,5 @@
 #include <limits.h>
+#include <string.h>
 #include <io.h>
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -9,6 +10,17 @@
 #define LOG_TAG             "fd_internal"
 #define LOG_ERR(...)        log_err(LOG_TAG, __VA_ARGS__);
 #endif
+
+static const char *PATH_PFX = "\\\\?\\";
+static const char *UNC_PATH_PFX = "\\\\?\\UNC\\";
+
+static size_t path_pfx_len;
+static size_t unc_path_pfx_len;
+
+__attribute__((constructor)) static void __init_data(void) {
+    path_pfx_len = strlen(PATH_PFX);
+    unc_path_pfx_len = strlen(UNC_PATH_PFX);
+}
 
 char *__fd_get_path(int fd) {
     char *buf = malloc(PATH_MAX);
@@ -23,6 +35,19 @@ char *__fd_get_path(int fd) {
         free(buf);
 
         return NULL;
+    }
+
+    size_t buf_len = strlen(buf);
+    size_t path_len;
+
+    if (!strncmp(buf, UNC_PATH_PFX, unc_path_pfx_len)) {
+        path_len = buf_len - unc_path_pfx_len;
+        memmove(buf + 2, buf + unc_path_pfx_len, path_len);
+        buf[path_len + 2] = '\0';
+    } else if (!strncmp(buf, PATH_PFX, path_pfx_len)) {
+        path_len = buf_len - path_pfx_len;
+        memmove(buf, buf + path_pfx_len, path_len);
+        buf[path_len] = '\0';
     }
 
     return buf;
