@@ -23,7 +23,7 @@ for build-time dependencies:
 1. [pkg-config][pkg-config]
 2. [Clang][Clang]
 3. [LLD][LLD] (optional on Linux)
-4. [Rust][Rust] (nightly)
+4. [Rust][Rust] (**nightly**)
 5. [Cargo][Cargo]
 6. [CMake][CMake]
 7. [Libc++][Libcxx]
@@ -193,6 +193,24 @@ cmake --build build -t package_source  # make a source package
 ````
 
 you should be able to find your source package under the `build` folder
+
+### FAQ
+
+#### Help, my Rust build has failed
+
+Since we are using nightly, random breakage is expected. Report it by filing an [Issue](../../issues).
+
+However, if your build fails with something like this:
+
+````text
+[32/62] Building Rust static library libmagiskboot-rs.a
+error: the `-Z` flag is only accepted on the nightly channel of Cargo, but this is the `stable` channel
+See https://doc.rust-lang.org/book/appendix-07-nightly-rust.html for more information about Rust release channels.
+````
+
+That means you have installed a non-nightly Rust toolchain, and that is not supported currently, since the upstream uses nightly.
+
+You may also run into issues if you don't have `rust-src` (STD library sources) installed, just install it like in the [Requirements](#requirements) section or simply follow the hint cargo gives you.
 
 ### Development
 
