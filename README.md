@@ -119,16 +119,13 @@ However, some POSIX functions in `src/winsup/*_compat.c` are still unimplemented
 
 Install [MSYS2][MSYS2] first, use the MINGW64 Terminal. Change the setting for `mintty.exe` and give it administrator permission (needed for using native symlinks).
 
-don't forget to set this environtment variable to allow symlinks to work properly: `export MSYS=winsymlinks:nativestrict` (required for the build I guess)
-
-(NOTE: This step maybe destructive, and you may get pacman error. Just ignore it and somehow proceed with the installation) Follow this [Wiki page](https://github.com/git-for-windows/git/wiki/Install-inside-MSYS2-proper) to install [Git for Windows][Git-for-Windows] for your MINGW64 Environment in MSYS2. (***This is probably a must for the build, so don't skip***)
+don't forget to set this environtment variable to allow symlinks to work properly: `export MSYS=winsymlinks:native` (required for the build I guess)
 
 install nightly Rust via [rustup][rustup] (Please choose the GNU ABI)
 
-
 ````shell
 pacman -Syu  # upgrade all existing packages (optional, you may need to do this for multiple times)
-pacman -S base-devel mingw-w64-x86_64-{xz,lz4,bzip2,dtc,zlib,pkgconf,clang,lld,cmake,libc++,ninja}
+pacman -S base-devel cygpath mingw-w64-x86_64-{xz,lz4,bzip2,dtc,zlib,pkgconf,clang,lld,cmake,libc++,ninja}
 rustup component add rust-src  # install STD library source
 ````
 

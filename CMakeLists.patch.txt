@@ -1,5 +1,18 @@
 find_program(PATCH_EXECUTABLE patch REQUIRED)
+message(STATUS "Found patch: ${PATCH_EXECUTABLE}")
 find_package(Git REQUIRED)
+if (WIN32)
+    find_program(cygpath_EXECUTABLE cygpath REQUIRED)
+    message(STATUS "Found cygpath: ${cygpath_EXECUTABLE}")
+    execute_process(
+        COMMAND ${cygpath_EXECUTABLE} -m /bin
+        OUTPUT_VARIABLE "FIND_FIND_PATH"
+        COMMAND_ERROR_IS_FATAL ANY
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    find_program(find_EXECUTABLE find REQUIRED PATHS ${FIND_FIND_PATH})
+    message(STATUS "Found find: ${find_EXECUTABLE}")
+endif()
 
 set(vendored_dirs
     Magisk
@@ -17,6 +30,10 @@ if(PATCH_VENDOR_PROJECTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/patches")
     endif()
     execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --force --recursive)
     execute_process(COMMAND ${GIT_EXECUTABLE} submodule foreach --recursive ${GIT_EXECUTABLE} clean -fd)
+    if (WIN32)
+        execute_process(COMMAND ${find_EXECUTABLE} -type l -exec rm -f {} +)
+        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --force --recursive)
+    endif()
     foreach(vendor_dir ${vendored_dirs})
         file(GLOB patches ${CMAKE_CURRENT_SOURCE_DIR}/patches/${vendor_dir}/*.patch)
         if(patches)

@@ -8,5 +8,7 @@ ifeq ($(OS),Windows_NT)
 endif
 	git submodule update -f --recursive
 	git submodule foreach --recursive git clean -fd
-
-clear: clean checkout
+ifeq ($(OS),Windows_NT)
+	find -type l -exec rm -f {} +
+	git submodule update -f --recursive
+endif
