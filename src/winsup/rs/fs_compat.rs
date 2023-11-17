@@ -2,7 +2,7 @@ use std::ffi::CString;
 use std::fs::{FileType as HostFileType, Metadata as HostMetadata};
 use std::os::windows::fs::MetadataExt as HostMetadataExt;
 use std::{path::Path, io, mem};
-use cvt::cvt;
+use crate::cvt_compat::cvt;
 use libc::mode_t;
 
 // stubs for the MinGW stuffs
