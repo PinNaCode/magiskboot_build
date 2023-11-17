@@ -147,6 +147,10 @@ You will also need to compile the LLVM/Clang from source to add Cygwin target, s
 
 ### Build & Install
 
+Clone this repository using Git with this option: `--recurse-submodules`
+
+Or you if already have a cloned repository without using that option, run: `git submodule update --init --recursive`
+
 ````shell
 cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release  # configure
 cmake --build build -j $(nproc)  # build
