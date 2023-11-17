@@ -55,7 +55,9 @@ int _open_stub(const char *path, int oflag, ... ) {
                 share_mode = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
                 break;
             default:
+#ifndef NDEBUG
                 LOG_ERR("invalid access mode for directory");
+#endif
                 errno = EINVAL;
                 return -1;
         }
