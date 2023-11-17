@@ -226,6 +226,13 @@ I just no longer have the interest to maintain the static version.
 
 Maybe I will add it back at some point.
 
+#### Eh, so my platform is not supported by your sh*t
+
+This project aims to be portable, and it should possible to get ported to new platforms, as long as your platform have the stuffs mentioned in the [Requirements](#requirements) section.
+
+Not? Check out the [Cygwin](#cygwin-wip) platform, maybe you can try porting those dependencies yourself.
+Or, check the dirty MinGW port mentioned in [Windows (MinGW)](#windows-mingw) section if you prefer that way. But these are not covered by this project.
+
 ### Development
 
 To quickly discard the current `build` directory and dirty `vendor/` submodule changes, please run `make clean`.
