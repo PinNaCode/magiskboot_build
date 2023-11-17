@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <assert.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -133,14 +134,7 @@ struct _dirent_stub* _readdir_stub (_DIR_stub* dirp) {
         return NULL;
 
     // fstatat should not fail
-    // or pretend there is no more entries
-    old_errno = errno;
-
-    if (fstatat(dirp->fd, d->d_name, &buf, AT_SYMLINK_NOFOLLOW) < 0) {
-        errno = old_errno;
-
-        return NULL;
-    }
+    assert(!(fstatat(dirp->fd, d->d_name, &buf, AT_SYMLINK_NOFOLLOW) < 0));
 
     if (S_ISREG(buf.st_mode))
         type = DT_REG;
