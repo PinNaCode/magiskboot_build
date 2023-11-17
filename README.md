@@ -34,6 +34,8 @@ please ensure you have installed the above softwares before building
 
 there are examples for some popular operating systems/distributions:
 
+<details><summary>Linux</summary>
+
 #### Ubuntu 22.04 (jammy)
 
 install nightly Rust via [rustup][rustup] first
@@ -59,21 +61,6 @@ ln -s `which clang++-15` ~/.bin/clang++
 export PATH=~/.bin:$PATH
 ````
 
-#### macOS Big Sur (or higher verison)
-
-install [Homebrew][Homebrew] first
-
-````shell
-brew update
-brew upgrade  # upgrade all existing packages (optional)
-brew install binutils xz lz4 bzip2 dtc zlib pkgconf llvm cmake ninja rustup-init
-rustup-init  # install nightly Rust here
-mkdir ~/.bin
-for x in $HOMEBREW_PREFIX/opt/binutils/bin/*; do ln -s $x ~/.bin; done
-unlink ~/.bin/strip  # avoids "Killed 9" error
-export PATH=$HOMEBREW_PREFIX/opt/llvm/bin:~/.bin:$PATH
-````
-
 #### Alpine Linux (edge)
 
 install nightly Rust via [rustup][rustup] (can be installed with `apk`) first
@@ -96,6 +83,29 @@ sudo pacman -S --needed base-devel xz lz4 bzip2 dtc zlib pkgconf clang libc++ cm
 rustup component add rust-src  # install STD library source
 ````
 
+</details>
+
+<details><summary>macOS</summary>
+
+#### macOS Big Sur (or higher verison)
+
+install [Homebrew][Homebrew] first
+
+````shell
+brew update
+brew upgrade  # upgrade all existing packages (optional)
+brew install binutils xz lz4 bzip2 dtc zlib pkgconf llvm cmake ninja rustup-init
+rustup-init  # install nightly Rust here
+mkdir ~/.bin
+for x in $HOMEBREW_PREFIX/opt/binutils/bin/*; do ln -s $x ~/.bin; done
+unlink ~/.bin/strip  # avoids "Killed 9" error
+export PATH=$HOMEBREW_PREFIX/opt/llvm/bin:~/.bin:$PATH
+````
+
+</details>
+
+<details><summary>Android</summary>
+
 #### Termux
 
 Building on Termux is no longer supported.
@@ -113,6 +123,10 @@ apt install tur-repo  # for nightly Rust package
 apt install build-essentials liblzma liblz4 libbz2 dtc zlib pkg-config \
             clang lld rustc-nightly rust-src-nightly cmake ninja libbsd
 ````
+
+</details>
+
+<details><summary>Windows</summary>
 
 #### Windows (MinGW)
 
@@ -146,6 +160,8 @@ Currently Cygwin Rust has no host tools support, so you have patch the CMakeList
 NOTE: This project doesn't support cross-compiling for now, but it should be easy to get patched to support that.
 
 You will also need to compile the LLVM/Clang from source to add Cygwin target, see: [my unofficial cygports](https://github.com/orgs/ookiineko-cygpkg/repositories)
+
+</details>
 
 ### Build & Install
 
