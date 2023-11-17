@@ -24,6 +24,7 @@ option(PATCH_VENDOR_PROJECTS "Patch vendor projects using patches directory" ON)
 
 option(USE_LTO_LINKER_PLUGIN "Keep LLVM bitcode in objects for LTO (requires LLD)" OFF)
 
+# XXX: can be detected if dump target JSON (rustc)
 if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" AND NOT CYGWIN)
 set(USE_LTO_LINKER_PLUGIN ON)
 endif()

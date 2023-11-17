@@ -172,6 +172,12 @@ cmake --build build -t package_source  # make a source package
 
 you should be able to find your source package under the `build` folder
 
+### Development
+
+To quickly discard the current `build` directory and dirty `vendor/` submodule changes, please run `make clean`.
+
+If you modify something in the Rust part, you will have to perform `rm build/libmagiskboot-rs.a` manually before rebuilding. (TODO: let CMake detect source changes)
+
 ### Special thanks to
 
 - [android-tools][android-tools] developers for many code and inspiration of this repository
