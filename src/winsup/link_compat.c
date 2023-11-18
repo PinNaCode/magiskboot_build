@@ -56,7 +56,6 @@ ssize_t readlink (const char *__restrict path,
     }
 
     if (buff->ReparseTag != IO_REPARSE_TAG_SYMLINK) {
-not_symlink:
         // not a symlink
         errno = EINVAL;
         goto error;
@@ -73,8 +72,11 @@ not_symlink:
     } else if (buff->SymbolicLinkReparseBuffer.SubstituteNameLength != 0) {
         ws_ptr = (WCHAR *) ((CHAR *) (buff->SymbolicLinkReparseBuffer.PathBuffer) + buff->SymbolicLinkReparseBuffer.SubstituteNameOffset);
         ws_len = buff->SymbolicLinkReparseBuffer.SubstituteNameLength;
-    } else
-        assert(0);  // this should not happen
+    } else {
+        // this should not happen
+        assert(0);
+        return -1;  // never reached
+    }
 
     size_t chars;
     errno_t err = wcstombs_s(&chars, buf, len, ws_ptr, lc_min(len - 1, ws_len / sizeof(WCHAR)));
