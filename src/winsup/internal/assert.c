@@ -24,7 +24,8 @@ void log_err(const char *tag, const char *fmt, ...) {
 }
 
 void abort_unimpl(const char *s) {
-    log_err("ABORT", "%s is not implemented", s);
+    log_err("ABORT", "'%s' function is not yet ported to this platform, the program will have to stop now.\n"
+                     "This is not a bug, ask the developer to implement this function if it is important to you.", s);
     abort();
 }
 
