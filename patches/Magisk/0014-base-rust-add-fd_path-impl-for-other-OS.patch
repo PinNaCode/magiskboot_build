@@ -33,9 +33,9 @@ index 892d375..25ed2e7 100644
 +            return Err(io::Error::last_os_error())
 +        }
 +        let len = path_buf.iter().position(|&x| x == 0).unwrap();
-+        let copy_len: usize = len.min(buf.len());
-+        let copy_max_off: usize = copy_len as usize;
-+        buf[..copy_max_off].copy_from_slice(&path_buf[..copy_max_off]);
++        let copy_len: usize = len.min(buf.len().saturating_sub(1));
++        buf[..copy_len].copy_from_slice(&path_buf[..copy_len]);
++        buf.get_mut(copy_len).map(|b| *b = 0);
 +        Ok(copy_len)
 +    }
 +}
@@ -54,14 +54,14 @@ index 892d375..25ed2e7 100644
 +           }
 +       };
 +       let path_str = match path.to_str() {
-+           Some(s) => s,
++           Some(s) => s.as_bytes(),
 +           None => {
 +               return Err(io::Error::last_os_error())
 +           }
 +       };
-+       let bytes_to_copy = path_str.len().min(buf.len());
-+       buf[..bytes_to_copy].copy_from_slice(&path_str.as_bytes()[..bytes_to_copy]);
-+
++       let bytes_to_copy = path_str.len().min(buf.len().saturating_sub(1));
++       buf[..bytes_to_copy].copy_from_slice(&path_str[..bytes_to_copy]);
++       buf.get_mut(bytes_to_copy).map(|b| *b = 0);
 +       Ok(bytes_to_copy)
 +   }
 +}
