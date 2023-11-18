@@ -141,19 +141,6 @@ diff --git a/native/src/base/misc.hpp b/native/src/base/misc.hpp
 index 3bead41..d097388 100644
 --- a/native/src/base/misc.hpp
 +++ b/native/src/base/misc.hpp
-@@ -251,10 +251,12 @@ static inline std::string rtrim(std::string &&s) {
-     return std::move(s);
- }
- 
-+#ifndef _WIN32
- int fork_dont_care();
- #ifdef __linux__
- int fork_no_orphan();
- #endif
-+#endif
- void init_argv0(int argc, char **argv);
- void set_nice_name(const char *name);
- uint32_t binary_gcd(uint32_t u, uint32_t v);
 @@ -282,7 +284,11 @@ struct exec_t {
      bool err = false;
      int fd = -2;

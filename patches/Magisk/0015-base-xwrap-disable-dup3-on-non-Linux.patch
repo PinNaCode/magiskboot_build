@@ -5,24 +5,9 @@ Subject: [PATCH] base: xwrap: disable dup3 on non-Linux
 
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
- native/src/base/xwrap.hpp | 2 ++
  native/src/base/xwrap.rs  | 6 +++++-
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ 1 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/native/src/base/xwrap.hpp b/native/src/base/xwrap.hpp
-index 71be943..098d547 100644
---- a/native/src/base/xwrap.hpp
-+++ b/native/src/base/xwrap.hpp
-@@ -41,7 +41,9 @@ int xfstat(int fd, struct stat *buf);
- int xfstatat(int dirfd, const char *pathname, struct stat *buf, int flags);
- int xdup(int fd);
- int xdup2(int oldfd, int newfd);
-+#ifdef __linux__
- int xdup3(int oldfd, int newfd, int flags);
-+#endif
- ssize_t xreadlink(const char * __restrict__ pathname, char * __restrict__ buf, size_t bufsiz);
- ssize_t xreadlinkat(
-         int dirfd, const char * __restrict__ pathname, char * __restrict__ buf, size_t bufsiz);
 diff --git a/native/src/base/xwrap.rs b/native/src/base/xwrap.rs
 index 08a81c6..a0f560f 100644
 --- a/native/src/base/xwrap.rs
