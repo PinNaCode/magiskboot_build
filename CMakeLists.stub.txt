@@ -14,7 +14,6 @@ target_sources(platform_stubs PRIVATE
     src/winsup/acl_compat.c
     src/winsup/str_compat.c
     src/winsup/libbsd_compat.c
-    src/winsup/xattr_compat.c
     src/winsup/uio_compat.c
     src/winsup/open_compat.c
     src/winsup/internal/assert.c

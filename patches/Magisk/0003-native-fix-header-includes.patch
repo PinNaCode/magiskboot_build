@@ -9,10 +9,9 @@ Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
  native/src/base/files.hpp   |  6 ++++++
  native/src/base/logging.hpp |  4 ++++
  native/src/base/misc.cpp    | 17 +++++++++++++++++
- native/src/base/selinux.cpp |  7 +++++++
  native/src/base/stream.cpp  |  3 +++
  native/src/base/xwrap.hpp   |  5 +++++
- 7 files changed, 50 insertions(+)
+ 6 files changed, 43 insertions(+)
 
 diff --git a/native/src/base/files.cpp b/native/src/base/files.cpp
 index 6829de2..8aef651 100644
@@ -152,28 +151,6 @@ index 313d136..f0188b5 100644
  
  #include <base.hpp>
  
-diff --git a/native/src/base/selinux.cpp b/native/src/base/selinux.cpp
-index dcf3cb0..e404984 100644
---- a/native/src/base/selinux.cpp
-+++ b/native/src/base/selinux.cpp
-@@ -1,6 +1,17 @@
- #include <unistd.h>
-+#if !defined(__CYGWIN__) && !defined(_WIN32)
- #include <sys/syscall.h>
-+#endif
-+#ifdef _WIN32
-+#include <winsup/xattr_compat.h>
-+#else
- #include <sys/xattr.h>
-+#endif
-+#ifdef __linux__
-+#include <linux/xattr.h>
-+#else
-+#define XATTR_NAME_SELINUX	"security.selinux"
-+#endif
- 
- #include <base.hpp>
- #include <selinux.hpp>
 diff --git a/native/src/base/stream.cpp b/native/src/base/stream.cpp
 index b7a775c..9a77dde 100644
 --- a/native/src/base/stream.cpp
