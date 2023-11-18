@@ -1,8 +1,9 @@
 #include <sys/types.h>
-
-#include "internal/assert.h"
+#include <errno.h>
 
 int mknod (const char *path, mode_t mode, dev_t dev ) {
-    TODO(mknod)
+    // no easy way to implement mknod properly on Win32
+    // since we don't have device files in normal filesystem
+    errno = ENOTSUP;  // maybe set a listed errno in man page?
     return -1;
 }
