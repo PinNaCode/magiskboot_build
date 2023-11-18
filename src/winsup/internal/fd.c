@@ -1,8 +1,15 @@
 #include <limits.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <errno.h>
 #include <io.h>
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+
+#include "../../../include/winsup/stat_compat.h"
+
+#include "errno.h"
 
 #ifndef NDEBUG
 #include "assert.h"
@@ -77,4 +84,40 @@ int __open_dir_fd(const char *path, DWORD access, DWORD share_mode, int flags) {
     // don't close the original handle, the ownership is transferred to the fd
 
     return fd;
+}
+
+bool __is_dirfd(int fd) {
+    struct stat buf;
+
+    if (_fstat_stub(fd, &buf) < 0)
+        goto not;  // errno is set by fstat
+
+    if (S_ISDIR(buf.st_mode))
+        return true;
+
+not:
+    errno = ENOTDIR;
+    return false;
+}
+
+char *__get_path_at(int dirfd, const char *name) {
+    if (!__is_dirfd(dirfd))
+        return NULL;  // errno is set by this call
+
+    char *parent = __fd_get_path(dirfd);
+
+    if (!parent) {
+        __set_errno_via_winerr(GetLastError());
+
+        return NULL;
+    }
+
+    char *buff = malloc(PATH_MAX);
+
+    if (!buff)
+        return NULL;
+
+    snprintf(buff, PATH_MAX, "%s/%s", parent, name);
+
+    return buff;
 }

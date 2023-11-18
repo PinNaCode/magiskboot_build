@@ -20,6 +20,7 @@ target_sources(platform_stubs PRIVATE
     src/winsup/internal/assert.c
     src/winsup/internal/errno.c
     src/winsup/internal/fd.c)
+target_link_libraries(platform_stubs INTERFACE shlwapi)
 
 add_library(libmman STATIC
     vendor/mman-win32/mman.c)

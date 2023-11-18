@@ -26,7 +26,6 @@
 #define dirent_min(a, b)  (((a) < (b)) ? (a) : (b))
 
 _DIR_stub *_opendir_stub (const char *path) {
-    struct stat buf;
     _DIR_stub *res = NULL;
     DIR *real_dirp;
     int fd = _open_stub(path, O_PATH);
@@ -34,14 +33,8 @@ _DIR_stub *_opendir_stub (const char *path) {
     if (fd < 0)
         goto error;
 
-    if (fstat(fd, &buf) < 0)
-        goto error;
-
-    if (!S_ISDIR(buf.st_mode)) {
-        errno = ENOTDIR;
-
-        goto error;
-    }
+    // no need to check if path is a dir,
+    // since the real opendir will check it
 
     if (!(res = malloc(sizeof(_DIR_stub))))
         goto error;
@@ -67,22 +60,12 @@ error:
 }
 
 _DIR_stub *fdopendir(int fd) {
-    struct stat buf;
     _DIR_stub *res = NULL;
     DIR *real_dirp;
     char *path = NULL;
 
-    // fstat would fail if fd is invalid
-    // no need to check it here
-
-    if (_fstat_stub(fd, &buf) < 0)
-        goto error;
-
-    if (!S_ISDIR(buf.st_mode)) {
-        errno = ENOTDIR;
-
-        goto error;
-    }
+    if (!__is_dirfd(fd))
+        goto error;  // errno is already set by this call
 
     if (!(path = __fd_get_path(fd))) {
         __set_errno_via_winerr(GetLastError());
@@ -122,7 +105,6 @@ struct _dirent_stub* _readdir_stub (_DIR_stub* dirp) {
     static struct _dirent_stub res;  // not thread-safe
     struct stat buf;
     unsigned char type = DT_UNKNOWN;
-    int old_errno;
 
     if (!dirp || !dirp->dirp || dirp->fd < 0) {
         errno = EBADF;
