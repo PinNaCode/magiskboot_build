@@ -7,7 +7,7 @@
 #include "internal/errno.h"
 
 int _stat_stub(const char *name, struct stat *buf) {
-    return stat(name, buf);
+    return stat(name, buf);  // TODO: implement our own stat
 }
 
 int _fstat_stub(int fd, struct stat *buf) {
