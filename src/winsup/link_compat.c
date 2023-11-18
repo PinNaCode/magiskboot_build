@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -73,7 +74,7 @@ not_symlink:
         ws_ptr = (WCHAR *) ((CHAR *) (buff->SymbolicLinkReparseBuffer.PathBuffer) + buff->SymbolicLinkReparseBuffer.SubstituteNameOffset);
         ws_len = buff->SymbolicLinkReparseBuffer.SubstituteNameLength;
     } else
-        goto not_symlink;
+        assert(0);  // this should not happen
 
     size_t chars;
     errno_t err = wcstombs_s(&chars, buf, len, ws_ptr, lc_min(len - 1, ws_len / sizeof(WCHAR)));
