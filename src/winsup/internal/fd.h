@@ -15,6 +15,8 @@ int __open_dir_fd(const char *path, DWORD access, DWORD share_mode, int flags);
 
 bool __is_dirfd(int fd);
 
+int __open_symlink_fd(const char *path, DWORD access, DWORD share_mode, int flags);
+
 #ifdef WIN32_LEAN_AND_MEAN
 #undef WIN32_LEAN_AND_MEAN
 #endif
