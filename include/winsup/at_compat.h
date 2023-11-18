@@ -18,7 +18,7 @@ int     linkat (int dirfd1, const char *path1, int dirfd2, const char *path2, in
 
 int unlinkat (int dirfd, const char *pathname, int flags);
 
-int openat (int dirfd, const char *pathname, int flags, mode_t mode);
+int openat (int dirfd, const char *pathname, int flags, ...);
 
 int faccessat (int dirfd, const char *path, int mode, int flags);
 
