@@ -23,8 +23,8 @@
  * THE SOFTWARE.
  */
 
-#include <unistd.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include "../../include/winsup/uio_compat.h"
 

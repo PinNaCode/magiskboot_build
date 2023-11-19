@@ -1,10 +1,10 @@
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
 #include <ctype.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #ifndef NDEBUG
 #include <stdio.h>
@@ -14,11 +14,11 @@
 #include <Windows.h>
 #include <winternl.h>
 
-#include "../../include/winsup/stat_compat.h"
 #include "../../include/winsup/link_compat.h"
+#include "../../include/winsup/stat_compat.h"
 
-#include "internal/fd.h"
 #include "internal/errno.h"
+#include "internal/fd.h"
 
 #define EXE_SUFFIX          (('e' << 2) | ('x' << 1) | 'e')
 #define BAT_SUFFIX          (('b' << 2) | ('a' << 1) | 't')

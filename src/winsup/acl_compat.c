@@ -2,8 +2,8 @@
 
 #include "../../include/winsup/acl_compat.h"
 
-#include "internal/fd.h"
 #include "internal/errno.h"
+#include "internal/fd.h"
 
 int fchmod (int fd, mode_t mode) {
     char *path = __fd_get_path(fd);

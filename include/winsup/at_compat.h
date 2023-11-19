@@ -5,9 +5,12 @@
 extern "C" {
 #endif
 
-#include <sys/types.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+
+#define AT_REMOVEDIR 1
+#define AT_SYMLINK_NOFOLLOW 2
 
 ssize_t readlinkat (int dirfd, const char *__restrict path,
                             char *__restrict buf, size_t len);
@@ -27,9 +30,6 @@ int fstatat (int dirfd, const char *__restrict pathname, struct stat *__restrict
 int mkdirat (int dirfd, const char *pathname, mode_t mode);
 
 int    renameat (int, const char *, int, const char *);
-
-#define AT_REMOVEDIR 1
-#define AT_SYMLINK_NOFOLLOW 2
 
 #ifdef __cplusplus
 }

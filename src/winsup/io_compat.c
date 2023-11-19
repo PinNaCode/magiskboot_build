@@ -1,8 +1,7 @@
-#include <sys/types.h>
-#include <io.h>
-#include <stdlib.h>  // for _fmode
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdlib.h>  // for _fmode
+#include <sys/types.h>
 
 ssize_t _read_stub(int fd, void *buf, size_t count) {
     return read(fd, buf, count);

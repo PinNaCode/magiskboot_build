@@ -17,7 +17,7 @@ diff --git a/native/src/base/files.cpp b/native/src/base/files.cpp
 index 6829de2..8aef651 100644
 --- a/native/src/base/files.cpp
 +++ b/native/src/base/files.cpp
-@@ -1,10 +1,38 @@
+@@ -1,10 +1,40 @@
 +#ifdef _WIN32
 +#include <mman.h>
 +#else
@@ -44,12 +44,14 @@ index 6829de2..8aef651 100644
 +#endif
 +#ifdef _WIN32
 +#define O_CLOEXEC 0
-+#include <winsup/dirent_compat.h>
-+#include <winsup/at_compat.h>
-+#include <winsup/stat_compat.h>
-+#include <winsup/mknod_compat.h>
-+#include <winsup/acl_compat.h>
++
 +#include <getline.h>
++#include <winsup/acl_compat.h>
++#include <winsup/at_compat.h>
++#include <winsup/dirent_compat.h>
++#include <winsup/mknod_compat.h>
++#include <winsup/stat_compat.h>
++
 +#define dirent _dirent_stub
 +#define getline msvc_getline
 +#endif
@@ -60,7 +62,7 @@ diff --git a/native/src/base/files.hpp b/native/src/base/files.hpp
 index 0d8d11c..c4bb952 100644
 --- a/native/src/base/files.hpp
 +++ b/native/src/base/files.hpp
-@@ -6,7 +6,18 @@
+@@ -6,7 +6,19 @@
  #include <string>
  #include <vector>
  
@@ -72,9 +74,10 @@ index 0d8d11c..c4bb952 100644
 +#include <cygwin/fs.h>
 +#elif defined(_WIN32)
 +#include <winsup/dirent_compat.h>
-+#define opendir _opendir_stub
++
 +#define closedir _closedir_stub
 +#define DIR _DIR_stub
++#define opendir _opendir_stub
 +#endif
  #include "misc.hpp"
  
@@ -110,7 +113,7 @@ diff --git a/native/src/base/misc.cpp b/native/src/base/misc.cpp
 index 313d136..f0188b5 100644
 --- a/native/src/base/misc.cpp
 +++ b/native/src/base/misc.cpp
-@@ -1,13 +1,39 @@
+@@ -1,13 +1,40 @@
  #include <sys/types.h>
 +#ifndef _WIN32
  #include <sys/wait.h>
@@ -127,16 +130,17 @@ index 313d136..f0188b5 100644
 +#endif
  #include <unistd.h>
 +#ifdef __APPLE__
-+#include <sys/syscall.h>
-+#include <crt_externs.h>
 +#define environ (*_NSGetEnviron())
++
++#include <crt_externs.h>
++#include <sys/syscall.h>
 +#endif
 +#if !defined(__CYGWIN__) && !defined(__APPLE__) && !defined(_WIN32)
  #include <syscall.h>
 +#endif
 +#if defined(__APPLE__) || defined(__CYGWIN__) || defined(_WIN32)
-+#include <signal.h>
 +#include <pthread.h>
++#include <signal.h>
 +#endif
  #include <random>
  #include <string>
@@ -144,8 +148,8 @@ index 313d136..f0188b5 100644
 +#include <bsd/string.h>
 +#endif
 +#ifdef _WIN32
-+#include <winsup/str_compat.h>
 +#include <winsup/libbsd_compat.h>
++#include <winsup/str_compat.h>
 +#endif
  
  #include <base.hpp>
@@ -182,7 +186,7 @@ diff --git a/native/src/base/xwrap.hpp b/native/src/base/xwrap.hpp
 index ce7a6dd..b4ba2c0 100644
 --- a/native/src/base/xwrap.hpp
 +++ b/native/src/base/xwrap.hpp
-@@ -2,8 +2,20 @@
+@@ -2,8 +2,21 @@
  
  #include <dirent.h>
  #include <stdio.h>
@@ -197,6 +201,7 @@ index ce7a6dd..b4ba2c0 100644
 +#include <sys/types.h>
 +#ifdef _WIN32
 +#include <winsup/dirent_compat.h>
++
 +#define dirent _dirent_stub
 +#define DIR _DIR_stub
 +#endif
@@ -221,7 +226,7 @@ diff --git a/native/src/boot/bootimg.cpp b/native/src/boot/bootimg.cpp
 index a80a746..857eff2 100644
 --- a/native/src/boot/bootimg.cpp
 +++ b/native/src/boot/bootimg.cpp
-@@ -2,6 +2,13 @@
+@@ -2,6 +2,14 @@
  #include <memory>
 
  #include <libfdt.h>
@@ -229,8 +234,9 @@ index a80a746..857eff2 100644
 +#include <sendfile_compat.h>
 +#endif
 +#ifdef _WIN32
-+#include <winsup/str_compat.h>
 +#define O_CLOEXEC 0
++
++#include <winsup/str_compat.h>
 +#endif
  #include <base.hpp>
 
@@ -239,13 +245,14 @@ diff --git a/native/src/boot/dtb.cpp b/native/src/boot/dtb.cpp
 index d648a90..2881338 100644
 --- a/native/src/boot/dtb.cpp
 +++ b/native/src/boot/dtb.cpp
-@@ -1,6 +1,10 @@
+@@ -1,6 +1,11 @@
  #include <bitset>
  #include <vector>
  #include <map>
 +#ifdef _WIN32
-+#include <winsup/str_compat.h>
 +#define O_CLOEXEC 0
++
++#include <winsup/str_compat.h>
 +#endif
  #include <libfdt.h>
  

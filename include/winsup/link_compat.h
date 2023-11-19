@@ -5,8 +5,8 @@
 extern "C" {
 #endif
 
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 ssize_t readlink (const char *__restrict path,
                           char *__restrict buf, size_t len);

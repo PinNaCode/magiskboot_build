@@ -1,5 +1,5 @@
-#include <sys/types.h>
 #include <errno.h>
+#include <sys/types.h>
 
 int mknod (const char *path, mode_t mode, dev_t dev ) {
     // no easy way to implement mknod properly on Win32

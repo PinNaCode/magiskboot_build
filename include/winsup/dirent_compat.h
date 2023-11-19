@@ -7,6 +7,13 @@ extern "C" {
 
 #include <dirent.h>
 
+#define DT_UNKNOWN 0
+#define DT_REG 1
+#define DT_LNK 2
+#define DT_DIR 3
+
+typedef struct _DIR_wrap _DIR_stub;
+
 struct _dirent_stub
 {
         long            d_ino;          /* Always zero. */
@@ -17,17 +24,10 @@ struct _dirent_stub
         char            d_name[260]; /* [FILENAME_MAX] */ /* File name. */
 };
 
-#define DT_UNKNOWN 0
-#define DT_REG 1
-#define DT_LNK 2
-#define DT_DIR 3
-
 struct _DIR_wrap {
     DIR *dirp;
     int fd;
 };
-
-typedef struct _DIR_wrap _DIR_stub;
 
 _DIR_stub *_opendir_stub (const char*);
 

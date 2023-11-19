@@ -1,8 +1,8 @@
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdio.h>
 #include <assert.h>
 #include <errno.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #define sf_min(a, b)  (((a) < (b)) ? (a) : (b))
 

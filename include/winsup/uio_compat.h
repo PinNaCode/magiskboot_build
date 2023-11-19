@@ -5,8 +5,8 @@
 extern "C" {
 #endif
 
-#include <sys/types.h>
 #include <stdbool.h>
+#include <sys/types.h>
 
 struct iovec {
     void *iov_base;

@@ -1,11 +1,10 @@
-#include <fileapi.h>
-#include <handleapi.h>
-#include <limits.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdbool.h>
 #include <errno.h>
-#include <io.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 

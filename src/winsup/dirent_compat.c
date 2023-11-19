@@ -1,23 +1,22 @@
-#include <fcntl.h>
-#include <sys/stat.h>
+#include <assert.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <unistd.h>
-#include <assert.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
-#include "../../include/winsup/dirent_compat.h"
-
-#include "../../include/winsup/open_compat.h"
-#include "../../include/winsup/libbsd_compat.h"
 #include "../../include/winsup/at_compat.h"
+#include "../../include/winsup/dirent_compat.h"
+#include "../../include/winsup/libbsd_compat.h"
+#include "../../include/winsup/open_compat.h"
 #include "../../include/winsup/stat_compat.h"
 
-#include "internal/fd.h"
 #include "internal/errno.h"
+#include "internal/fd.h"
 
 #ifndef O_PATH
 #define O_PATH      0

@@ -7,12 +7,10 @@ extern "C" {
 
 #include <sys/types.h>
 
-int     fchmod (int fd, mode_t mode);
-
 typedef short uid_t, gid_t;
 
 int     chown (const char *path, uid_t owner, gid_t group);
-
+int     fchmod (int fd, mode_t mode);
 int     fchown (int fildes, uid_t owner, gid_t group);
 
 #ifdef __cplusplus

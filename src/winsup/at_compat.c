@@ -1,11 +1,12 @@
-#include <sys/types.h>
 #include <dirent.h>
-#include <sys/stat.h>
 #include <errno.h>
-#include <stdio.h>
 #include <fcntl.h>
 #include <stdarg.h>
+#include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
+
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <shlwapi.h>

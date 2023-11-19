@@ -1,14 +1,14 @@
-#include <io.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <stdarg.h>
 #include <sys/stat.h>
-#include <fcntl.h>
 #include <sys/types.h>
-#include <errno.h>
+
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
-#include "internal/fd.h"
 #include "internal/errno.h"
+#include "internal/fd.h"
 
 #ifndef NDEBUG
 #include "internal/assert.h"

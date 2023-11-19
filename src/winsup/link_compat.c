@@ -1,9 +1,9 @@
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
-#include <assert.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #ifndef NDEBUG
 #include <stdio.h>
@@ -11,8 +11,8 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <winioctl.h>
 #include <ntdef.h>
+#include <winioctl.h>
 
 #include "internal/errno.h"
 #include "internal/fd.h"

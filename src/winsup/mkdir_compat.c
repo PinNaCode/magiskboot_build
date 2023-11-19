@@ -1,7 +1,7 @@
-#include <sys/types.h>
-#include <unistd.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 int _mkdir_stub (const char *path, mode_t mode) {
     if (mkdir(path) < 0)

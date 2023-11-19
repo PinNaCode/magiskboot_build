@@ -5,8 +5,8 @@
 extern "C" {
 #endif
 
+#include <fcntl.h>
 #include <sys/types.h>
-#include <io.h>
 
 ssize_t _read_stub(int fd, void *buf, size_t count);
 

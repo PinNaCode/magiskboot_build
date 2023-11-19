@@ -27,8 +27,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sys/types.h>
 #include <string.h>
+#include <sys/types.h>
 
 /*
  * Copy src to string dst of size siz.  At most siz-1 characters
