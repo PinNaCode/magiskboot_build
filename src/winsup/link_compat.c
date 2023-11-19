@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#ifndef NDEBUG
+#include <stdio.h>
+#endif
+
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <winioctl.h>
@@ -51,6 +55,10 @@ ssize_t readlink (const char *__restrict path,
 
     if (!DeviceIoControl(h, FSCTL_GET_REPARSE_POINT, NULL, 0, buff, MAXIMUM_REPARSE_DATA_BUFFER_SIZE, &bytes, NULL)) {
         __set_errno_via_winerr(GetLastError());
+
+#ifndef NDEBUG
+        perror("DeviceIoControl");
+#endif
 
         goto error;
     }

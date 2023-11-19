@@ -73,13 +73,8 @@ int __open_dir_fd(const char *path, DWORD access, DWORD share_mode, int flags) {
     HANDLE h;
     int fd;
 
-    if ((h = CreateFile(path, access, share_mode, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL)) == INVALID_HANDLE_VALUE) {
-#ifndef NDEBUG
-        LOG_ERR("CreateFile failed: %s", win_strerror(GetLastError()));
-#endif
-
+    if ((h = CreateFile(path, access, share_mode, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL)) == INVALID_HANDLE_VALUE)
         return -1;
-    }
 
     if ((fd = _open_osfhandle((intptr_t) h, flags)) < 0) {
 #ifndef NDEBUG
@@ -100,13 +95,8 @@ int __open_symlink_fd(const char *path, DWORD access, DWORD share_mode, int flag
     int fd;
 
     if ((h = CreateFile(path, access, share_mode, NULL, OPEN_EXISTING,
-            FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS, NULL)) == INVALID_HANDLE_VALUE) {
-#ifndef NDEBUG
-        LOG_ERR("CreateFile failed: %s", win_strerror(GetLastError()));
-#endif
-
+            FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS, NULL)) == INVALID_HANDLE_VALUE)
         return -1;
-    }
 
     if ((fd = _open_osfhandle((intptr_t) h, flags)) < 0) {
 #ifndef NDEBUG

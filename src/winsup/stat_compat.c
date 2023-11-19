@@ -5,6 +5,11 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <errno.h>
+
+#ifndef NDEBUG
+#include <stdio.h>
+#endif
+
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <winternl.h>
@@ -34,6 +39,10 @@ int _fstat_stub(int fd, struct stat *buf) {
     if (!GetFileInformationByHandle(h, &hfi)) {
         __set_errno_via_winerr(GetLastError());
 
+#ifndef NDEBUG
+        perror("GetFileInformationByHandle");
+#endif
+
         return -1;
     }
 
@@ -55,6 +64,10 @@ int _fstat_stub(int fd, struct stat *buf) {
         } else {
             // GetFileType failed
             __set_errno_via_winerr(winerr);
+
+#ifndef NDEBUG
+            perror("GetFileType");
+#endif
 
             goto error;
         }
