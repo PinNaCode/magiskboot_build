@@ -32,12 +32,19 @@ __attribute__((constructor)) static void __init_data(void) {
 }
 
 char *__fd_get_path(int fd) {
+    HANDLE h = (HANDLE) _get_osfhandle(fd);
+
+    if (h == INVALID_HANDLE_VALUE) {
+        SetLastError(ERROR_INVALID_HANDLE);
+        return NULL;
+    }
+
     char *buf = malloc(PATH_MAX);
 
     if (!buf)
         return NULL;
 
-    if (!GetFinalPathNameByHandle((HANDLE) _get_osfhandle(fd), buf, PATH_MAX, 0)) {
+    if (!GetFinalPathNameByHandle(h, buf, PATH_MAX, 0)) {
 #ifndef NDEBUG
         LOG_ERR("GetFinalPathNameByHandle failed: %s", win_strerror(GetLastError()))
 #endif

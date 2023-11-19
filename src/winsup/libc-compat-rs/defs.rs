@@ -38,13 +38,11 @@ pub const S_IREAD: crate::mode_t = 256;
 // stat
 
 // shadowing the MinGW one since we reimplement
-// some missing features like device nodes and links
+// some missing features like directory and symlink handling
 
 extern "C" {
     #[link_name = "_fstat_stub"]
     pub fn fstat(fildes: c_int, buf: *mut stat) -> c_int;
-    #[link_name = "_stat_stub"]
-    pub fn stat(path: *const c_char, buf: *mut stat) -> c_int;
 }
 
 // open

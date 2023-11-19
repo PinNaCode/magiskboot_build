@@ -9,7 +9,7 @@ extern "C" {
 
 int mknod (const char *path, mode_t mode, dev_t dev );
 
-inline dev_t
+static inline dev_t
 __gnu_dev_makedev(int maj, int min)
 {
         return (((maj) << 16) | ((min) & 0xffff));
@@ -17,13 +17,13 @@ __gnu_dev_makedev(int maj, int min)
 
 #define makedev(maj, min) __gnu_dev_makedev(maj, min)
 
-inline int
+static inline int
 __gnu_dev_major(dev_t dev)
 {
         return (int)(((dev) >> 16) & 0xffff);
 }
 
-inline int
+static inline int
 __gnu_dev_minor(dev_t dev)
 {
         return (int)((dev) & 0xffff);

@@ -33,7 +33,7 @@ ssize_t readlink (const char *__restrict path,
     HANDLE h;
 
     if ((h = (HANDLE) _get_osfhandle(fd)) == INVALID_HANDLE_VALUE) {
-        __set_errno_via_winerr(GetLastError());
+        // errno is already set to EBADF by _get_osfhandle
 
         close(fd);  // ownership not transferred
 

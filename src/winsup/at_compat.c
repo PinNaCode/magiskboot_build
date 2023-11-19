@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <stdarg.h>
+#include <unistd.h>
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <shlwapi.h>
@@ -15,7 +16,6 @@
 #include "../../include/winsup/open_compat.h"
 #include "../../include/winsup/stat_compat.h"
 
-#include "internal/assert.h"
 #include "internal/fd.h"
 
 ssize_t readlinkat (int dirfd, const char *__restrict path,
@@ -153,8 +153,27 @@ int openat (int dirfd, const char *pathname, int flags, ...) {
 
 int faccessat (int dirfd, const char *path, int mode, int flags) {
     if (flags == AT_SYMLINK_NOFOLLOW) {
-        TODO(faccessat)
-        return -1;
+        struct stat buf;
+
+        if (fstatat(dirfd, path, &buf, AT_SYMLINK_NOFOLLOW) < 0)
+            return -1;
+
+        mode &= (R_OK | W_OK | X_OK);
+
+        if (mode == 0)
+            goto have_access;  // F_OK, others are ignores and treat as F_OK
+
+        if ((mode & R_OK) && !(buf.st_mode & (S_IRUSR | S_IRGRP | S_IROTH)))
+            return -1;
+
+        if ((mode & W_OK) && !(buf.st_mode & (S_IWUSR | S_IWGRP | S_IWOTH)))
+            return -1;
+
+        if ((mode & X_OK) && !(buf.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH)))
+            return -1;
+
+have_access:
+        return 0;
     } else if (flags) {
         errno = EINVAL;
         return -1;
@@ -181,7 +200,7 @@ int fstatat (int dirfd, const char *__restrict pathname, struct stat *__restrict
     if (flags == AT_SYMLINK_NOFOLLOW)
         fstatat_funcptr = lstat;
     else if (flags == 0)
-        fstatat_funcptr = _stat_stub;
+        fstatat_funcptr = stat;
     else {
         errno = EINVAL;
         return -1;
