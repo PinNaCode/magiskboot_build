@@ -47,16 +47,13 @@ int _open_stub(const char *path, int oflag, ... ) {
                 share_mode = FILE_SHARE_READ;
                 break;
             case O_WRONLY:
-                access = GENERIC_WRITE;
-                share_mode = FILE_SHARE_WRITE | FILE_SHARE_DELETE;
-                break;
             case O_RDWR:
-                access = GENERIC_READ | GENERIC_WRITE;
-                share_mode = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
-                break;
+                // writing to directory fd is nonsense
+                errno = EISDIR;
+                return -1;
             default:
 #ifndef NDEBUG
-                LOG_ERR("invalid access mode for directory");
+                LOG_ERR("invalid access mode");
 #endif
                 errno = EINVAL;
                 return -1;
