@@ -241,8 +241,8 @@ Or, check the dirty MinGW port mentioned in [Windows (MinGW)](#windows-mingw) se
 
 To quickly discard the current `build` directory and dirty `vendor/` submodule changes, please run `make clean`.
 
-To temporarily disable applying patches for `vendor/` projects, configure again with `-DPATCH_VENDOR_PROJECTS=OFF` passed to CMake (This doesn't void your previous output under `build/`), this can be useful you are modifying the vendor projects' code manually (And maybe you want to convert it to patches using Git or `diff` later).
-When you want to enable it again (e.g. You want to test your new modified `patches/`), reconfigure with `-DPATCH_VENDOR_PROJECTS=ON` (Note this will immediately perform something similar to `make clean` except it doesn't nuke the stuffs under your current `build/` directory, basically cleaning up your `vendor/` module changes and reapply all the `patches/` on top of them.
+To temporarily disable `vendor/` projects patching, re-configure with `-DPATCH_VENDOR_PROJECTS=OFF` (useful if you are patching them manually).
+To enable it again, use `-DPATCH_VENDOR_PROJECTS=ON` (Note this will clean up changes in `vendor/` modules and re-apply all the patches).
 
 If you modify something in the Rust part, you will have to perform `rm build/libmagiskboot-rs.a` manually before rebuilding. (TODO: let CMake detect source changes)
 
