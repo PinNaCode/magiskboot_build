@@ -250,6 +250,17 @@ Pass `-DCMAKE_BUILD_TYPE=Debug` to CMake instead of `Release` during configuring
 
 For `vendor/` submodules with their name starting with `android_`, most of the patches are imported from [android-tools][android-tools], and don't always require updating.
 
+When syncing upstream `vendor/Magisk` changes, here is a few things to check:
+  * `build.py` changes
+  * `{,{base,boot}/}Android.mk` updates
+  * whether if `external` projects are deleted or moved, update accordingly for excluded directory in the end of `CMakeLists.txt`
+  * switch to `winsup` stub for MinGW for if any new file or spot reference to any of the following standard libc identifiers:
+    * struct DIR
+    * struct dirent
+    * {open,read,close,rewind,seek,tell}dir
+    * open
+    * fstat
+
 ### Special thanks to
 
 - [android-tools][android-tools] developers for many code and inspiration of this repository
