@@ -125,9 +125,9 @@ apt install build-essentials liblzma liblz4 libbz2 dtc zlib pkg-config \
 #### Windows (MinGW)
 
 > **Note**
-> A minor amount of POSIX functions in `src/winsup/*_compat.c` are still unimplemented, but it doesn't seem to cause too much trouble for the most features to work.
+> A minor amount of POSIX functions in `src/winsup/*_compat.c` are currently stubbed and no-op (e.g. chmod, chown, mknod), but it shouldn't cause too much trouble for magiskboot to work.
 >
-> However, it will be great if you can help to implement them and open a Pull Request :)
+> However, if you know a better way to do this, please feel free to open a Pull Request to change it :)
 
 Install [MSYS2][MSYS2] first, use the MINGW64 Terminal. Change the setting for `mintty.exe` and give it administrator permission (needed for using native symlinks).
 

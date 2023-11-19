@@ -23,12 +23,6 @@ void log_err(const char *tag, const char *fmt, ...) {
     fflush(stderr);
 }
 
-void abort_unimpl(const char *s) {
-    log_err("ABORT", "'%s' function is not yet ported to this platform, the program will have to stop now.\n"
-                     "This is not a bug, ask the developer to implement this function if it is important to you.", s);
-    abort();
-}
-
 static char __win_strerror_buf[64 * 1024 - 1];
 static const char *__unknown_strerror = "Unknown error";
 
