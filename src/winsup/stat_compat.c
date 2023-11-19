@@ -10,6 +10,7 @@
 #include <winternl.h>
 
 #include "../../include/winsup/stat_compat.h"
+#include "../../include/winsup/link_compat.h"
 
 #include "internal/fd.h"
 #include "internal/errno.h"
@@ -38,6 +39,10 @@ int _fstat_stub(int fd, struct stat *buf) {
 
     memset(buf, 0, sizeof(struct stat));
 
+    char *path = __fd_get_path(fd);
+
+    int ret = -1;
+
     DWORD type = GetFileType(h);
 
     if (type == FILE_TYPE_UNKNOWN) {
@@ -46,12 +51,12 @@ int _fstat_stub(int fd, struct stat *buf) {
         if (winerr == NO_ERROR) {
             // IDK if this is the correct way to error handle
             errno = ENOENT;
-            return -1;
+            goto error;
         } else {
             // GetFileType failed
             __set_errno_via_winerr(winerr);
 
-            return -1;
+            goto error;
         }
     } else if (type == FILE_TYPE_CHAR) {
         buf->st_mode |= S_IFCHR;
@@ -71,8 +76,6 @@ int _fstat_stub(int fd, struct stat *buf) {
         else {
             buf->st_mode |= S_IFREG;
 
-            char *path = __fd_get_path(fd);
-
             if (path) {
                 ssize_t path_len = strlen(path);
 
@@ -82,8 +85,6 @@ int _fstat_stub(int fd, struct stat *buf) {
                     if (ext == EXE_SUFFIX || ext == BAT_SUFFIX || ext == CMD_SUFFIX || ext == COM_SUFFIX)
                         buf->st_mode |= (S_IXUSR | S_IXGRP | S_IXOTH);
                 }
-
-                free(path);
             }
         }
 
@@ -93,7 +94,16 @@ int _fstat_stub(int fd, struct stat *buf) {
     if (!(hfi.dwFileAttributes & FILE_ATTRIBUTE_READONLY))
         buf->st_mode |= (S_IWUSR | S_IWGRP | S_IWOTH);
 
-    buf->st_size = ((__int64) hfi.nFileSizeHigh << 32) + hfi.nFileSizeLow;
+    if (hfi.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) {
+        if (path) {
+            char path_buf[PATH_MAX];
+            ssize_t len = readlink(path, path_buf, PATH_MAX);
+
+            if (len > 0)
+                buf->st_size = len;
+        }
+    } else
+        buf->st_size = ((__int64) hfi.nFileSizeHigh << 32) + hfi.nFileSizeLow;
 
     DWORD dw = 0;
 
@@ -107,7 +117,13 @@ int _fstat_stub(int fd, struct stat *buf) {
 
     // should not close fd or handle after stat
 
-    return 0;
+    ret = 0;
+
+error:
+    if (path)
+        free(path);
+
+    return ret;
 }
 
 int lstat (const char *__restrict path, struct stat *__restrict buf) {
