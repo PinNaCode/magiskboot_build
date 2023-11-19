@@ -7,4 +7,4 @@ edition = "2021"
 path = "lib.rs"
 
 [dependencies]
-libc = { path = "../libc-compat-rs" }
+libc = { path = "../../libc-compat-rs" }
