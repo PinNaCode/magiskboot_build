@@ -7,8 +7,6 @@ extern "C" {
 
 #include <sys/stat.h>
 
-int _stat_stub(const char *name, struct stat *buf);
-
 int _fstat_stub(int fd, struct stat *buf);
 
 int lstat (const char *__restrict path, struct stat *__restrict buf);

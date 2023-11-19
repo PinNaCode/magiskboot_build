@@ -5,10 +5,6 @@
 #include "internal/fd.h"
 #include "internal/errno.h"
 
-int _chmod_stub(const char *path, int mode) {
-    return chmod(path, mode);  // TODO: implement a real POSIX chmod
-}
-
 int fchmod (int fd, mode_t mode) {
     char *path = __fd_get_path(fd);
 
@@ -18,7 +14,7 @@ int fchmod (int fd, mode_t mode) {
         return -1;
     }
 
-    int ret = _chmod_stub(path, mode);
+    int ret = chmod(path, mode);
 
     free(path);
 

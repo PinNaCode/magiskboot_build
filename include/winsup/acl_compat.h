@@ -7,8 +7,6 @@ extern "C" {
 
 #include <sys/types.h>
 
-int _chmod_stub(const char *path, int mode);
-
 int     fchmod (int fd, mode_t mode);
 
 typedef short uid_t, gid_t;
