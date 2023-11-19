@@ -19,17 +19,6 @@
 #define LOG_ERR(...)        log_err(LOG_TAG, __VA_ARGS__);
 #endif
 
-static const char *PATH_PFX = "\\\\?\\";
-static const char *UNC_PATH_PFX = "\\\\?\\UNC\\";
-
-static size_t path_pfx_len;
-static size_t unc_path_pfx_len;
-
-__attribute__((constructor)) static void __init_data(void) {
-    path_pfx_len = strlen(PATH_PFX);
-    unc_path_pfx_len = strlen(UNC_PATH_PFX);
-}
-
 char *__fd_get_path(int fd) {
     HANDLE h = (HANDLE) _get_osfhandle(fd);
 
@@ -55,13 +44,13 @@ char *__fd_get_path(int fd) {
     size_t buf_len = strlen(buf);
     size_t path_len;
 
-    if (!strncmp(buf, UNC_PATH_PFX, unc_path_pfx_len)) {
-        path_len = buf_len - unc_path_pfx_len;
-        memmove(buf + 2, buf + unc_path_pfx_len, path_len);
+    if (!strncmp(buf, "\\\\?\\UNC\\", 8)) {
+        path_len = buf_len - 8;
+        memmove(buf + 2, buf + 8, path_len);
         buf[path_len + 2] = '\0';
-    } else if (!strncmp(buf, PATH_PFX, path_pfx_len)) {
-        path_len = buf_len - path_pfx_len;
-        memmove(buf, buf + path_pfx_len, path_len);
+    } else if (!strncmp(buf, "\\\\?\\", 4)) {
+        path_len = buf_len - 4;
+        memmove(buf, buf + 4, path_len);
         buf[path_len] = '\0';
     }
 
