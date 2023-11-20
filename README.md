@@ -72,7 +72,6 @@ rustup component add rust-src  # install STD library source
 install nightly Rust via [rustup][rustup] (can be installed with `pacman`) first
 
 ````shell
-sudo pacman -Su  # sync and upgrade all existing packages
 sudo pacman -S --needed base-devel xz lz4 bzip2 dtc zlib pkgconf clang libc++ cmake ninja libbsd  # optional: lld
 rustup component add rust-src  # install STD library source
 ````
