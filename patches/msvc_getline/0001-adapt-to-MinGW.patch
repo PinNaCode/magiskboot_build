@@ -13,11 +13,8 @@ diff --git a/getline.c b/getline.c
 index 6c3f699..5d7f4b6 100644
 --- a/getline.c
 +++ b/getline.c
-@@ -4,8 +4,12 @@
- #include <errno.h>
- 
+@@ -2,6 +2,9 @@
  // MSVC specific implementation
-+#ifdef __MSVCRT__
  static void fseterr(FILE *fp)
  {
 +#ifdef __MINGW64__
@@ -26,16 +23,14 @@ index 6c3f699..5d7f4b6 100644
      struct file { // Undocumented implementation detail
          unsigned char *_ptr;
          unsigned char *_base;
-@@ -18,7 +22,9 @@ static void fseterr(FILE *fp)
+@@ -18,6 +22,7 @@ static void fseterr(FILE *fp)
      #define _IOERR 0x10
  
      ((struct file *)fp)->_flag |= _IOERR;
 +#endif
  }
-+#endif
  
  ssize_t getdelim(char **restrict lineptr, size_t *restrict n, int delim, FILE *restrict stream)
- {
 @@ -66,7 +72,11 @@ ssize_t getdelim(char **restrict lineptr, size_t *restrict n, int delim, FILE *r
      return nread;
  }

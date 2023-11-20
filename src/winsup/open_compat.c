@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -9,6 +10,7 @@
 
 #include "internal/errno.h"
 #include "internal/fd.h"
+#include "internal/fs.h"
 
 #ifndef NDEBUG
 #include "internal/assert.h"
@@ -24,6 +26,10 @@ int _open_stub(const char *path, int oflag, ... ) {
         // creating file, cannot be a directory
         va_list ap;
         va_start(ap, oflag);
+
+        // if we are creating a new file, make sure the parent directory is case sensitive
+        if (access(path, F_OK) != 0)
+            __ensure_case_sensitive(path, true);
 
         int ret = open(path, oflag, (mode_t) va_arg(ap, int));
 
@@ -44,7 +50,7 @@ int _open_stub(const char *path, int oflag, ... ) {
         switch (oflag & O_ACCMODE) {
             case O_RDONLY:  // this is the default
                 access = GENERIC_READ;
-                share_mode = FILE_SHARE_READ;
+                share_mode = FILE_SHARE_VALID_FLAGS;
                 break;
             case O_WRONLY:
             case O_RDWR:

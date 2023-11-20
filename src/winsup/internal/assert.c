@@ -4,6 +4,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <winternl.h>
 
 #ifndef NDEBUG
 #define LOG_TAG             "assert_internal"
@@ -32,10 +33,22 @@ const char *win_strerror(DWORD winerr) {
                        winerr, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
                        __win_strerror_buf, sizeof(__win_strerror_buf), NULL)) {
 #ifndef NDEBUG
-        LOG_ERR("FormatMessage failed (WinError %ld)", GetLastError());
+        LOG_ERR("FormatMessage for WinError %ld failed (WinError %ld)", winerr, GetLastError());
 #endif
         return __unknown_strerror;
     }
 
     return __win_strerror_buf;
+}
+
+const char *nt_strstatus(NTSTATUS status) {
+    DWORD winerr = RtlNtStatusToDosError(status);
+
+    if (winerr == ERROR_MR_MID_NOT_FOUND) {
+#ifndef NDEBUG
+        LOG_ERR("FormatMessage for NtStatus %ld failed (WinError %ld)", status, GetLastError());
+#endif
+        return __unknown_strerror;
+    } else
+        return win_strerror(winerr);
 }

@@ -28,7 +28,7 @@ ssize_t readlink (const char *__restrict path,
 
     int fd;
 
-    if ((fd = __open_symlink_fd(path, GENERIC_READ, FILE_SHARE_READ, 0)) < 0) {
+    if ((fd = __open_symlink_fd(path, GENERIC_READ, FILE_SHARE_VALID_FLAGS, 0)) < 0) {
         __set_errno_via_winerr(GetLastError());
 
         return -1;

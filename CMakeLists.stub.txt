@@ -16,9 +16,11 @@ target_sources(platform_stubs PRIVATE
     src/winsup/libbsd_compat.c
     src/winsup/uio_compat.c
     src/winsup/open_compat.c
+    src/winsup/file_compat.c
     src/winsup/internal/assert.c
     src/winsup/internal/errno.c
-    src/winsup/internal/fd.c)
+    src/winsup/internal/fd.c
+    src/winsup/internal/fs.c)
 target_link_libraries(platform_stubs INTERFACE shlwapi)
 
 add_library(libmman STATIC
@@ -34,6 +36,8 @@ target_link_libraries(platform_stubs INTERFACE libgetline)
 
 # needed by some random Rust stuffs
 target_link_libraries(magiskboot ntdll bcrypt)
+
+target_include_directories(android_libbase PRIVATE include)
 endif()
 
 if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")

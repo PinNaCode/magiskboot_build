@@ -52,4 +52,7 @@ extern "C" {
 extern "C" {
     #[link_name = "_open_stub"]
     pub fn open(path: *const c_char, oflag: c_int, ...) -> c_int;
+
+    #[link_name = "_fopen_stub"]
+    pub fn fopen(filename: *const c_char, mode: *const c_char) -> *mut FILE;
 }

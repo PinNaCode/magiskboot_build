@@ -140,7 +140,7 @@ error:
 }
 
 int lstat (const char *__restrict path, struct stat *__restrict buf) {
-    int fd = __open_symlink_fd(path, GENERIC_READ, FILE_SHARE_READ, 0);
+    int fd = __open_symlink_fd(path, GENERIC_READ, FILE_SHARE_VALID_FLAGS, 0);
 
     if (fd < 0) {
         __set_errno_via_winerr(GetLastError());

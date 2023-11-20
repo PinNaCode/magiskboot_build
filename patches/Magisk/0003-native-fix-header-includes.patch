@@ -62,7 +62,7 @@ diff --git a/native/src/base/files.hpp b/native/src/base/files.hpp
 index 0d8d11c..c4bb952 100644
 --- a/native/src/base/files.hpp
 +++ b/native/src/base/files.hpp
-@@ -6,7 +6,19 @@
+@@ -6,7 +6,21 @@
  #include <string>
  #include <vector>
  
@@ -74,10 +74,12 @@ index 0d8d11c..c4bb952 100644
 +#include <cygwin/fs.h>
 +#elif defined(_WIN32)
 +#include <winsup/dirent_compat.h>
++#include <winsup/file_compat.h>
 +
 +#define closedir _closedir_stub
 +#define DIR _DIR_stub
 +#define opendir _opendir_stub
++#define fopen _fopen_stub
 +#endif
  #include "misc.hpp"
  

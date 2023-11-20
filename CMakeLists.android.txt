@@ -28,7 +28,6 @@ add_library(android_libbase STATIC
     vendor/android_libbase/parsebool.cpp
     vendor/android_libbase/parsenetaddress.cpp
     vendor/android_libbase/posix_strerror_r.cpp
-    vendor/android_libbase/process.cpp
     vendor/android_libbase/properties.cpp
     vendor/android_libbase/stringprintf.cpp
     vendor/android_libbase/strings.cpp
