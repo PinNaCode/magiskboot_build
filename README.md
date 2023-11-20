@@ -173,7 +173,7 @@ cmake --build build -j $(nproc)  # build
 sudo cmake --install install
 ````
 
-If you prefer to build a statically linked binary (this is optional), pass `-DPREFER_STATIC_LINKING=ON` to CMake while configuring, make sure your distribution provided you static library, otherwise you're out of luck for static builds.
+If you prefer a statically linked binary (optional), pass `-DPREFER_STATIC_LINKING=ON` to CMake while configuring, make sure your distribution provided you the static version of the [depended libraries](#requirements), otherwise you'll run into configure errors and you have to change your distribution or try to compile the static version of those libraries yourself and install them to your system for the static build.
 
 #### LTO on Linux
 
