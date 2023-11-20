@@ -30,6 +30,12 @@ option(NO_TARGETS_OR_DEPS "Turn this on if you are creating source tarball only"
 
 option(USE_LTO_LINKER_PLUGIN "Keep LLVM bitcode in objects for LTO (requires LLD)" OFF)
 
+# Option to enable or disable building static linked version of magiskboot.
+# If enabled, the build result will be a standalone binary which you can run
+# on any device with the same operating system and architecture.
+# This requires installing depended static libraries on the host.
+option(PREFER_STATIC_LINKING "Prefer static libraries when linking" OFF)
+
 # XXX: can be detected if dump target JSON (rustc)
 if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" AND NOT CYGWIN)
 set(USE_LTO_LINKER_PLUGIN ON)
@@ -52,6 +58,12 @@ include(CMakeLists.compat.txt)
 include(CMakeLists.android.txt)
 endif()
 include(CMakeLists.magisk.txt)
+
+if (PREFER_STATIC_LINKING)
+set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libstdc++")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libstdc++")
+endif()
 
 if (NOT NO_TARGETS_OR_DEPS)
 set(THREADS_PREFER_PTHREAD_FLAG ON)

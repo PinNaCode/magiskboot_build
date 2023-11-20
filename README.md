@@ -173,6 +173,8 @@ cmake --build build -j $(nproc)  # build
 sudo cmake --install install
 ````
 
+If you prefer to build a statically linked binary (this is optional), pass `-DPREFER_STATIC_LINKING=ON` to CMake while configuring, make sure your distribution provided you static library, otherwise you're out of luck for static builds.
+
 #### LTO on Linux
 
 If you want to perform LTO at the final link time, pass `-DUSE_LTO_LINKER_PLUGIN=ON` to CMake during configuring.
@@ -219,16 +221,6 @@ You may also run into issues if you don't have `rust-src` (STD library sources) 
 This project is very similiar to [android-tools][android-tools] which just maintains a set of patches on top of a specific upstream Magisk commit and require manual adaption for compiling with newer version source.
 
 Although I may update the version once in a while, [Pull requests](../../pulls) are welcome.
-
-#### I want static builds!
-
-~~for static version please use the [static](../../tree/static) branch~~
-
-Static builds is deprecated, while it's still possible, you need to patch the CMakeLists yourself if you want to build static version.
-
-I just no longer have the interest to maintain the static version.
-
-Maybe I will add it back at some point.
 
 #### Eh, so my platform is not supported by your sh*t
 
