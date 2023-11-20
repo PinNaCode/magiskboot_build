@@ -57,6 +57,7 @@ void __ensure_case_sensitive(const char *path, bool file) {
 
     HANDLE h = NULL;
     bool success = false;
+    UNICODE_STRING nt_path = {};
 
     if (err) {
 #ifndef NDEBUG
@@ -65,8 +66,6 @@ void __ensure_case_sensitive(const char *path, bool file) {
 
         goto quit;
     }
-
-    UNICODE_STRING nt_path = {};
 
     if (RtlDosPathNameToNtPathName_U(path_buf, &nt_path, NULL, NULL) == FALSE) {
 #ifndef NDEBUG
@@ -78,6 +77,7 @@ void __ensure_case_sensitive(const char *path, bool file) {
 
     OBJECT_ATTRIBUTES object;
 
+    // just a macro for initializing the struct, no need to free this
     InitializeObjectAttributes(&object, &nt_path, 0, NULL, NULL);
 
     NTSTATUS status;
@@ -135,6 +135,9 @@ done:
 quit:
     if (h)
         NtClose(h);
+
+    if (nt_path.Buffer)
+        RtlFreeUnicodeString(&nt_path);
 
     if (!success && enforce_case) {
         LOG_ERR("An error occurred while ensuring case sensitivity of the directory '%s'\n"
