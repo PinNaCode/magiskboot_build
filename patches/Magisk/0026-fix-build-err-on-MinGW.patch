@@ -186,6 +186,17 @@ index 40cd6bf..b10a74e 100644
  int xaccess(const char *path, int mode);
  int xfaccessat(int dirfd, const char *pathname, int mode, int flags);
  int xstat(const char *pathname, struct stat *buf);
+@@ -55,8 +58,10 @@ int xmkdir(const char *pathname, mode_t mode);
+ #ifdef __linux__
+ ssize_t xsendfile(int out_fd, int in_fd, off_t *offset, size_t count);
+ #endif
++#ifndef _WIN32
+ pid_t xfork();
+ int xpoll(pollfd *fds, nfds_t nfds, int timeout);
++#endif
+ ssize_t xrealpath(const char * __restrict__ path, char * __restrict__ buf, size_t bufsiz);
+ int xmknod(const char * pathname, mode_t mode, dev_t dev);
+ 
 diff --git a/native/src/base/xwrap.rs b/native/src/base/xwrap.rs
 index 7e7a894..04fb1f9 100644
 --- a/native/src/base/xwrap.rs

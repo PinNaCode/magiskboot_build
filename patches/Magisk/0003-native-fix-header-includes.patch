@@ -208,20 +208,6 @@ index ce7a6dd..b4ba2c0 100644
  
  extern "C" {
  
-@@ -52,9 +55,13 @@ int xmkdir(const char *pathname, mode_t mode);
- int xmkdirs(const char *pathname, mode_t mode);
- int xmkdirat(int dirfd, const char *pathname, mode_t mode);
- void *xmmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);
-+#ifdef __linux__
- ssize_t xsendfile(int out_fd, int in_fd, off_t *offset, size_t count);
-+#endif
-+#ifndef _WIN32
- pid_t xfork();
- int xpoll(pollfd *fds, nfds_t nfds, int timeout);
-+#endif
- ssize_t xrealpath(const char * __restrict__ path, char * __restrict__ buf, size_t bufsiz);
- int xmknod(const char * pathname, mode_t mode, dev_t dev);
- 
 diff --git a/native/src/boot/bootimg.cpp b/native/src/boot/bootimg.cpp
 index a80a746..857eff2 100644
 --- a/native/src/boot/bootimg.cpp

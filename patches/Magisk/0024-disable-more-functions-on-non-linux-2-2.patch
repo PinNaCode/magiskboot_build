@@ -6,7 +6,8 @@ Subject: [PATCH] disable more functions on non-linux (2/2)
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
  native/src/base/misc.cpp  | 2 ++
- 1 files changed, 2 insertions(+)
+ native/src/base/xwrap.rs  | 1 +
+ 2 files changed, 3 insertions(+)
 
 diff --git a/native/src/base/misc.cpp b/native/src/base/misc.cpp
 index fb7d7ca..903da92 100644
@@ -28,6 +29,18 @@ index fb7d7ca..903da92 100644
  
  string &replace_all(string &str, string_view from, string_view to) {
      size_t pos = 0;
+diff --git a/native/src/base/xwrap.rs b/native/src/base/xwrap.rs
+index 583474d..9bf814b 100644
+--- a/native/src/base/xwrap.rs
++++ b/native/src/base/xwrap.rs
+@@ -249,6 +249,7 @@ pub(crate) fn xpipe2(fds: &mut [i32; 2], flags: i32) -> i32 {
+ }
+ 
+ #[no_mangle]
++#[cfg(any(target_os = "linux", target_os = "android"))]
+ extern "C" fn xsetns(fd: RawFd, nstype: i32) -> i32 {
+     unsafe {
+         let r = libc::setns(fd, nstype);
 -- 
 2.41.0
 

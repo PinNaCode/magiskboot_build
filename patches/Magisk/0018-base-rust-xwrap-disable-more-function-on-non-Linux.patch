@@ -12,14 +12,6 @@ diff --git a/native/src/base/xwrap.rs b/native/src/base/xwrap.rs
 index 583474d..9bf814b 100644
 --- a/native/src/base/xwrap.rs
 +++ b/native/src/base/xwrap.rs
-@@ -249,6 +249,7 @@ pub(crate) fn xpipe2(fds: &mut [i32; 2], flags: i32) -> i32 {
- }
- 
- #[no_mangle]
-+#[cfg(any(target_os = "linux", target_os = "android"))]
- extern "C" fn xsetns(fd: RawFd, nstype: i32) -> i32 {
-     unsafe {
-         let r = libc::setns(fd, nstype);
 @@ -260,6 +261,7 @@ extern "C" fn xsetns(fd: RawFd, nstype: i32) -> i32 {
  }
  
@@ -60,14 +52,6 @@ index 583474d..9bf814b 100644
  unsafe extern "C" fn xumount2(target: *const c_char, flags: i32) -> i32 {
      let r = libc::umount2(target, flags);
      if r < 0 {
-@@ -594,6 +600,7 @@ unsafe extern "C" fn xmkdirat(dirfd: RawFd, path: *const c_char, mode: mode_t) -
- }
- 
- #[no_mangle]
-+#[cfg(any(target_os = "linux", target_os = "android"))]
- unsafe extern "C" fn xsendfile(
-     out_fd: RawFd,
-     in_fd: RawFd,
 -- 
 2.40.0
 

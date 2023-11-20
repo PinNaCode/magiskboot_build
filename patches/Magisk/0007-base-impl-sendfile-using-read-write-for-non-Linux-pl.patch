@@ -7,8 +7,10 @@ Subject: [PATCH 1/6] base: impl sendfile using read & write for non-Linux
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
  native/src/base/files.cpp   | 76 +++++++++++++++++++++++++++++++++++++
+ native/src/base/xwrap.hpp   |  2 ++
+ native/src/base/xwrap.rs    |  1 +
  native/src/boot/bootimg.cpp | 38 +++++++++++++++++++
- 2 files changed, 114 insertions(+)
+ 4 files changed, 117 insertions(+)
 
 diff --git a/native/src/base/files.cpp b/native/src/base/files.cpp
 index de7e46c..8ee3c7f 100644
@@ -38,6 +40,20 @@ index de7e46c..8ee3c7f 100644
                  fsetattr(dfd, &a);
                  close(dfd);
                  close(sfd);
+diff --git a/native/src/base/xwrap.hpp b/native/src/base/xwrap.hpp
+index ce7a6dd..b4ba2c0 100644
+--- a/native/src/base/xwrap.hpp
++++ b/native/src/base/xwrap.hpp
+@@ -52,7 +55,9 @@ int xmkdir(const char *pathname, mode_t mode);
+ int xmkdirs(const char *pathname, mode_t mode);
+ int xmkdirat(int dirfd, const char *pathname, mode_t mode);
+ void *xmmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);
++#ifdef __linux__
+ ssize_t xsendfile(int out_fd, int in_fd, off_t *offset, size_t count);
++#endif
+ pid_t xfork();
+ int xpoll(pollfd *fds, nfds_t nfds, int timeout);
+ ssize_t xrealpath(const char * __restrict__ path, char * __restrict__ buf, size_t bufsiz);
 diff --git a/native/src/boot/bootimg.cpp b/native/src/boot/bootimg.cpp
 index 5b84e23..c87500a 100644
 --- a/native/src/boot/bootimg.cpp
@@ -54,6 +70,18 @@ index 5b84e23..c87500a 100644
      close(ifd);
      return size;
  }
+diff --git a/native/src/base/xwrap.rs b/native/src/base/xwrap.rs
+index 583474d..9bf814b 100644
+--- a/native/src/base/xwrap.rs
++++ b/native/src/base/xwrap.rs
+@@ -594,6 +600,7 @@ unsafe extern "C" fn xmkdirat(dirfd: RawFd, path: *const c_char, mode: mode_t) -
+ }
+ 
+ #[no_mangle]
++#[cfg(any(target_os = "linux", target_os = "android"))]
+ unsafe extern "C" fn xsendfile(
+     out_fd: RawFd,
+     in_fd: RawFd,
 -- 
 2.40.0
 
