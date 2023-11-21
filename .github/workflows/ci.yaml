@@ -201,3 +201,61 @@ jobs:
         with:
           name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-${{ env.upload_suffix }}
           path: ${{ github.workspace }}/magiskboot
+
+  build-windows:
+    name: Build (Windows)
+    runs-on: windows-latest
+    needs: [vars, src]
+    env:
+      MSYS: "winsymlinks:native"
+
+      upload_suffix: "windows-mingw-w64-x86_64-static"
+
+    steps:
+      - name: Prepare (source)
+        uses: actions/download-artifact@v3
+        with:
+          name: srcpkg
+
+      - name: Prepare
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            base-devel cygpath
+          pacboy: >-
+            xz:x lz4:x bzip2:x dtc:x zlib:x pkgconf:x
+            clang:x lld:x cmake:x libc++:x ninja:x
+
+      - name: Prepare (Rust)
+        shell: msys2 {0}
+        run: |
+          rustup-init -y --default-toolchain nightly \
+              --default-host x86_64-pc-windows-gnu
+          . "$HOME/.cargo/env"
+          rustup component add rust-src
+
+      - name: Build
+        shell: msys2 {0}
+        run: |
+          echo -e "\n### extract source ###\n"
+          tar -xf magiskboot_*-src.tar.xz
+
+          cd magiskboot_*-src/
+
+          echo -e "\n### configure ###\n"
+          . "$HOME/.cargo/env"
+          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release \
+                     -DPREFER_STATIC_LINKING=ON
+
+          echo -e "\n### make ###\n"
+          cmake --build build -j $(nproc)
+
+          cp -afv build/magiskboot.exe $GITHUB_WORKSPACE/magiskboot.exe
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-${{ env.upload_suffix }}
+          path: ${{ github.workspace }}/magiskboot.exe
