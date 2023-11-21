@@ -157,10 +157,13 @@ jobs:
 
   build-macos:
     name: Build (macOS)
-    runs-on: macos-11
+    strategy:
+      matrix:
+        os_release: [11, 12, 13]
+    runs-on: macos-${{ matrix.os_release }}
     needs: [vars, src]
     env:
-      upload_suffix: "macos-11-bigsur-x86_64-static"
+      upload_suffix: "x86_64-static"
 
     steps:
       - name: Prepare (source)
@@ -199,7 +202,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-${{ env.upload_suffix }}
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-macos-${{ matrix.os_release }}-${{ env.upload_suffix }}
           path: ${{ github.workspace }}/magiskboot
 
   build-windows:
