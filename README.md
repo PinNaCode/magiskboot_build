@@ -136,7 +136,7 @@ install nightly Rust via [rustup][rustup] (Please choose the GNU ABI)
 
 ````shell
 pacman -Syu  # upgrade all existing packages (optional, you may need to do this for multiple times)
-pacman -S base-devel cygpath mingw-w64-x86_64-{xz,lz4,bzip2,dtc,zlib,pkgconf,clang,lld,cmake,libc++,ninja}
+pacman -S base-devel mingw-w64-x86_64-{xz,lz4,bzip2,dtc,zlib,pkgconf,clang,lld,cmake,libc++,ninja}
 rustup component add rust-src  # install STD library source
 ````
 

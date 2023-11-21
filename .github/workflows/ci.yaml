@@ -223,7 +223,7 @@ jobs:
           msystem: MINGW64
           update: true
           install: >-
-            base-devel cygpath
+            base-devel
           pacboy: >-
             xz:x lz4:x bzip2:x dtc:x zlib:x pkgconf:x
             clang:x lld:x cmake:x libc++:x ninja:x
