@@ -1,0 +1,35 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      ci_run_id:
+        description: "Run ID of the desired CI to download artifacts from"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          branch: main
+          workflow: ci.yaml
+          workflow_conclusion: success
+          run-id: ${{ github.event.inputs.ci_run_id }}
+          path: artifacts
+          skip_unpack: true
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+            name: Last CI build
+            target_commitish: main
+            tag_name: last-ci
+            fail_on_unmatched_files: true
+            files: artifacts/*.zip
