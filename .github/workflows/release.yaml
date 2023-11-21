@@ -18,7 +18,6 @@ jobs:
         id: download-artifact
         uses: dawidd6/action-download-artifact@v2
         with:
-          branch: main
           workflow: ci.yaml
           workflow_conclusion: success
           run_id: ${{ github.event.inputs.ci_run_id }}
