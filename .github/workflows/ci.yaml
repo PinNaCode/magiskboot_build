@@ -163,6 +163,8 @@ jobs:
     runs-on: macos-${{ matrix.os_release }}
     needs: [vars, src]
     env:
+      HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
+
       upload_suffix: "x86_64-static"
 
     steps:
