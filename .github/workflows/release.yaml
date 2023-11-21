@@ -46,6 +46,8 @@ jobs:
             name: Last CI build
             target_commitish: main
             tag_name: last-ci
+            draft: false
+            prerelease: false
             fail_on_unmatched_files: true
             files: |
               artifacts/magiskboot_*-src.tar.xz
