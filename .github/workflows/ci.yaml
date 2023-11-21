@@ -231,7 +231,8 @@ jobs:
       - name: Prepare (Rust)
         shell: msys2 {0}
         run: |
-          rustup-init -y --default-toolchain nightly \
+          curl https://sh.rustup.rs -sSf | sh -s -- -y \
+              --default-toolchain nightly \
               --default-host x86_64-pc-windows-gnu
           . "$HOME/.cargo/env"
           rustup component add rust-src
