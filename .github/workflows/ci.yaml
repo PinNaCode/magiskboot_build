@@ -234,7 +234,8 @@ jobs:
           curl https://sh.rustup.rs -sSf | sh -s -- -y \
               --default-toolchain nightly \
               --default-host x86_64-pc-windows-gnu
-          . "$USERPROFILE/.cargo/env"
+          echo 'export PATH=$(cygpath ${USERPROFILE}\\.cargo\\bin):$PATH' > $(cygpath $USERPROFILE)/.cargo/env
+          . "$(cygpath $USERPROFILE)/.cargo/env"
           rustup component add rust-src
 
       - name: Build
@@ -246,7 +247,7 @@ jobs:
           cd magiskboot_*-src/
 
           echo -e "\n### configure ###\n"
-          . "$USERPROFILE/.cargo/env"
+          . "$(cygpath $USERPROFILE)/.cargo/env"
           cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release \
                      -DPREFER_STATIC_LINKING=ON
 
