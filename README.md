@@ -164,9 +164,9 @@ For prebuilt binaries, go check [GitHub Releases](../../releases) for selected C
 
 ### Build & Install
 
-Clone this repository using Git with this option: `--recurse-submodules`
+First get and extract the latest source tarball (called `magiskboot_<COMMIT_ID>_<VERCODE>-src.tar.xz`) from [Github Releases](../../releases).
 
-Or you if already have a cloned repository without using that option, run: `git submodule update --init --recursive`
+Or clone this repository using Git with this option: `--recurse-submodules`. (If you already have a cloned repository without using that option, run: `git submodule update --init --recursive` instead)
 
 ````shell
 cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release  # configure
