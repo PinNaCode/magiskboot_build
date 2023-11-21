@@ -31,6 +31,15 @@ jobs:
           file magiskboot_*-src.tar.xz
           rm -f srcpkg.zip
 
+      - name: Clean up old releases
+        uses: dev-drprasad/delete-older-releases@v0.3.2
+        with:
+            keep_latest: 0
+            delete_tags: true
+            delete_tag_pattern: last-ci
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
@@ -38,4 +47,6 @@ jobs:
             target_commitish: main
             tag_name: last-ci
             fail_on_unmatched_files: true
-            files: artifacts/*.zip
+            files: |
+              artifacts/magiskboot_*-src.tar.xz
+              artifacts/*.zip
