@@ -48,8 +48,9 @@ elseif (APPLE)
         ERROR_QUIET
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
-    if (HOMEBREW_VERSION MATCHES "^Homebrew[ \\t]+")
-        string(REGEX REPLACE "^Homebrew[ \\t]+" "" HOMEBREW_VERSION ${HOMEBREW_VERSION})
+    if (HOMEBREW_VERSION MATCHES "^Homebrew[ \t]+")
+        string(REGEX MATCH "^Homebrew[ \t]+[^\n]+" HOMEBREW_VERSION ${HOMEBREW_VERSION})
+        string(REGEX REPLACE "^Homebrew[ \t]+" "" HOMEBREW_VERSION ${HOMEBREW_VERSION})
     else()
         set(HOMEBREW_VERSION "unknown")
     endif()
