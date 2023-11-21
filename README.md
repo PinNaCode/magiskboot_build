@@ -158,6 +158,10 @@ You will also need to compile the LLVM/Clang from source to add Cygwin target, s
 
 </details>
 
+### Download
+
+For prebuilt binaries, go check [GitHub Releases](../../releases) for selected CI builds.
+
 ### Build & Install
 
 Clone this repository using Git with this option: `--recurse-submodules`
@@ -194,10 +198,6 @@ Make sure you passed `-DNO_TARGETS_OR_DEPS=ON` to CMake while configuring, which
 you should be able to find your source package under the `build` folder
 
 ### FAQ
-
-#### Where to download?
-
-CI builds are not yet available, this may get changed recently, I already have some plans to add it.
 
 #### Help, my Rust build has failed
 
