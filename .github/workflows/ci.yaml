@@ -4,14 +4,15 @@ on:
     paths-ignore:
       - 'LICENSE'
       - 'README.md'
+
   pull_request:
     paths-ignore:
       - 'LICENSE'
       - 'README.md'
 
 jobs:
-  src:
-    name: Source
+  prepare-src:
+    name: Prepare (source)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -38,3 +39,93 @@ jobs:
         with:
           name: srcpkg
           path: ${{ github.workspace }}/build/magiskboot_*-src.tar.xz
+
+  build-linux:
+    name: Build (Linux)
+    runs-on: ubuntu-latest
+    needs: [prepare-src]
+    strategy:
+      matrix:
+        include:
+          - os: "ubuntu"
+            tag: "jammy"
+            note: "glibc-x86_64"
+
+          - os: "alpine"
+            tag: "edge"
+            note: "musl-x86_64"
+
+          - os: "archlinux"
+            tag: "latest"
+            note: "glibc-x86_64"
+
+    container:
+      image: ${{ matrix.os }}:${{ matrix.tag }}
+      volumes:
+        - ${{ github.workspace }}:/workspace
+
+      # New versions of glibc use the new clone3() syscall which has not
+      # yet been whitelisted in GitHub's secomp profile. To prevent jobs
+      # using these distros from failing (e.g. openSUSE) change the
+      # secomp policy.
+      #
+      # See https://github.com/nmeum/android-tools/pull/48#issuecomment-944893176
+      options: --security-opt seccomp=unconfined
+
+    steps:
+      - name: Prepare (source)
+        uses: actions/download-artifact@v3
+        with:
+          name: srcpkg
+
+      - name: Prepare (Ubuntu)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          apt update
+          DEBIAN_FRONTEND=noninteractive apt install -y curl build-essential lzma-dev \
+              liblzma-dev liblz4-dev libbz2-dev libfdt-dev zlib1g-dev pkgconf clang-15 \
+              libc++-15-dev libc++abi-15-dev cmake ninja-build libbsd-dev
+          ln -s $(which clang-15) $(dirname $(which clang-15))/clang
+          ln -s $(which clang++-15) $(dirname $(which clang-15))/clang++
+
+      - name: Prepare (Alpine Linux)
+        if: startsWith(matrix.os, 'alpine')
+        run: |
+          apk update
+          apk add build-base curl xz-dev lz4-dev bzip2-dev dtc-dev zlib-dev \
+                  pkgconf clang libc++-dev cmake samurai libbsd-dev
+
+      - name: Prepare (archlinux)
+        if: startsWith(matrix.os, 'archlinux')
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm --needed curl base-devel xz lz4 bzip2 \
+                           dtc zlib pkgconf clang libc++ cmake ninja libbsd
+
+      - name: Prepare (Rust)
+        run: |
+          curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
+          . "$HOME/.cargo/env"
+          rustup component add rust-src
+
+      - name: Build
+        run: |
+          echo -e "\n### extract source ###\n"
+          tar -xf magiskboot_*-src.tar.xz
+
+          cd magiskboot_*-src/
+
+          echo -e "\n### configure ###\n"
+          . "$HOME/.cargo/env"
+          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
+
+          echo -e "\n### make ###\n"
+          cmake --build build -j $(nproc)
+
+          cp -afv build/magiskboot /workspace/magiskboot
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.os }}-${{ matrix.tag }}-${{ matrix.note }}
+          path: ${{ github.workspace }}/magiskboot
