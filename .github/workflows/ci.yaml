@@ -175,8 +175,8 @@ jobs:
 
       - name: Prepare
         run: |
-          brew install --overwrite xz lz4 bzip2 dtc zlib \
-                 pkg-config cmake ninja rustup-init
+          brew install --overwrite coreutils xz lz4 bzip2 \
+              dtc zlib pkg-config cmake ninja rustup-init
 
       - name: Prepare (Rust)
         run: |
