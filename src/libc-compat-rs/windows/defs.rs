@@ -55,4 +55,7 @@ extern "C" {
 
     #[link_name = "_fopen_stub"]
     pub fn fopen(filename: *const c_char, mode: *const c_char) -> *mut FILE;
+
+    #[link_name = "_fdopen_stub"]
+    pub fn fdopen(fd: c_int, mode: *const c_char) -> *mut FILE;
 }

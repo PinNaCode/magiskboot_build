@@ -46,9 +46,9 @@ extern "C" {
     pub fn dirfd(dirp: *mut DIR) -> crate::c_int;
 }
 
-// no-op
+// bruh
 
-pub const O_CLOEXEC: crate::c_int = 0;
+pub const O_CLOEXEC: crate::c_int = crate::O_NOINHERIT;
 
 // link
 

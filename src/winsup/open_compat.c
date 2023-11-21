@@ -20,6 +20,8 @@
 #endif
 
 int _open_stub(const char *path, int oflag, ... ) {
+    oflag |= O_BINARY;
+
     struct stat buf;
 
     if (oflag & O_CREAT) {

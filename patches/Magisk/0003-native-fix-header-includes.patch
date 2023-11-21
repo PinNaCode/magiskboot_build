@@ -43,7 +43,7 @@ index 6829de2..8aef651 100644
 +#include <sendfile_compat.h>
 +#endif
 +#ifdef _WIN32
-+#define O_CLOEXEC 0
++#define O_CLOEXEC O_NOINHERIT
 +
 +#include <getline.h>
 +#include <winsup/acl_compat.h>
@@ -222,7 +222,7 @@ index a80a746..857eff2 100644
 +#include <sendfile_compat.h>
 +#endif
 +#ifdef _WIN32
-+#define O_CLOEXEC 0
++#define O_CLOEXEC O_NOINHERIT
 +
 +#include <winsup/str_compat.h>
 +#endif
@@ -238,7 +238,7 @@ index d648a90..2881338 100644
  #include <vector>
  #include <map>
 +#ifdef _WIN32
-+#define O_CLOEXEC 0
++#define O_CLOEXEC O_NOINHERIT
 +
 +#include <winsup/str_compat.h>
 +#endif

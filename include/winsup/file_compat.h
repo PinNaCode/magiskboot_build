@@ -9,6 +9,8 @@ extern "C" {
 
 FILE *_fopen_stub(const char *__restrict pathname, const char *__restrict mode);
 
+FILE *_fdopen_stub(int fd, const char *mode);
+
 #ifdef __cplusplus
 }
 #endif
