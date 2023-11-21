@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       ci_run_id:
-        description: "Run ID of the desired CI to download artifacts from"
+        description: "Run ID of the desired CI run to download artifacts from"
         required: true
 
 permissions:
@@ -21,9 +21,16 @@ jobs:
           branch: main
           workflow: ci.yaml
           workflow_conclusion: success
-          run-id: ${{ github.event.inputs.ci_run_id }}
+          run_id: ${{ github.event.inputs.ci_run_id }}
           path: artifacts
           skip_unpack: true
+
+      - name: Extract source package
+        run: |
+          cd artifacts
+          unzip -j srcpkg.zip 'magiskboot_*-src.tar.xz'
+          file magiskboot_*-src.tar.xz
+          rm -f srcpkg.zip
 
       - name: Create release
         uses: softprops/action-gh-release@v1
