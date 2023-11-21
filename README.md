@@ -91,12 +91,8 @@ install [Homebrew][Homebrew] first
 ````shell
 brew update
 brew upgrade  # upgrade all existing packages (optional)
-brew install binutils xz lz4 bzip2 dtc zlib pkgconf llvm cmake ninja rustup-init
+brew install xz lz4 bzip2 dtc zlib pkg-config cmake ninja rustup-init
 rustup-init  # install nightly Rust here
-mkdir ~/.bin
-for x in $HOMEBREW_PREFIX/opt/binutils/bin/*; do ln -s $x ~/.bin; done
-unlink ~/.bin/strip  # avoids "Killed 9" error
-export PATH=$HOMEBREW_PREFIX/opt/llvm/bin:~/.bin:$PATH
 ````
 
 </details>
@@ -178,7 +174,7 @@ sudo cmake --install install
 
 If you prefer a statically linked binary (optional), pass `-DPREFER_STATIC_LINKING=ON` to CMake while configuring, make sure your distribution provided you the static version of the [depended libraries](#requirements), otherwise you'll run into configure errors and you have to change your distribution or try to compile the static version of those libraries yourself and install them to your system for the static build.
 
-#### LTO on Linux
+#### LTO
 
 If you want to perform LTO at the final link time, pass `-DUSE_LTO_LINKER_PLUGIN=ON` to CMake during configuring.
 

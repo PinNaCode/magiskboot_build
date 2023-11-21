@@ -37,7 +37,7 @@ option(USE_LTO_LINKER_PLUGIN "Keep LLVM bitcode in objects for LTO (requires LLD
 option(PREFER_STATIC_LINKING "Prefer static libraries when linking" OFF)
 
 # XXX: can be detected if dump target JSON (rustc)
-if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" AND NOT CYGWIN)
+if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" AND NOT CYGWIN AND NOT APPLE)
 set(USE_LTO_LINKER_PLUGIN ON)
 endif()
 
@@ -61,8 +61,10 @@ include(CMakeLists.magisk.txt)
 
 if (PREFER_STATIC_LINKING)
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+if (NOT APPLE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libstdc++")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libstdc++")
+endif()
 endif()
 
 if (NOT NO_TARGETS_OR_DEPS)

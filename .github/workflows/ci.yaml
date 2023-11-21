@@ -49,7 +49,9 @@ jobs:
         include:
           - os: "ubuntu"
             tag: "jammy"
-            note: "glibc-x86_64"
+            note: "glibc-x86_64-static"
+            cmake_flag: "-DPREFER_STATIC_LINKING=ON"
+            upload: "yes"
 
           - os: "alpine"
             tag: "edge"
@@ -79,7 +81,7 @@ jobs:
           name: srcpkg
 
       - name: Prepare (Ubuntu)
-        if: startsWith(matrix.os, 'ubuntu')
+        if: matrix.os == 'ubuntu'
         run: |
           apt update
           DEBIAN_FRONTEND=noninteractive apt install -y curl build-essential lzma-dev \
@@ -89,14 +91,14 @@ jobs:
           ln -s $(which clang++-15) $(dirname $(which clang-15))/clang++
 
       - name: Prepare (Alpine Linux)
-        if: startsWith(matrix.os, 'alpine')
+        if: matrix.os == 'alpine'
         run: |
           apk update
           apk add build-base curl xz-dev lz4-dev bzip2-dev dtc-dev zlib-dev \
                   pkgconf clang libc++-dev cmake samurai libbsd-dev
 
       - name: Prepare (archlinux)
-        if: startsWith(matrix.os, 'archlinux')
+        if: matrix.os == 'archlinux'
         run: |
           pacman -Syu --noconfirm
           pacman -S --noconfirm --needed curl base-devel xz lz4 bzip2 \
@@ -117,7 +119,7 @@ jobs:
 
           echo -e "\n### configure ###\n"
           . "$HOME/.cargo/env"
-          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
+          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_flag }}
 
           echo -e "\n### make ###\n"
           cmake --build build -j $(nproc)
@@ -125,7 +127,55 @@ jobs:
           cp -afv build/magiskboot /workspace/magiskboot
 
       - name: Upload artifacts
+        if: matrix.upload == 'yes'
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os }}-${{ matrix.tag }}-${{ matrix.note }}
+          path: ${{ github.workspace }}/magiskboot
+
+  build-macos:
+    name: Build (macOS)
+    runs-on: macos-11
+    needs: [prepare-src]
+    env:
+      upload_name: "macos-11-bigsur-x86_64-static"
+
+    steps:
+      - name: Prepare (source)
+        uses: actions/download-artifact@v3
+        with:
+          name: srcpkg
+
+      - name: Prepare
+        run: |
+          brew install --overwrite xz lz4 bzip2 dtc zlib \
+                 pkg-config cmake ninja rustup-init
+
+      - name: Prepare (Rust)
+        run: |
+          rustup-init -y --default-toolchain nightly
+          . "$HOME/.cargo/env"
+          rustup component add rust-src
+
+      - name: Build
+        run: |
+          echo -e "\n### extract source ###\n"
+          tar -xf magiskboot_*-src.tar.xz
+
+          cd magiskboot_*-src/
+
+          echo -e "\n### configure ###\n"
+          . "$HOME/.cargo/env"
+          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release \
+                     -DPREFER_STATIC_LINKING=ON
+
+          echo -e "\n### make ###\n"
+          cmake --build build -j $(nproc)
+
+          cp -afv build/magiskboot $GITHUB_WORKSPACE/magiskboot
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.upload_name }}
           path: ${{ github.workspace }}/magiskboot
