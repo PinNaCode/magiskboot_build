@@ -184,6 +184,11 @@ jobs:
           . "$HOME/.cargo/env"
           rustup component add rust-src
 
+      - name: Fix up Rust
+        if: matrix.os_release == 13
+        run: |
+          rm -rf ~/.cargo/registry/index
+
       - name: Build
         run: |
           echo -e "\n### extract source ###\n"
