@@ -15,7 +15,7 @@ for build-time dependencies:
 
 1. [pkg-config][pkg-config]
 2. [Clang][Clang]
-3. [LLD][LLD] (optional on Linux)
+3. [LLD][LLD] (optional)
 4. [Rust][Rust] (**nightly**)
 5. [Cargo][Cargo]
 6. [CMake][CMake]
@@ -144,9 +144,10 @@ There is also an old MinGW port, it works great:
 
 [svoboda18/magiskboot](https://github.com/svoboda18/magiskboot.git): a dirty Windows port with custom GNU Make based build system
 
-Or you can try the Cygwin port below (it already kinda works).
+#### Cygwin (early test)
 
-#### Cygwin (WIP)
+> **Note**
+> Cygwin support is not actively tested currently
 
 To build for Cygwin, you need to compile a nightly Rust toolchain from source, for more info: [Cygwin Rust porting](https://gist.github.com/ookiineko/057eb3a91825313caeaf6d793a33b0b2)
 
