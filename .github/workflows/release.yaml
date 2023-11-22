@@ -40,6 +40,11 @@ jobs:
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Wait for 3s
+        run: |
+          # prevent github to think our release already exists and create us a draft
+          sleep 3
+
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
