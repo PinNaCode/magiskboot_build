@@ -93,6 +93,7 @@ brew update
 brew upgrade  # upgrade all existing packages (optional)
 brew install xz lz4 bzip2 zlib pkg-config cmake ninja rustup-init
 rustup-init  # install nightly Rust here
+rustup component add rust-src  # install STD library source
 ````
 
 </details>
