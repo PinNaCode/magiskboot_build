@@ -3,11 +3,6 @@
 	url = https://github.com/topjohnwu/Magisk.git
 	branch = master
 	shallow = true
-[submodule "cxx-rs"]
-	path = vendor/cxx-rs
-	url = https://github.com/dtolnay/cxx.git
-	branch = master
-	shallow = true
 [submodule "android_logging"]
 	path = vendor/android_logging
 	url = https://android.googlesource.com/platform/system/logging.git
