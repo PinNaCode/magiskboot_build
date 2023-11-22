@@ -59,3 +59,19 @@ extern "C" {
     #[link_name = "_fdopen_stub"]
     pub fn fdopen(fd: c_int, mode: *const c_char) -> *mut FILE;
 }
+
+// acl
+
+// for mode_t type mismatch
+
+extern "C" {
+    #[link_name = "chmod"]
+    fn old_chmod(path: *const c_char, mode: c_int) -> c_int;
+}
+
+f! {
+    pub fn chmod(path: *const c_char, mode: crate::mode_t) -> c_int {
+        old_chmod(path, mode as c_int)
+    }
+}
+

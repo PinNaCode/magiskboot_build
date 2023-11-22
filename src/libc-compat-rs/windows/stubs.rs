@@ -1,3 +1,5 @@
+use core::{clone::Clone, marker::Copy};
+
 // dirent
 
 // there is an additional d_type field
@@ -20,8 +22,8 @@ pub const DT_DIR: u8 = 3;
 // replace the MinGW impls bcs we've modified dirent struct and added dir fd support
 
 pub enum DIR {}
-impl crate::Copy for DIR {}
-impl crate::Clone for DIR {
+impl Copy for DIR {}
+impl Clone for DIR {
     fn clone(&self) -> DIR {
         *self
     }
@@ -46,13 +48,15 @@ extern "C" {
     pub fn dirfd(dirp: *mut DIR) -> crate::c_int;
 }
 
-// bruh
+// fcntl
 
 pub const O_CLOEXEC: crate::c_int = crate::O_NOINHERIT;
+pub const O_PATH: crate::c_int = 0;  // no-op
 
 // link
 
 extern "C" {
+    pub fn link(src: *const crate::c_char, dst: *const crate::c_char) -> crate::c_int;
     pub fn readlink(path: *const crate::c_char, buf: *mut crate::c_char, bufsz: crate::size_t) -> crate::ssize_t;
     pub fn symlink(path1: *const crate::c_char, path2: *const crate::c_char) -> crate::c_int;
 }
@@ -60,6 +64,7 @@ extern "C" {
 // at
 
 pub const AT_REMOVEDIR: crate::c_int = 1;
+pub const AT_SYMLINK_NOFOLLOW: crate::c_int = 2;
 
 extern "C" {
     pub fn readlinkat(dirfd: crate::c_int,
@@ -95,6 +100,12 @@ extern "C" {
     ) -> crate::c_int;
     pub fn mkdirat(dirfd: crate::c_int, pathname: *const crate::c_char,
                           mode: crate::mode_t) -> crate::c_int;
+    pub fn renameat(
+        olddirfd: crate::c_int,
+        oldpath: *const crate::c_char,
+        newdirfd: crate::c_int,
+        newpath: *const crate::c_char,
+    ) -> crate::c_int;
 }
 
 // mman
@@ -171,3 +182,64 @@ pub const S_IWUSR: crate::mode_t = 128;
 pub const S_IXGRP: crate::mode_t = 8;
 pub const S_IXOTH: crate::mode_t = 1;
 pub const S_IXUSR: crate::mode_t = 64;
+
+// android (bionic libc) errno
+
+extern "cdecl" {
+    #[link_name = "_errno"]
+    pub fn __errno() -> *mut crate::c_int;
+}
+
+// poll
+
+pub type nfds_t = crate::c_ulong;
+
+pub enum pollfd {}
+impl Copy for pollfd {}
+impl Clone for pollfd {
+    fn clone(&self) -> pollfd {
+        *self
+    }
+}
+
+// winsock
+
+pub type socklen_t = crate::c_int;
+
+// syscall
+
+pub const SYS_dup3: crate::c_int = 0;
+
+// acl
+
+extern "C" {
+    pub fn lchown(path: *const crate::c_char, uid: crate::uid_t, gid: crate::gid_t) -> crate::c_int;
+    pub fn fchmod(fd: crate::c_int, mode: crate::mode_t) -> crate::c_int;
+    pub fn fchown(fd: crate::c_int, owner: crate::uid_t, group: crate::gid_t) -> crate::c_int;
+}
+
+// sendfile
+
+extern "C" {
+    #[link_name = "_sendfile_stub"]
+    fn real_sendfile(
+        out_fd: crate::c_int,
+        in_fd: crate::c_int,
+        count: crate::size_t
+    ) -> crate::ssize_t;
+}
+
+f! {
+    pub fn sendfile(
+        out_fd: crate::c_int,
+        in_fd: crate::c_int,
+        offset: *mut crate::off_t,
+        count: crate::size_t
+    ) -> crate::ssize_t {
+        if offset.is_null() {
+            real_sendfile(out_fd, in_fd, count)
+        } else {
+            panic!("unreadable code")
+        }
+    }
+}

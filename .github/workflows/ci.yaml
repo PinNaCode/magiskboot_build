@@ -107,7 +107,7 @@ jobs:
         run: |
           apt update
           DEBIAN_FRONTEND=noninteractive apt install -y curl build-essential lzma-dev \
-              liblzma-dev liblz4-dev libbz2-dev libfdt-dev zlib1g-dev pkgconf clang-15 \
+              liblzma-dev liblz4-dev libbz2-dev zlib1g-dev pkgconf clang-15 \
               libc++-15-dev libc++abi-15-dev cmake ninja-build libbsd-dev
           ln -s $(which clang-15) $(dirname $(which clang-15))/clang
           ln -s $(which clang++-15) $(dirname $(which clang-15))/clang++
@@ -116,7 +116,7 @@ jobs:
         if: matrix.os == 'alpine'
         run: |
           apk update
-          apk add build-base curl xz-dev lz4-dev bzip2-dev dtc-dev zlib-dev \
+          apk add build-base curl xz-dev lz4-dev bzip2-dev zlib-dev \
                   pkgconf clang libc++-dev cmake samurai libbsd-dev
 
       - name: Prepare (archlinux)
@@ -124,7 +124,7 @@ jobs:
         run: |
           pacman -Syu --noconfirm
           pacman -S --noconfirm --needed curl base-devel xz lz4 bzip2 \
-                           dtc zlib pkgconf clang libc++ cmake ninja libbsd
+                           zlib pkgconf clang libc++ cmake ninja libbsd
 
       - name: Prepare (Rust)
         run: |
@@ -145,6 +145,10 @@ jobs:
 
           echo -e "\n### make ###\n"
           cmake --build build -j $(nproc)
+
+          ldd build/magiskboot || true
+
+          ./build/magiskboot || true
 
           cp -afv build/magiskboot /workspace/magiskboot
 
@@ -176,7 +180,7 @@ jobs:
       - name: Prepare
         run: |
           brew install --overwrite coreutils xz lz4 bzip2 \
-              dtc zlib pkg-config cmake ninja rustup-init
+              zlib pkg-config cmake ninja rustup-init
 
       - name: Prepare (Rust)
         run: |
@@ -204,6 +208,10 @@ jobs:
           echo -e "\n### make ###\n"
           cmake --build build -j $(nproc)
 
+          otool -L build/magiskboot
+
+          ./build/magiskboot || true
+
           cp -afv build/magiskboot $GITHUB_WORKSPACE/magiskboot
 
       - name: Upload artifacts
@@ -218,6 +226,7 @@ jobs:
     needs: [vars, src]
     env:
       MSYS: "winsymlinks:native"
+      MAGISKBOOT_WINSUP_NOCASE: 1
 
       upload_suffix: "windows-mingw-w64-x86_64-static"
 
@@ -235,7 +244,7 @@ jobs:
           install: >-
             base-devel
           pacboy: >-
-            xz:x lz4:x bzip2:x dtc:x zlib:x pkgconf:x
+            xz:x lz4:x bzip2:x zlib:x pkgconf:x
             clang:x lld:x cmake:x libc++:x ninja:x
 
       - name: Prepare (Rust)
@@ -263,6 +272,10 @@ jobs:
 
           echo -e "\n### make ###\n"
           cmake --build build -j $(nproc)
+
+          ldd build/magiskboot.exe
+
+          ./build/magiskboot.exe || true
 
           cp -afv build/magiskboot.exe $GITHUB_WORKSPACE/magiskboot.exe
 

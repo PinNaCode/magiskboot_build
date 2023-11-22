@@ -15,7 +15,7 @@ index da589085..fd3d2542 100644
 @@ -5,15 +5,32 @@ use crate::syntax::Api;
  use quote::quote;
  use std::collections::BTreeSet as Set;
- use syn::Error;
+ use syn::{Error, LitStr};
 +use std::env;
  
  pub(super) struct UnsupportedCfgEvaluator;

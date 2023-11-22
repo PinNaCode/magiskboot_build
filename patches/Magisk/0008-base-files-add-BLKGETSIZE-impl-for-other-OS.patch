@@ -13,10 +13,10 @@ diff --git a/native/src/base/files.rs b/native/src/base/files.rs
 index f107c34..465d63a 100644
 --- a/native/src/base/files.rs
 +++ b/native/src/base/files.rs
-@@ -483,20 +485,47 @@ pub(crate) fn map_file(path: &Utf8CStr, rw: bool) -> io::Result<&'static mut [u8
-         fn ioctl(fd: RawFd, request: u32, ...) -> i32;
-     }
+@@ -483,20 +485,47 @@
  
+ // We mark the returned slice static because it is valid until explicitly unmapped
+ pub(crate) fn map_file(path: &Utf8CStr, rw: bool) -> io::Result<&'static mut [u8]> {
 -    #[cfg(target_pointer_width = "64")]
 -    const BLKGETSIZE64: u32 = 0x80081272;
 -
@@ -47,7 +47,7 @@ index f107c34..465d63a 100644
      let st = f.metadata()?;
      let sz = if st.file_type().is_block_device() {
 -        let mut sz = 0_u64;
--        unsafe { ioctl(f.as_raw_fd(), BLKGETSIZE64, &mut sz) }.check_os_err()?;
+-        unsafe { ioctl(f.as_raw_fd(), BLKGETSIZE64, &mut sz) }.as_os_err()?;
 -        sz
 +        cfg_if::cfg_if! {
 +            if #[cfg(target_vendor = "apple")] {

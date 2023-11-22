@@ -17,7 +17,7 @@ diff --git a/native/src/base/files.cpp b/native/src/base/files.cpp
 index 6829de2..8aef651 100644
 --- a/native/src/base/files.cpp
 +++ b/native/src/base/files.cpp
-@@ -1,10 +1,40 @@
+@@ -1,10 +1,37 @@
 +#ifdef _WIN32
 +#include <mman.h>
 +#else
@@ -39,9 +39,6 @@ index 6829de2..8aef651 100644
  #include <fcntl.h>
  #include <unistd.h>
  #include <libgen.h>
-+#ifndef __linux__
-+#include <sendfile_compat.h>
-+#endif
 +#ifdef _WIN32
 +#define O_CLOEXEC O_NOINHERIT
 +
@@ -156,6 +153,21 @@ index 313d136..f0188b5 100644
  
  #include <base.hpp>
  
+diff --git a/native/src/base/misc.hpp b/native/src/base/misc.hpp
+index 1c084af..22207c1 100644
+--- a/native/src/base/misc.hpp
++++ b/native/src/base/misc.hpp
+@@ -8,6 +8,10 @@
+ #include <random>
+ #include <cxx.h>
+ 
++#if !defined(__ANDROID__) && !defined(__APPLE__) && !defined(_WIN32)
++#include <bsd/sys/cdefs.h>
++#endif
++
+ #include "xwrap.hpp"
+ 
+ #define DISALLOW_COPY_AND_MOVE(clazz) \
 diff --git a/native/src/base/stream.cpp b/native/src/base/stream.cpp
 index b7a775c..9a77dde 100644
 --- a/native/src/base/stream.cpp
@@ -188,11 +200,16 @@ diff --git a/native/src/base/xwrap.hpp b/native/src/base/xwrap.hpp
 index ce7a6dd..b4ba2c0 100644
 --- a/native/src/base/xwrap.hpp
 +++ b/native/src/base/xwrap.hpp
-@@ -2,8 +2,21 @@
+@@ -2,8 +2,26 @@
  
  #include <dirent.h>
  #include <stdio.h>
-+#ifndef _WIN32
++#ifdef _WIN32
++typedef int socklen_t;
++struct msghdr;
++typedef unsigned long int nfds_t;
++struct pollfd;
++#else
  #include <poll.h>
 +#endif
  #include <fcntl.h>
@@ -214,13 +231,10 @@ diff --git a/native/src/boot/bootimg.cpp b/native/src/boot/bootimg.cpp
 index a80a746..857eff2 100644
 --- a/native/src/boot/bootimg.cpp
 +++ b/native/src/boot/bootimg.cpp
-@@ -2,6 +2,14 @@
+@@ -1,6 +1,11 @@
+ #include <functional>
  #include <memory>
 
- #include <libfdt.h>
-+#ifndef __linux__
-+#include <sendfile_compat.h>
-+#endif
 +#ifdef _WIN32
 +#define O_CLOEXEC O_NOINHERIT
 +
@@ -229,22 +243,6 @@ index a80a746..857eff2 100644
  #include <base.hpp>
 
  #include "boot-rs.hpp"
-diff --git a/native/src/boot/dtb.cpp b/native/src/boot/dtb.cpp
-index d648a90..2881338 100644
---- a/native/src/boot/dtb.cpp
-+++ b/native/src/boot/dtb.cpp
-@@ -1,6 +1,11 @@
- #include <bitset>
- #include <vector>
- #include <map>
-+#ifdef _WIN32
-+#define O_CLOEXEC O_NOINHERIT
-+
-+#include <winsup/str_compat.h>
-+#endif
- #include <libfdt.h>
- 
- #include <base.hpp>
 -- 
 2.41.0
 

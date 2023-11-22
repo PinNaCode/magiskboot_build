@@ -8,6 +8,7 @@ add_library(libbase STATIC
     vendor/Magisk/native/src/base/new.cpp
     vendor/Magisk/native/src/base/base-rs.cpp
     vendor/Magisk/native/src/external/cxx-rs/src/cxx.cc)
+target_compile_definitions(libbase PRIVATE -DRUST_CXX_NO_EXCEPTIONS)
 target_include_directories(libbase PRIVATE
     vendor/Magisk/native/src/base)
 target_include_directories(libbase PUBLIC
@@ -42,19 +43,16 @@ add_executable(magiskboot
     vendor/Magisk/native/src/boot/bootimg.cpp
     vendor/Magisk/native/src/boot/compress.cpp
     vendor/Magisk/native/src/boot/format.cpp
-    vendor/Magisk/native/src/boot/dtb.cpp
     vendor/Magisk/native/src/boot/boot-rs.cpp)
 target_include_directories(magiskboot PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/external/cxx-rs/include
     ${LIBLZMA_INCLUDE_DIRS}
-    ${BZIP2_INCLUDE_DIRS}
-    ${LIBFDT_INCLUDE_DIRS})
+    ${BZIP2_INCLUDE_DIRS})
 target_link_libraries(magiskboot
     libbase
     ${LIBLZMA_LIBRARIES}
     PkgConfig::liblz4
     ${BZIP2_LIBRARIES}
-    ${LIBFDT_LIBRARIES}
     PkgConfig::zlib
     libzopfli
     Threads::Threads)

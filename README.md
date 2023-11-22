@@ -9,8 +9,7 @@ magiskboot itself depends on the following libraries:
 1. [LZMA][LZMA]
 2. [lz4][lz4]
 3. [bzip2][bzip]
-4. [libfdt][libfdt]
-5. [zlib][zlib]
+4. [zlib][zlib]
 
 for build-time dependencies:
 
@@ -39,7 +38,7 @@ sudo apt update
 sudo apt upgrade  # upgrade all existing packages (optional)
 # replace clang-15, libc++-15-dev, libc++abi-15-dev with clang, libc++-dev and libc++abi-dev
 #  if your Ubuntu is too old, do the same for lld if you want to use it
-sudo apt install build-essential lzma-dev liblzma-dev liblz4-dev libbz2-dev libfdt-dev \
+sudo apt install build-essential lzma-dev liblzma-dev liblz4-dev libbz2-dev \
                  zlib1g-dev pkgconf clang-15 libc++-15-dev libc++abi-15-dev cmake \
                  ninja-build libbsd-dev  # optional: lld-15
 rustup component add rust-src  # install STD library source
@@ -62,8 +61,9 @@ install nightly Rust via [rustup][rustup] (can be installed with `apk`) first
 ````shell
 sudo apk update
 sudo apk upgrade  # upgrade all existing packages (recommended)
-sudo apk add build-base xz-dev lz4-dev bzip2-dev dtc-dev zlib-dev \
-        pkgconf clang libc++-dev cmake samurai libbsd-dev  # optional: lld
+sudo apk add build-base xz-dev xz-static lz4-dev lz4-static bzip2-dev bzip2-static \
+        zlib-dev zlib-static pkgconf clang libc++-dev libc++-dev-static cmake \
+        samurai libbsd-dev libbsd-static  # optional: lld
 rustup component add rust-src  # install STD library source
 ````
 
@@ -72,7 +72,7 @@ rustup component add rust-src  # install STD library source
 install nightly Rust via [rustup][rustup] (can be installed with `pacman`) first
 
 ````shell
-sudo pacman -S --needed base-devel xz lz4 bzip2 dtc zlib pkgconf clang libc++ cmake ninja libbsd  # optional: lld
+sudo pacman -S --needed base-devel xz lz4 bzip2 zlib pkgconf clang libc++ cmake ninja libbsd  # optional: lld
 rustup component add rust-src  # install STD library source
 ````
 
@@ -91,7 +91,7 @@ install [Homebrew][Homebrew] first
 ````shell
 brew update
 brew upgrade  # upgrade all existing packages (optional)
-brew install xz lz4 bzip2 dtc zlib pkg-config cmake ninja rustup-init
+brew install xz lz4 bzip2 zlib pkg-config cmake ninja rustup-init
 rustup-init  # install nightly Rust here
 ````
 
@@ -113,7 +113,7 @@ Recommend directly using `libmagiskboot.so` extracted from the Magisk APK, it's 
 apt update
 apt upgrade  # upgrade all existing packages (optional)
 apt install tur-repo  # for nightly Rust package
-apt install build-essentials liblzma liblz4 libbz2 dtc zlib pkg-config \
+apt install build-essentials liblzma liblz4 libbz2 zlib pkg-config \
             clang lld rustc-nightly rust-src-nightly cmake ninja libbsd
 ````
 
@@ -136,7 +136,7 @@ install nightly Rust via [rustup][rustup] (Please choose the GNU ABI)
 
 ````shell
 pacman -Syu  # upgrade all existing packages (optional, you may need to do this for multiple times)
-pacman -S base-devel mingw-w64-x86_64-{xz,lz4,bzip2,dtc,zlib,pkgconf,clang,lld,cmake,libc++,ninja}
+pacman -S base-devel mingw-w64-x86_64-{xz,lz4,bzip2,zlib,pkgconf,clang,lld,cmake,libc++,ninja}
 rustup component add rust-src  # install STD library source
 ````
 
@@ -264,7 +264,6 @@ When syncing upstream `vendor/{android_libbase,Magisk}` changes, here is a few t
 [LZMA]: https://tukaani.org/lzma/
 [lz4]: https://lz4.github.io/lz4/
 [bzip]: http://www.bzip.org/
-[libfdt]: https://github.com/kernkonzept/libfdt.git
 [zlib]: https://zlib.net/
 [Clang]: https://clang.llvm.org/
 [LLD]: https://lld.llvm.org/

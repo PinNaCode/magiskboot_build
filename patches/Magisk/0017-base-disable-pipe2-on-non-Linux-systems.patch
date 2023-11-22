@@ -22,9 +22,9 @@ index 88fffa4..c78400b 100644
 +        #[cfg(any(target_os = "linux", target_os = "android"))]
          fn xpipe2(fds: &mut [i32; 2], flags: i32) -> i32;
 +
-         #[rust_name = "fd_path_for_cxx"]
+         #[cxx_name = "fd_path"]
          fn fd_path(fd: i32, buf: &mut [u8]) -> isize;
-         #[rust_name = "map_file_for_cxx"
+         #[cxx_name = "map_file"
 diff --git a/native/src/base/misc.cpp b/native/src/base/misc.cpp
 index 329a8a5..b0e2a83 100644
 --- a/native/src/base/misc.cpp

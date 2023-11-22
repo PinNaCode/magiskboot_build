@@ -20,9 +20,9 @@ macro_rules! s {
             pub struct $i { $($field)* }
         }
         #[allow(deprecated)]
-        impl crate::Copy for $i {}
+        impl core::marker::Copy for $i {}
         #[allow(deprecated)]
-        impl crate::Clone for $i {
+        impl core::clone::Clone for $i {
             fn clone(&self) -> $i { *self }
         }
     );
@@ -39,9 +39,9 @@ macro_rules! s_no_extra_traits {
             pub struct $i { $($field)* }
         }
         #[allow(deprecated)]
-        impl crate::Copy for $i {}
+        impl core::marker::Copy for $i {}
         #[allow(deprecated)]
-        impl crate::Clone for $i {
+        impl core::clone::Clone for $i {
             fn clone(&self) -> $i { *self }
         }
     );

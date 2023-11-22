@@ -11,12 +11,11 @@ Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
  native/src/base/files.rs      | 15 +++++++++++++++
  native/src/base/misc.cpp      |  2 ++
  native/src/base/misc.hpp      |  8 ++++++++
- native/src/base/xwrap.hpp     |  4 ++++
  native/src/base/xwrap.rs      | 15 +++++++++++++++
  native/src/boot/Cargo.toml    |  1 +
  native/src/boot/cpio.rs       | 22 +++++++++++++++++++++-
  native/src/boot/payload.rs    |  5 +++++
- 11 files changed, 94 insertions(+), 5 deletions(-)
+ 10 files changed, 90 insertions(+), 5 deletions(-)
 
 diff --git a/native/src/Cargo.toml b/native/src/Cargo.toml
 index 114b55c..0b6e3c0 100644
@@ -45,8 +44,8 @@ index 86f56a8..a83b1df 100644
 --- a/native/src/base/cxx_extern.rs
 +++ b/native/src/base/cxx_extern.rs
 @@ -2,8 +2,13 @@
+ // Functions in this file are only for exporting to C++, DO NOT USE IN RUST
  
- use std::fmt::Write;
  use std::io;
 +
 +#[cfg(not(target_os = "windows"))]
@@ -55,9 +54,9 @@ index 86f56a8..a83b1df 100644
 +#[cfg(target_os = "windows")]
 +use winsup::fd_compat::{BorrowedFd, OwnedFd, RawFd};
 +
+ use cfg_if::cfg_if;
  use cxx::private::c_char;
  use libc::mode_t;
- 
 @@ -61,8 +66,16 @@ pub(crate) fn map_file_for_cxx(path: &[u8], rw: bool) -> &'static mut [u8] {
  
  pub(crate) fn map_fd_for_cxx(fd: RawFd, sz: usize, rw: bool) -> &'static mut [u8] {
@@ -166,45 +165,14 @@ index 3bead41..d097388 100644
      exec_command(exec);
  }
 +#endif
-diff --git a/native/src/base/xwrap.hpp b/native/src/base/xwrap.hpp
-index 40cd6bf..b10a74e 100644
---- a/native/src/base/xwrap.hpp
-+++ b/native/src/base/xwrap.hpp
-@@ -25,6 +25,7 @@ int xunshare(int flags);
- DIR *xopendir(const char *name);
- DIR *xfdopendir(int fd);
- dirent *xreaddir(DIR *dirp);
-+#ifndef _WIN32
- pid_t xsetsid();
- int xsocket(int domain, int type, int protocol);
- int xbind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
-@@ -32,6 +33,7 @@ int xlisten(int sockfd, int backlog);
- int xaccept4(int sockfd, struct sockaddr *addr, socklen_t *addrlen, int flags);
- ssize_t xsendmsg(int sockfd, const struct msghdr *msg, int flags);
- ssize_t xrecvmsg(int sockfd, struct msghdr *msg, int flags);
-+#endif
- int xaccess(const char *path, int mode);
- int xfaccessat(int dirfd, const char *pathname, int mode, int flags);
- int xstat(const char *pathname, struct stat *buf);
-@@ -55,8 +58,10 @@ int xmkdir(const char *pathname, mode_t mode);
- #ifdef __linux__
- ssize_t xsendfile(int out_fd, int in_fd, off_t *offset, size_t count);
- #endif
-+#ifndef _WIN32
- pid_t xfork();
- int xpoll(pollfd *fds, nfds_t nfds, int timeout);
-+#endif
- ssize_t xrealpath(const char * __restrict__ path, char * __restrict__ buf, size_t bufsiz);
- int xmknod(const char * pathname, mode_t mode, dev_t dev);
- 
 diff --git a/native/src/base/xwrap.rs b/native/src/base/xwrap.rs
 index 7e7a894..04fb1f9 100644
 --- a/native/src/base/xwrap.rs
 +++ b/native/src/base/xwrap.rs
-@@ -2,15 +2,24 @@
+@@ -2,7 +2,13 @@
+ // Functions in this file are only for exporting to C++, DO NOT USE IN RUST
  
  use std::ffi::CStr;
- use std::fmt::Write;
 +
 +#[cfg(not(target_os = "windows"))]
  use std::os::unix::io::RawFd;
@@ -214,19 +182,7 @@ index 7e7a894..04fb1f9 100644
 +
  use std::ptr;
  
- use cfg_if::cfg_if;
  use libc::{
--    c_char, c_uint, c_ulong, c_void, dev_t, mode_t, nfds_t, off_t, pollfd, sockaddr, socklen_t,
-+    c_char, c_uint, c_ulong, c_void, dev_t, mode_t, off_t, sockaddr,
-     ssize_t,
- };
- 
-+#[cfg(not(target_os = "windows"))]
-+use libc::{nfds_t, pollfd, socklen_t};
-+
- #[cfg(target_os = "linux")]
- use libc::SYS_dup3;
- 
 @@ -53,8 +59,12 @@ macro_rules! perror {
  }
  
@@ -287,9 +243,9 @@ index bcf3b25..c0aa236 100644
 --- a/native/src/boot/Cargo.toml
 +++ b/native/src/boot/Cargo.toml
 @@ -26,3 +26,6 @@ p384 = { workspace = true }
- rsa = { workspace = true, features = ["sha2"] }
- x509-cert = { workspace = true }
- der = { workspace = true, features = ["derive"] }
+ fdt = { workspace = true }
+ bytemuck = { workspace = true, features = ["derive", "min_const_generics"] }
+ num-traits = { workspace = true }
 +
 +[target.'cfg(windows)'.dependencies]
 +winsup = { path = "../../../../../src/winsup/rs" }
@@ -298,9 +254,9 @@ index 0e36b4d..0c353e2 100644
 --- a/native/src/boot/cpio.rs
 +++ b/native/src/boot/cpio.rs
 @@ -1,10 +1,30 @@
+ 
  use std::collections::BTreeMap;
- use std::ffi::CStr;
- use std::fmt::{Display, Formatter, Write as FmtWrite};
+ use std::fmt::{Display, Formatter};
 -use std::fs::{metadata, read, DirBuilder, File};
 +
 +use std::fs::{read, File};
@@ -333,8 +289,7 @@ diff --git a/native/src/boot/payload.rs b/native/src/boot/payload.rs
 index dab86d8..c0aca63 100644
 --- a/native/src/boot/payload.rs
 +++ b/native/src/boot/payload.rs
-@@ -1,8 +1,13 @@
- use std::fmt::Write as FmtWrite;
+@@ -1,7 +1,12 @@
  use std::fs::File;
  use std::io::{BufReader, Read, Seek, SeekFrom, Write};
 +
@@ -347,6 +302,21 @@ index dab86d8..c0aca63 100644
  use byteorder::{BigEndian, ReadBytesExt};
  use quick_protobuf::{BytesReader, MessageRead};
  
+diff --git a/native/src/base/stream.cpp b/native/src/base/stream.cpp
+index b7a775c..9a77dde 100644
+--- a/native/src/base/stream.cpp
++++ b/native/src/base/stream.cpp
+@@ -12,6 +12,10 @@
+ 
+ using namespace std;
+ 
++#ifdef _WIN32
++#define byte std::byte
++#endif
++
+ #ifndef _WIN32
+ #ifdef __CYGWIN__
+ static int strm_read(void *v, char *buf, size_t len) {
 diff --git a/native/src/base/include/stream.hpp b/native/src/base/include/stream.hpp
 index 4742085..2b791b7 100644
 --- a/native/src/base/include/stream.hpp

@@ -12,20 +12,6 @@ diff --git a/native/src/base/xwrap.rs b/native/src/base/xwrap.rs
 index 08a81c6..a0f560f 100644
 --- a/native/src/base/xwrap.rs
 +++ b/native/src/base/xwrap.rs
-@@ -8,9 +8,12 @@ use std::ptr;
- use cfg_if::cfg_if;
- use libc::{
-     c_char, c_uint, c_ulong, c_void, dev_t, mode_t, nfds_t, off_t, pollfd, sockaddr, socklen_t,
--    ssize_t, SYS_dup3,
-+    ssize_t,
- };
- 
-+#[cfg(target_os = "linux")]
-+use libc::SYS_dup3;
-+
- use crate::{
-     cstr, errno, mkdirs, raw_cstr, readlink_unsafe, realpath, slice_from_ptr_mut, ResultExt,
-     Utf8CStr,
 @@ -461,6 +464,7 @@ extern "C" fn xdup2(oldfd: RawFd, newfd: RawFd) -> RawFd {
  }
  
