@@ -226,7 +226,7 @@ extern "C" {
         out_fd: crate::c_int,
         in_fd: crate::c_int,
         count: crate::size_t
-    ) -> crate::ssize_t;
+    );
 }
 
 f! {
@@ -237,7 +237,8 @@ f! {
         count: crate::size_t
     ) -> crate::ssize_t {
         if offset.is_null() {
-            real_sendfile(out_fd, in_fd, count)
+            real_sendfile(out_fd, in_fd, count);
+            0
         } else {
             panic!("unreadable code")
         }
