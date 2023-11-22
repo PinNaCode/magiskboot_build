@@ -101,11 +101,7 @@ rustup-init  # install nightly Rust here
 
 #### Termux
 
-Building on Termux is no longer supported.
-
-while it's still possible, you will need to compile a nightly Rust toolchain from source, by yourself.
-
-NOTE: the one provided by `tur-repo` is outdated and no longer work in the latest Termux distribution.
+Termux build is not actively tested.
 
 Recommend directly using `libmagiskboot.so` extracted from the Magisk APK, it's just a static ELF program.
 
