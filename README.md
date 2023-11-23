@@ -221,10 +221,11 @@ Although I may update the version once in a while, [Pull requests](../../pulls) 
 
 #### Eh, so my platform is not supported by your sh*t
 
-This project aims to be portable, and it should possible to get ported to new platforms, as long as your platform have the stuffs mentioned in the [Requirements](#requirements) section.
+This project aims to be portable, and it should be possible to port it to new platforms, as long as your platform meets the the above [requirements](#requirements).
 
-Not? Check out the [Cygwin](#cygwin-wip) platform, maybe you can try porting those dependencies yourself.
-Or, check the dirty MinGW port mentioned in [Windows (MinGW)](#windows-mingw) section if you prefer that way. But these are not covered by this project.
+Not? Check out the [Cygwin](#cygwin-wip) platform for example, maybe you can try to port those dependencies yourself.
+
+Or, try to make a port without the missing dependencies (and you may need to rewrite some stuffs, this may not always be easy, for example the upstream Rust codebase is likely to grow). However, these are not covered by this project, just some friendly suggestions.
 
 ### Development
 
@@ -242,7 +243,7 @@ For `vendor/` submodules with their name starting with `android_`, most of the p
 When syncing upstream `vendor/{android_libbase,Magisk}` changes, here is a few things to check:
   * `build.py` changes
   * `{,{base,boot}/}Android.mk` updates
-  * whether if `external` projects are deleted or moved, update accordingly for excluded directory in the end of `CMakeLists.txt`
+  * if `external` projects were added, deleted, or moved, update the list of excluded directories at the bottom of `CMakeLists.txt` accordingly
   * switch to `winsup` stub for MinGW for if any new file or spot reference to any of the following standard libc identifiers:
     * struct DIR
     * struct dirent
