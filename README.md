@@ -158,7 +158,7 @@ You will also need to compile the LLVM/Clang from source to add Cygwin target, s
 
 ### Download
 
-For prebuilt binaries, go check [GitHub Releases](../../releases) for selected CI builds.
+For prebuilt binaries, go check [GitHub Releases](../../releases) for selected CI builds (TODO: run some automated testsuites in CI).
 
 ### Build & Install
 
