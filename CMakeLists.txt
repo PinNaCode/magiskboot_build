@@ -50,6 +50,19 @@ set(RUSTFLAGS -Clinker-plugin-lto)
 endif() # USE_LTO_LINKER_PLUGIN
 endif() # NO_TARGETS_OR_DEPS
 
+include(ProcessorCount)
+ProcessorCount(N)
+
+if(N GREATER 8)
+    set(N 8)
+endif()
+
+if (NOT N EQUAL 0)
+    list(APPEND RUSTFLAGS -Zthreads=${N})
+endif()
+
+string(REPLACE ";" " " RUSTFLAGS "${RUSTFLAGS}")
+
 add_compile_options(-U_FORTIFY_SOURCE)
 
 if (NOT NO_TARGETS_OR_DEPS)
