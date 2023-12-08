@@ -13,25 +13,66 @@ diff --git a/getline.c b/getline.c
 index 6c3f699..5d7f4b6 100644
 --- a/getline.c
 +++ b/getline.c
-@@ -2,6 +2,9 @@
- // MSVC specific implementation
+@@ -3,9 +3,48 @@
+ #include <stdlib.h>
+ #include <errno.h>
+ 
+-// MSVC specific implementation
++#ifdef _UCRT
++#ifndef WIN32_LEAN_AND_MEAN
++#define WIN32_LEAN_AND_MEAN
++#endif
++#include <Windows.h>
++
++#ifndef _IOERROR
++#define _IOERROR	(0x0010)
++#endif
++
++struct __crt_stdio_stream_data
++{
++    union
++    {
++        FILE  _public_file;
++        char* _ptr;
++    };
++
++    char*            _base;
++    int              _cnt;
++    long             _flags;
++    long             _file;
++    int              _charbuf;
++    int              _bufsiz;
++    char*            _tmpfname;
++    CRITICAL_SECTION _lock;
++};
++#endif
++
  static void fseterr(FILE *fp)
  {
++#ifdef _UCRT
++    // UCRT specific implementation
++    _lock_file(fp);
++    _InterlockedOr(&(((struct __crt_stdio_stream_data *)fp)->_flags), _IOERROR);
++    _unlock_file(fp);
++#else /* _UCRT */
 +#ifdef __MINGW64__
++    // MinGW specific implementation
 +    ((struct _iobuf *)fp)->_flag |= _IOERR;
-+#else
++#else /* __MINGW64__ */
++    // MSVC specific implementation
      struct file { // Undocumented implementation detail
          unsigned char *_ptr;
          unsigned char *_base;
-@@ -18,6 +22,7 @@ static void fseterr(FILE *fp)
+@@ -18,6 +56,8 @@ static void fseterr(FILE *fp)
      #define _IOERR 0x10
  
      ((struct file *)fp)->_flag |= _IOERR;
-+#endif
++#endif /* __MINGW64__ */
++#endif /* _UCRT */
  }
  
  ssize_t getdelim(char **restrict lineptr, size_t *restrict n, int delim, FILE *restrict stream)
-@@ -66,7 +72,11 @@ ssize_t getdelim(char **restrict lineptr, size_t *restrict n, int delim, FILE *r
+@@ -66,7 +106,11 @@ ssize_t getdelim(char **restrict lineptr, size_t *restrict n, int delim, FILE *r
      return nread;
  }
  
