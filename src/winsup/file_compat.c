@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include "../../include/winsup/open_compat.h"
 
@@ -116,4 +117,12 @@ FILE *_fopen_stub(const char *__restrict pathname, const char *__restrict mode) 
         return NULL;
 
     return _fdopen_stub(fd, mode);
+}
+
+int _creat_stub(const char *path, int mode) {
+    // HACK: for msvcrt behavior on UCRT
+    // msvcrt ignores unsupported modes
+    // but UCRT will give EINVAL
+
+    return creat(path, mode & (S_IRUSR | S_IWUSR));
 }

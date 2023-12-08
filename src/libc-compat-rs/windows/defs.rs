@@ -60,6 +60,15 @@ extern "C" {
     pub fn fdopen(fd: c_int, mode: *const c_char) -> *mut FILE;
 }
 
+// creat
+
+// for UCRT, since it's very strict on the mode argument
+
+extern "C" {
+    #[link_name = "_creat_stub"]
+    pub fn creat(path: *const c_char, mode: c_int) -> c_int;
+}
+
 // acl
 
 // for mode_t type mismatch

@@ -11,6 +11,8 @@ FILE *_fopen_stub(const char *__restrict pathname, const char *__restrict mode);
 
 FILE *_fdopen_stub(int fd, const char *mode);
 
+int _creat_stub(const char *path, int mode);
+
 #ifdef __cplusplus
 }
 #endif

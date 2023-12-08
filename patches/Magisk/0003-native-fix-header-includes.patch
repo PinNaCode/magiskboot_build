@@ -231,7 +231,7 @@ diff --git a/native/src/boot/bootimg.cpp b/native/src/boot/bootimg.cpp
 index a80a746..857eff2 100644
 --- a/native/src/boot/bootimg.cpp
 +++ b/native/src/boot/bootimg.cpp
-@@ -1,6 +1,11 @@
+@@ -1,6 +1,14 @@
  #include <functional>
  #include <memory>
 
@@ -239,6 +239,9 @@ index a80a746..857eff2 100644
 +#define O_CLOEXEC O_NOINHERIT
 +
 +#include <winsup/str_compat.h>
++#include <winsup/file_compat.h>
++
++#define creat _creat_stub
 +#endif
  #include <base.hpp>
 
