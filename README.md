@@ -125,15 +125,16 @@ apt install build-essentials liblzma liblz4 libbz2 zlib pkg-config \
 >
 > However, if you know a better way to do this, please feel free to open a Pull Request to change it :)
 
-Install [MSYS2][MSYS2] first, use the MINGW64 Terminal. Change the setting for `mintty.exe` and give it administrator permission (needed for using native symlinks).
+Install [MSYS2][MSYS2] first, and change the setting of `mintty.exe` to grant it with administrator privileges (needed for using native symlinks in some conditions).
 
 don't forget to set this environtment variable to allow symlinks to work properly: `export MSYS=winsymlinks:native` (required for the build I guess)
 
-install nightly Rust via [rustup][rustup] (Please choose the GNU ABI)
+install nightly Rust via [rustup][rustup]
 
 ````shell
 pacman -Syu  # upgrade all existing packages (optional, you may need to do this for multiple times)
-pacman -S base-devel mingw-w64-x86_64-{xz,lz4,bzip2,zlib,pkgconf,clang,lld,cmake,libc++,ninja}
+pacman -S base-devel pactoys
+pacboy -S {xz,lz4,bzip2,zlib,pkgconf,clang,lld,cmake,libc++,ninja}:p
 rustup component add rust-src  # install STD library source
 ````
 
