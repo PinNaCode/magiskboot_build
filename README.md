@@ -133,8 +133,8 @@ install nightly Rust via [rustup][rustup]
 
 ````shell
 pacman -Syu  # upgrade all existing packages (optional, you may need to do this for multiple times)
-pacman -S base-devel pactoys
-pacboy -S {xz,lz4,bzip2,zlib,pkgconf,clang,lld,cmake,libc++,ninja}:p
+pacman -S --needed base-devel pactoys
+pacboy -S --needed {xz,lz4,bzip2,zlib,pkgconf,clang,lld,cmake,libc++,ninja}:p
 rustup component add rust-src  # install STD library source
 ````
 
