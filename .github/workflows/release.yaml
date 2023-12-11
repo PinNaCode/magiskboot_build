@@ -49,7 +49,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
             name: Last CI build
-            target_commitish: main
+            target_commitish: dev
             tag_name: last-ci
             draft: false
             prerelease: false
