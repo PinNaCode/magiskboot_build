@@ -1,0 +1,45 @@
+From 27c71262b501739139042550a6366350d38c53d4 Mon Sep 17 00:00:00 2001
+From: Renato Westphal <renato@opensourcerouting.org>
+Date: Fri, 16 Jun 2023 21:01:06 -0300
+Subject: [PATCH] workaround: revert extract_if to drain_filter rename
+
+* for building with old Rust on some old distros (like Ubuntu/Debian)
+
+References:
+* https://github.com/rust-lang/rust/pull/104455
+* https://github.com/rust-lang/rust/issues/70530
+
+Signed-off-by: Renato Westphal <renato@opensourcerouting.org>
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ native/src/boot/lib.rs     | 2 +-
+ native/src/boot/ramdisk.rs | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/native/src/boot/lib.rs b/native/src/boot/lib.rs
+index ecd5e95..25b73fc 100644
+--- a/native/src/boot/lib.rs
++++ b/native/src/boot/lib.rs
+@@ -1,5 +1,5 @@
+ #![feature(format_args_nl)]
+-#![feature(btree_extract_if)]
++#![feature(btree_drain_filter)]
+ #![feature(iter_intersperse)]
+ 
+ pub use base;
+diff --git a/native/src/boot/ramdisk.rs b/native/src/boot/ramdisk.rs
+index cb21104..db47417 100644
+--- a/native/src/boot/ramdisk.rs
++++ b/native/src/boot/ramdisk.rs
+@@ -93,7 +93,7 @@ impl MagiskCpio for Cpio {
+         let mut backups = HashMap::<String, Box<CpioEntry>>::new();
+         let mut rm_list = String::new();
+         self.entries
+-            .extract_if(|name, _| name.starts_with(".backup/"))
++            .drain_filter(|name, _| name.starts_with(".backup/"))
+             .for_each(|(name, entry)| {
+                 if name == ".backup/.rmlist" {
+                     if let Ok(data) = from_utf8(&entry.data) {
+-- 
+2.41.0
+

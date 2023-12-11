@@ -75,27 +75,25 @@ jobs:
             tag: "jammy"
             note: "glibc-x86_64-static"
             cmake_flag: "-DPREFER_STATIC_LINKING=ON"
-            rust_target: "x86_64-unknown-linux-gnu"
             dpkg_arch: "amd64"
+            extra_patches: "patches-contrib/Magisk/0021-workaround-revert-extract_if-to-drain_filter-rename.patch"
             upload: "yes"
 
           - os: "ubuntu"
             tag: "jammy"
             note: "glibc-i368-static"
             cmake_flag: "-DPREFER_STATIC_LINKING=ON"
-            rust_target: "i686-unknown-linux-gnu"
             dpkg_arch: "i386"
+            extra_patches: "patches-contrib/Magisk/0021-workaround-revert-extract_if-to-drain_filter-rename.patch"
             upload: "yes"
 
           - os: "alpine"
             tag: "edge"
             note: "musl-x86_64"
-            rust_target: "x86_64-unknown-linux-musl"
 
           - os: "archlinux"
             tag: "latest"
             note: "glibc-x86_64"
-            rust_target: "x86_64-unknown-linux-gnu"
 
     container:
       image: ${{ matrix.os }}:${{ matrix.tag }}
@@ -122,10 +120,11 @@ jobs:
           _arch=${{ matrix.dpkg_arch }}
           dpkg --add-architecture $_arch
           apt update
-          DEBIAN_FRONTEND=noninteractive apt install -y curl tar patch file libc6-dev:$_arch \
-              binutils:$_arch liblzma-dev:$_arch liblz4-dev:$_arch libbz2-dev:$_arch \
-              zlib1g-dev:$_arch pkg-config:$_arch clang-15:$_arch libc++-15-dev:$_arch \
-              libc++abi-15-dev:$_arch cmake:$_arch ninja-build:$_arch libbsd-dev:$_arch
+          DEBIAN_FRONTEND=noninteractive apt install -y curl tar patch file python3 \
+              libc6-dev:$_arch binutils:$_arch liblzma-dev:$_arch liblz4-dev:$_arch \
+              libbz2-dev:$_arch zlib1g-dev:$_arch pkg-config:$_arch clang-15:$_arch \
+              libc++-15-dev:$_arch libc++abi-15-dev:$_arch cmake:$_arch \
+              ninja-build:$_arch libbsd-dev:$_arch rustc:$_arch cargo:$_arch
           unset _arch
           ln -s $(which clang-15) $(dirname $(which clang-15))/clang
           ln -s $(which clang++-15) $(dirname $(which clang-15))/clang++
@@ -134,23 +133,15 @@ jobs:
         if: matrix.os == 'alpine'
         run: |
           apk update
-          apk add build-base curl file xz-dev lz4-dev bzip2-dev zlib-dev \
-                  pkgconf clang libc++-dev cmake samurai libbsd-dev
+          apk add build-base curl file xz-dev lz4-dev bzip2-dev zlib-dev python3 \
+                  pkgconf clang libc++-dev cmake samurai libbsd-dev rust cargo
 
       - name: Prepare (archlinux)
         if: matrix.os == 'archlinux'
         run: |
           pacman -Syu --noconfirm
-          pacman -S --noconfirm --needed curl file base-devel xz lz4 bzip2 \
-                           zlib pkgconf clang libc++ cmake ninja libbsd
-
-      - name: Prepare (Rust)
-        run: |
-          curl https://sh.rustup.rs -sSf | sh -s -- -y \
-              --default-toolchain nightly \
-              --default-host ${{ matrix.rust_target }}
-          . "$HOME/.cargo/env"
-          rustup component add rust-src
+          pacman -S --noconfirm --needed curl file base-devel xz lz4 bzip2 python \
+                           zlib pkgconf clang libc++ cmake ninja libbsd rust
 
       - name: Build
         run: |
@@ -159,8 +150,10 @@ jobs:
 
           cd magiskboot_*-src/
 
+          echo -e "\n### patch source ###\n"
+          ./scripts/apply_patches.py ${{ matrix.extra_patches }}
+
           echo -e "\n### configure ###\n"
-          . "$HOME/.cargo/env"
           cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_flag }}
 
           echo -e "\n### make ###\n"
@@ -202,13 +195,7 @@ jobs:
       - name: Prepare
         run: |
           brew install --overwrite coreutils file xz lz4 \
-              bzip2 zlib pkg-config cmake ninja rustup-init
-
-      - name: Prepare (Rust)
-        run: |
-          rustup-init -y --default-toolchain nightly
-          . "$HOME/.cargo/env"
-          rustup component add rust-src
+              bzip2 zlib pkg-config cmake ninja rust
 
       - name: Fix up Rust
         if: matrix.os_release == 13
@@ -223,7 +210,6 @@ jobs:
           cd magiskboot_*-src/
 
           echo -e "\n### configure ###\n"
-          . "$HOME/.cargo/env"
           cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release \
                      -DPREFER_STATIC_LINKING=ON
 
@@ -253,23 +239,18 @@ jobs:
         include:
           - msystem: CLANG32
             note: "ucrt-i686-standalone"
-            host_rust_target: "i686-pc-windows-gnu"
             upload: "yes"
           - msystem: MINGW32
             note: "msvcrt-i686-standalone"
-            host_rust_target: "i686-pc-windows-gnu"
             upload: "yes"
           - msystem: CLANG64
             note: "ucrt-x86_64-standalone"
-            host_rust_target: "x86_64-pc-windows-gnu"
             upload: "yes"
           - msystem: MINGW64
             note: "msvcrt-x86_64-standalone"
-            host_rust_target: "x86_64-pc-windows-gnu"
             upload: "yes"
           - msystem: UCRT64
             note: "ucrt-x86_64-standalone"
-            host_rust_target: "x86_64-pc-windows-gnu"
     env:
       MSYS: "winsymlinks:native"
       MAGISKBOOT_WINSUP_NOCASE: 1
@@ -290,18 +271,8 @@ jobs:
           install: >-
             base-devel file
           pacboy: >-
-            xz:p lz4:p bzip2:p zlib:p pkgconf:p
-            clang:p lld:p cmake:p libc++:p ninja:p
-
-      - name: Prepare (Rust)
-        shell: msys2 {0}
-        run: |
-          curl https://sh.rustup.rs -sSf | sh -s -- -y \
-              --default-toolchain nightly \
-              --default-host ${{ matrix.host_rust_target }}
-          echo 'export PATH=$(cygpath ${USERPROFILE}\\.cargo\\bin):$PATH' > $(cygpath $USERPROFILE)/.cargo/env
-          . "$(cygpath $USERPROFILE)/.cargo/env"
-          rustup component add rust-src
+            xz:p lz4:p bzip2:p zlib:p pkgconf:p clang:p
+            lld:p cmake:p libc++:p ninja:p rust:p
 
       - name: Build
         shell: msys2 {0}
@@ -312,7 +283,6 @@ jobs:
           cd magiskboot_*-src/
 
           echo -e "\n### configure ###\n"
-          . "$(cygpath $USERPROFILE)/.cargo/env"
           cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release \
                      -DPREFER_STATIC_LINKING=ON
 

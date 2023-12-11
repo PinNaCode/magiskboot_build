@@ -16,7 +16,7 @@ for build-time dependencies:
 1. [pkg-config][pkg-config]
 2. [Clang][Clang]
 3. [LLD][LLD] (optional)
-4. [Rust][Rust] (**nightly**)
+4. [Rust][Rust]
 5. [Cargo][Cargo]
 6. [CMake][CMake]
 7. [Libc++][Libcxx]
@@ -31,7 +31,7 @@ there are examples for some popular operating systems/distributions:
 
 #### Ubuntu 22.04 (jammy)
 
-install nightly Rust via [rustup][rustup] first
+Make sure to read [this part](#help-my-rust-build-has-failed) before you start.
 
 ````shell
 sudo apt update
@@ -40,8 +40,7 @@ sudo apt upgrade  # upgrade all existing packages (optional)
 #  if your Ubuntu is too old, do the same for lld if you want to use it
 sudo apt install build-essential lzma-dev liblzma-dev liblz4-dev libbz2-dev \
                  zlib1g-dev pkg-config clang-15 libc++-15-dev libc++abi-15-dev cmake \
-                 ninja-build libbsd-dev  # optional: lld-15
-rustup component add rust-src  # install STD library source
+                 ninja-build libbsd-dev rustc cargo  # optional: lld-15
 # the following cmds are only for Ubuntu jammy:
 mkdir ~/.bin
 ln -s `which clang-15` ~/.bin/clang
@@ -56,24 +55,19 @@ export PATH=~/.bin:$PATH
 
 #### Alpine Linux (edge)
 
-install nightly Rust via [rustup][rustup] (can be installed with `apk`) first
-
 ````shell
 sudo apk update
 sudo apk upgrade  # upgrade all existing packages (recommended)
 sudo apk add build-base xz-dev xz-static lz4-dev lz4-static bzip2-dev bzip2-static \
         zlib-dev zlib-static pkgconf clang libc++-dev libc++-dev-static cmake \
-        samurai libbsd-dev libbsd-static  # optional: lld
-rustup component add rust-src  # install STD library source
+        samurai libbsd-dev libbsd-static rust cargo  # optional: lld
 ````
 
 #### archlinux
 
-install nightly Rust via [rustup][rustup] (can be installed with `pacman`) first
-
 ````shell
-sudo pacman -S --needed base-devel xz lz4 bzip2 zlib pkgconf clang libc++ cmake ninja libbsd  # optional: lld
-rustup component add rust-src  # install STD library source
+sudo pacman -S --needed base-devel xz lz4 bzip2 zlib pkgconf \
+                        clang libc++ cmake ninja libbsd rust  # optional: lld
 ````
 
 ##### See also
@@ -91,9 +85,7 @@ install [Homebrew][Homebrew] first
 ````shell
 brew update
 brew upgrade  # upgrade all existing packages (optional)
-brew install xz lz4 bzip2 zlib pkg-config cmake ninja rustup-init
-rustup-init  # install nightly Rust here
-rustup component add rust-src  # install STD library source
+brew install xz lz4 bzip2 zlib pkg-config cmake ninja rust
 ````
 
 </details>
@@ -102,17 +94,16 @@ rustup component add rust-src  # install STD library source
 
 #### Termux
 
-Termux build is not actively tested.
-
-Recommend directly using `libmagiskboot.so` extracted from the Magisk APK, it's just a static ELF program.
+Termux build is not actively tested by CI.
 
 ````shell
 apt update
 apt upgrade  # upgrade all existing packages (optional)
-apt install tur-repo  # for nightly Rust package
 apt install build-essentials liblzma liblz4 libbz2 zlib pkg-config \
-            clang lld rustc-nightly rust-src-nightly cmake ninja libbsd
+            clang lld rust cmake ninja libbsd
 ````
+
+You can also directly use the `libmagiskboot.so` extracted from the Magisk APK, it's just a static ELF program.
 
 </details>
 
@@ -129,13 +120,10 @@ Install [MSYS2][MSYS2] first, and change the setting of `mintty.exe` to grant it
 
 don't forget to set this environtment variable to allow symlinks to work properly: `export MSYS=winsymlinks:native` (required for the build I guess)
 
-install nightly Rust via [rustup][rustup]
-
 ````shell
 pacman -Syu  # upgrade all existing packages (optional, you may need to do this for multiple times)
 pacman -S --needed base-devel pactoys
-pacboy -S --needed {xz,lz4,bzip2,zlib,pkgconf,clang,lld,cmake,libc++,ninja}:p
-rustup component add rust-src  # install STD library source
+pacboy -S --needed {xz,lz4,bzip2,zlib,pkgconf,clang,lld,cmake,libc++,ninja,rust}:p
 ````
 
 There is also an old MinGW port, it works great:
@@ -147,7 +135,7 @@ There is also an old MinGW port, it works great:
 > **Note**
 > Cygwin support is not actively tested currently
 
-To build for Cygwin, you need to compile a nightly Rust toolchain from source, for more info: [Cygwin Rust porting](https://gist.github.com/ookiineko/057eb3a91825313caeaf6d793a33b0b2)
+To build for Cygwin, you need to compile a Rust toolchain from source, for more info: [Cygwin Rust porting](https://gist.github.com/ookiineko/057eb3a91825313caeaf6d793a33b0b2)
 
 Currently Cygwin Rust has no host tools support, so you have patch the CMakeLists and make it cross-compile for Cygwin.
 
@@ -183,7 +171,7 @@ If you want to perform LTO at the final link time, pass `-DUSE_LTO_LINKER_PLUGIN
 
 And you will need to install LLD.
 
-Note: you may need to make sure your LLVM and LLD are sharing the same LLVM version as your nightly Rust.
+Note: you may need to make sure your LLVM and LLD are sharing the same LLVM version as Rust.
 
 ### Generating source tarball
 
@@ -200,19 +188,11 @@ you should be able to find your source package under the `build` folder
 
 #### Help, my Rust build has failed
 
-Since we are using nightly, random breakage is expected. Report it by filing an [Issue](../../issues).
+A recent version of Rust is needed since the upstream is actually using a custom nightly Rust compiler,
 
-However, if your build fails with something like this:
+if your distribution's Rust compiler is too old (e.g. Debian/Ubuntu based), manually applying some extra patches is probably needed,
 
-````text
-[32/62] Building Rust static library libmagiskboot-rs.a
-error: the `-Z` flag is only accepted on the nightly channel of Cargo, but this is the `stable` channel
-See https://doc.rust-lang.org/book/appendix-07-nightly-rust.html for more information about Rust release channels.
-````
-
-That means you have installed a non-nightly Rust toolchain, and that is not supported currently, since the upstream uses nightly.
-
-You may also run into issues if you don't have `rust-src` (STD library sources) installed, just install it like in the [Requirements](#requirements) section or simply follow the hint cargo gives you.
+you can try to pick some known ones from [here](patches-contrib), or report it by filing an [Issue](../../issues) if that doesn't help.
 
 #### Is this thing using the latest Magisk source?
 
@@ -273,7 +253,6 @@ When syncing upstream `vendor/{android_libbase,Magisk}` changes, here is a few t
 [Magisk]: https://github.com/topjohnwu/Magisk.git
 [android-tools]: https://github.com/nmeum/android-tools
 [libbsd]: https://libbsd.freedesktop.org/
-[rustup]: https://rustup.rs/
 [Homebrew]: https://brew.sh/
 [Libcxx]: https://libcxx.llvm.org/
 [MSYS2]: https://www.msys2.org/
