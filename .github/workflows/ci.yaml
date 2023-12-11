@@ -73,15 +73,27 @@ jobs:
             tag: "jammy"
             note: "glibc-x86_64-static"
             cmake_flag: "-DPREFER_STATIC_LINKING=ON"
+            rust_target: "x86_64-unknown-linux-gnu"
+            dpkg_arch: "amd64"
+            upload: "yes"
+
+          - os: "ubuntu"
+            tag: "jammy"
+            note: "glibc-i368-static"
+            cmake_flag: "-DPREFER_STATIC_LINKING=ON"
+            rust_target: "i686-unknown-linux-gnu"
+            dpkg_arch: "i386"
             upload: "yes"
 
           - os: "alpine"
             tag: "edge"
             note: "musl-x86_64"
+            rust_target: "x86_64-unknown-linux-musl"
 
           - os: "archlinux"
             tag: "latest"
             note: "glibc-x86_64"
+            rust_target: "x86_64-unknown-linux-gnu"
 
     container:
       image: ${{ matrix.os }}:${{ matrix.tag }}
@@ -105,10 +117,14 @@ jobs:
       - name: Prepare (Ubuntu)
         if: matrix.os == 'ubuntu'
         run: |
+          _arch=${{ matrix.dpkg_arch }}
+          dpkg --add-architecture $_arch
           apt update
-          DEBIAN_FRONTEND=noninteractive apt install -y curl build-essential lzma-dev \
-              liblzma-dev liblz4-dev libbz2-dev zlib1g-dev pkgconf clang-15 \
-              libc++-15-dev libc++abi-15-dev cmake ninja-build libbsd-dev
+          DEBIAN_FRONTEND=noninteractive apt install -y curl tar patch file libc6-dev:$_arch \
+              binutils:$_arch liblzma-dev:$_arch liblz4-dev:$_arch libbz2-dev:$_arch \
+              zlib1g-dev:$_arch pkg-config:$_arch clang-15:$_arch libc++-15-dev:$_arch \
+              libc++abi-15-dev:$_arch cmake:$_arch ninja-build:$_arch libbsd-dev:$_arch
+          unset _arch
           ln -s $(which clang-15) $(dirname $(which clang-15))/clang
           ln -s $(which clang++-15) $(dirname $(which clang-15))/clang++
 
@@ -116,19 +132,21 @@ jobs:
         if: matrix.os == 'alpine'
         run: |
           apk update
-          apk add build-base curl xz-dev lz4-dev bzip2-dev zlib-dev \
+          apk add build-base curl file xz-dev lz4-dev bzip2-dev zlib-dev \
                   pkgconf clang libc++-dev cmake samurai libbsd-dev
 
       - name: Prepare (archlinux)
         if: matrix.os == 'archlinux'
         run: |
           pacman -Syu --noconfirm
-          pacman -S --noconfirm --needed curl base-devel xz lz4 bzip2 \
+          pacman -S --noconfirm --needed curl file base-devel xz lz4 bzip2 \
                            zlib pkgconf clang libc++ cmake ninja libbsd
 
       - name: Prepare (Rust)
         run: |
-          curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
+          curl https://sh.rustup.rs -sSf | sh -s -- -y \
+              --default-toolchain nightly \
+              --default-host ${{ matrix.rust_target }}
           . "$HOME/.cargo/env"
           rustup component add rust-src
 
@@ -145,6 +163,8 @@ jobs:
 
           echo -e "\n### make ###\n"
           cmake --build build -j $(nproc)
+
+          file build/magiskboot
 
           ldd build/magiskboot || true
 
@@ -179,8 +199,8 @@ jobs:
 
       - name: Prepare
         run: |
-          brew install --overwrite coreutils xz lz4 bzip2 \
-              zlib pkg-config cmake ninja rustup-init
+          brew install --overwrite coreutils file xz lz4 \
+              bzip2 zlib pkg-config cmake ninja rustup-init
 
       - name: Prepare (Rust)
         run: |
@@ -207,6 +227,8 @@ jobs:
 
           echo -e "\n### make ###\n"
           cmake --build build -j $(nproc)
+
+          file build/magiskboot
 
           otool -L build/magiskboot
 
@@ -264,7 +286,7 @@ jobs:
           msystem: ${{ matrix.msystem }}
           update: true
           install: >-
-            base-devel
+            base-devel file
           pacboy: >-
             xz:p lz4:p bzip2:p zlib:p pkgconf:p
             clang:p lld:p cmake:p libc++:p ninja:p
@@ -294,6 +316,8 @@ jobs:
 
           echo -e "\n### make ###\n"
           cmake --build build -j $(nproc)
+
+          file build/magiskboot.exe
 
           ldd build/magiskboot.exe
 
