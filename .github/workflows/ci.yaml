@@ -224,11 +224,33 @@ jobs:
     name: Build (Windows)
     runs-on: windows-latest
     needs: [vars, src]
+    strategy:
+      matrix:
+        include:
+          - msystem: CLANG32
+            note: "ucrt-i686-static"
+            host_rust_target: "i686-pc-windows-gnu"
+            upload: "yes"
+          - msystem: MINGW32
+            note: "msvcrt-i686-static"
+            host_rust_target: "i686-pc-windows-gnu"
+            upload: "yes"
+          - msystem: CLANG64
+            note: "ucrt-x86_64-static"
+            host_rust_target: "x86_64-pc-windows-gnu"
+            upload: "yes"
+          - msystem: MINGW64
+            note: "msvcrt-x86_64-static"
+            host_rust_target: "x86_64-pc-windows-gnu"
+            upload: "yes"
+          - msystem: UCRT64
+            note: "ucrt-x86_64-static"
+            host_rust_target: "x86_64-pc-windows-gnu"
     env:
       MSYS: "winsymlinks:native"
       MAGISKBOOT_WINSUP_NOCASE: 1
 
-      upload_suffix: "windows-mingw-w64-x86_64-static"
+      upload_prefix: "windows-mingw-w64"
 
     steps:
       - name: Prepare (source)
@@ -239,20 +261,20 @@ jobs:
       - name: Prepare
         uses: msys2/setup-msys2@v2
         with:
-          msystem: MINGW64
+          msystem: ${{ matrix.msystem }}
           update: true
           install: >-
             base-devel
           pacboy: >-
-            xz:x lz4:x bzip2:x zlib:x pkgconf:x
-            clang:x lld:x cmake:x libc++:x ninja:x
+            xz:p lz4:p bzip2:p zlib:p pkgconf:p
+            clang:p lld:p cmake:p libc++:p ninja:p
 
       - name: Prepare (Rust)
         shell: msys2 {0}
         run: |
           curl https://sh.rustup.rs -sSf | sh -s -- -y \
               --default-toolchain nightly \
-              --default-host x86_64-pc-windows-gnu
+              --default-host ${{ matrix.host_rust_target }}
           echo 'export PATH=$(cygpath ${USERPROFILE}\\.cargo\\bin):$PATH' > $(cygpath $USERPROFILE)/.cargo/env
           . "$(cygpath $USERPROFILE)/.cargo/env"
           rustup component add rust-src
@@ -280,7 +302,8 @@ jobs:
           cp -afv build/magiskboot.exe $GITHUB_WORKSPACE/magiskboot.exe
 
       - name: Upload artifacts
+        if: matrix.upload == 'yes'
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-${{ env.upload_suffix }}
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-${{ env.upload_prefix }}-${{ matrix.note }}
           path: ${{ github.workspace }}/magiskboot.exe
