@@ -25,8 +25,6 @@ for build-time dependencies:
 6. [CMake][CMake]
 7. [Libc++][Libcxx]
 
-for Linux systems, please install [libbsd][libbsd] as well
-
 please ensure you have installed the above softwares before building
 
 there are examples for some popular operating systems/distributions:
@@ -44,7 +42,7 @@ sudo apt upgrade  # upgrade all existing packages (optional)
 #  if your Ubuntu is too old, do the same for lld if you want to use it
 sudo apt install build-essential lzma-dev liblzma-dev liblz4-dev libbz2-dev \
                  zlib1g-dev pkg-config clang-15 libc++-15-dev libc++abi-15-dev cmake \
-                 ninja-build libbsd-dev rustc cargo  # optional: lld-15
+                 ninja-build rustc cargo  # optional: lld-15
 # the following cmds are only for Ubuntu jammy:
 mkdir ~/.bin
 ln -s `which clang-15` ~/.bin/clang
@@ -62,16 +60,16 @@ export PATH=~/.bin:$PATH
 ````shell
 sudo apk update
 sudo apk upgrade  # upgrade all existing packages (recommended)
-sudo apk add build-base xz-dev xz-static lz4-dev lz4-static bzip2-dev bzip2-static \
-        zlib-dev zlib-static pkgconf clang libc++-dev libc++-dev-static cmake \
-        samurai libbsd-dev libbsd-static rust cargo  # optional: lld
+sudo apk add build-base linux-headers xz-dev lz4-dev bzip2-dev \
+             zlib-dev pkgconf clang libc++-dev cmake \
+             samurai rust cargo  # optional: lld
 ````
 
 #### archlinux
 
 ````shell
 sudo pacman -S --needed base-devel xz lz4 bzip2 zlib pkgconf \
-                        clang libc++ cmake ninja libbsd rust  # optional: lld
+                        clang libc++ cmake ninja rust  # optional: lld
 ````
 
 ##### See also
@@ -104,7 +102,7 @@ Termux build is not actively tested by CI.
 apt update
 apt upgrade  # upgrade all existing packages (optional)
 apt install build-essentials liblzma liblz4 libbz2 zlib pkg-config \
-            clang lld rust cmake ninja libbsd
+            clang lld rust cmake ninja
 ````
 
 You can also directly use the `libmagiskboot.so` extracted from the Magisk APK, it's just a static ELF program.
@@ -256,7 +254,6 @@ When syncing upstream `vendor/{android_libbase,Magisk}` changes, here is a few t
 [CMake]: https://cmake.org/
 [Magisk]: https://github.com/topjohnwu/Magisk.git
 [android-tools]: https://github.com/nmeum/android-tools
-[libbsd]: https://libbsd.freedesktop.org/
 [Homebrew]: https://brew.sh/
 [Libcxx]: https://libcxx.llvm.org/
 [MSYS2]: https://www.msys2.org/

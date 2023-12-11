@@ -1,5 +1,6 @@
 add_library(platform_stubs STATIC
-    src/sendfile_compat.c)
+    src/sendfile_compat.c
+    src/libbsd_compat.c)
 target_include_directories(platform_stubs PUBLIC include)
 
 if (WIN32)
@@ -13,7 +14,6 @@ target_sources(platform_stubs PRIVATE
     src/winsup/mknod_compat.c
     src/winsup/acl_compat.c
     src/winsup/str_compat.c
-    src/winsup/libbsd_compat.c
     src/winsup/uio_compat.c
     src/winsup/open_compat.c
     src/winsup/file_compat.c
@@ -40,7 +40,5 @@ target_link_libraries(magiskboot ntdll bcrypt)
 target_include_directories(android_libbase PRIVATE include)
 endif()
 
-if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    target_link_libraries(libbase platform_stubs)
-    target_link_libraries(magiskboot platform_stubs)
-endif()
+target_link_libraries(libbase platform_stubs)
+target_link_libraries(magiskboot platform_stubs)

@@ -314,9 +314,9 @@ index b7a775c..9a77dde 100644
 +#define byte std::byte
 +#endif
 +
- #ifndef _WIN32
- #ifdef __CYGWIN__
+ #if 0
  static int strm_read(void *v, char *buf, size_t len) {
+     auto strm = static_cast<channel *>(v);
 diff --git a/native/src/base/include/stream.hpp b/native/src/base/include/stream.hpp
 index 4742085..2b791b7 100644
 --- a/native/src/base/include/stream.hpp

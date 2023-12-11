@@ -124,7 +124,7 @@ jobs:
               libc6-dev:$_arch binutils:$_arch liblzma-dev:$_arch liblz4-dev:$_arch \
               libbz2-dev:$_arch zlib1g-dev:$_arch pkg-config:$_arch clang-15:$_arch \
               libc++-15-dev:$_arch libc++abi-15-dev:$_arch cmake:$_arch \
-              ninja-build:$_arch libbsd-dev:$_arch rustc:$_arch cargo:$_arch
+              ninja-build:$_arch rustc:$_arch cargo:$_arch
           unset _arch
           ln -s $(which clang-15) $(dirname $(which clang-15))/clang
           ln -s $(which clang++-15) $(dirname $(which clang-15))/clang++
@@ -133,15 +133,15 @@ jobs:
         if: matrix.os == 'alpine'
         run: |
           apk update
-          apk add build-base curl file xz-dev lz4-dev bzip2-dev zlib-dev python3 \
-                  pkgconf clang libc++-dev cmake samurai libbsd-dev rust cargo
+          apk add build-base linux-headers curl file xz-dev lz4-dev bzip2-dev zlib-dev \
+                  python3 pkgconf clang libc++-dev cmake samurai rust cargo
 
       - name: Prepare (archlinux)
         if: matrix.os == 'archlinux'
         run: |
           pacman -Syu --noconfirm
           pacman -S --noconfirm --needed curl file base-devel xz lz4 bzip2 python \
-                           zlib pkgconf clang libc++ cmake ninja libbsd rust
+                           zlib pkgconf clang libc++ cmake ninja rust
 
       - name: Build
         run: |

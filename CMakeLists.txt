@@ -74,9 +74,6 @@ find_package(LibLZMA REQUIRED)
 pkg_check_modules(liblz4 REQUIRED IMPORTED_TARGET liblz4)
 find_package(BZip2 REQUIRED)
 pkg_check_modules(zlib REQUIRED IMPORTED_TARGET zlib)
-if (NOT APPLE AND NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Android" AND NOT WIN32)
-    pkg_check_modules(libbsd REQUIRED IMPORTED_TARGET libbsd)
-endif()
 endif() # NO_TARGETS_OR_DEPS
 
 add_compile_options(-Wall)

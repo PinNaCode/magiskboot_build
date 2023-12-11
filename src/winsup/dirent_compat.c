@@ -10,9 +10,9 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
+#include "../../include/libbsd_compat.h"
 #include "../../include/winsup/at_compat.h"
 #include "../../include/winsup/dirent_compat.h"
-#include "../../include/winsup/libbsd_compat.h"
 #include "../../include/winsup/open_compat.h"
 #include "../../include/winsup/stat_compat.h"
 
@@ -128,7 +128,7 @@ struct _dirent_stub* _readdir_stub (_DIR_stub* dirp) {
     // clone data
     res.d_ino = d->d_ino;
     res.d_reclen = d->d_reclen;
-    res.d_namlen = strlcpy(res.d_name, d->d_name, dirent_min(sizeof(res.d_name), d->d_namlen));
+    res.d_namlen = _strlcpy_stub(res.d_name, d->d_name, dirent_min(sizeof(res.d_name), d->d_namlen));
     res.d_type = type;
 
     return &res;

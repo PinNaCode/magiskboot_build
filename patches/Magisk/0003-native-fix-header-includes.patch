@@ -93,26 +93,11 @@ index 0d8d11c..c4bb952 100644
  sDIR make_dir(DIR *dp);
  sFILE make_file(FILE *fp);
  
-diff --git a/native/src/base/logging.hpp b/native/src/base/logging.hpp
-index 405864c..d006b65 100644
---- a/native/src/base/logging.hpp
-+++ b/native/src/base/logging.hpp
-@@ -3,6 +3,10 @@
- #include <cerrno>
- #include <cstdarg>
- 
-+#if !defined(__ANDROID__) && !defined(__APPLE__) && !defined(_WIN32)
-+#include <bsd/sys/cdefs.h>
-+#endif
-+
- void LOGD(const char *fmt, ...) __printflike(1, 2);
- void LOGI(const char *fmt, ...) __printflike(1, 2);
- void LOGW(const char *fmt, ...) __printflike(1, 2);
 diff --git a/native/src/base/misc.cpp b/native/src/base/misc.cpp
 index 313d136..f0188b5 100644
 --- a/native/src/base/misc.cpp
 +++ b/native/src/base/misc.cpp
-@@ -1,13 +1,40 @@
+@@ -1,13 +1,39 @@
  #include <sys/types.h>
 +#ifndef _WIN32
  #include <sys/wait.h>
@@ -143,44 +128,25 @@ index 313d136..f0188b5 100644
 +#endif
  #include <random>
  #include <string>
-+#if !defined(__ANDROID__) && !defined(__APPLE__) && !defined(_WIN32)
-+#include <bsd/string.h>
++#if !defined(__ANDROID__) && !defined(__APPLE__)
++#include <libbsd_compat.h>
 +#endif
 +#ifdef _WIN32
-+#include <winsup/libbsd_compat.h>
 +#include <winsup/str_compat.h>
 +#endif
  
  #include <base.hpp>
  
-diff --git a/native/src/base/misc.hpp b/native/src/base/misc.hpp
-index 1c084af..22207c1 100644
---- a/native/src/base/misc.hpp
-+++ b/native/src/base/misc.hpp
-@@ -8,6 +8,10 @@
- #include <random>
- #include <cxx.h>
+@@ -321,5 +321,8 @@ int ssprintf(char *dest, size_t size, const char *fmt, ...) {
  
-+#if !defined(__ANDROID__) && !defined(__APPLE__) && !defined(_WIN32)
-+#include <bsd/sys/cdefs.h>
+ #undef strlcpy
+ size_t strscpy(char *dest, const char *src, size_t size) {
++#if !defined(__ANDROID__) && !defined(__APPLE__)
++#define strlcpy _strlcpy_stub
 +#endif
-+
- #include "xwrap.hpp"
- 
- #define DISALLOW_COPY_AND_MOVE(clazz) \
-diff --git a/native/src/base/stream.cpp b/native/src/base/stream.cpp
-index b7a775c..9a77dde 100644
---- a/native/src/base/stream.cpp
-+++ b/native/src/base/stream.cpp
-@@ -1,5 +1,8 @@
- #include <unistd.h>
- #include <cstddef>
-+#if !defined(__ANDROID__) && !defined(__APPLE__) && !defined(_WIN32)
-+#include <bsd/stdio.h>
-+#endif
- 
- #include <base.hpp>
- #include <stream.hpp>
+     return std::min(strlcpy(dest, src, size), size - 1);
+ }
+
 diff --git a/native/src/base/include/stream.hpp b/native/src/base/include/stream.hpp
 index 4742085..b461534 100644
 --- a/native/src/base/include/stream.hpp
