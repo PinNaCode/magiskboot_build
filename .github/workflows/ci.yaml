@@ -189,7 +189,7 @@ jobs:
     env:
       HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
 
-      upload_suffix: "x86_64-static"
+      upload_suffix: "x86_64-standalone"
 
     steps:
       - name: Prepare (source)
@@ -250,23 +250,23 @@ jobs:
       matrix:
         include:
           - msystem: CLANG32
-            note: "ucrt-i686-static"
+            note: "ucrt-i686-standalone"
             host_rust_target: "i686-pc-windows-gnu"
             upload: "yes"
           - msystem: MINGW32
-            note: "msvcrt-i686-static"
+            note: "msvcrt-i686-standalone"
             host_rust_target: "i686-pc-windows-gnu"
             upload: "yes"
           - msystem: CLANG64
-            note: "ucrt-x86_64-static"
+            note: "ucrt-x86_64-standalone"
             host_rust_target: "x86_64-pc-windows-gnu"
             upload: "yes"
           - msystem: MINGW64
-            note: "msvcrt-x86_64-static"
+            note: "msvcrt-x86_64-standalone"
             host_rust_target: "x86_64-pc-windows-gnu"
             upload: "yes"
           - msystem: UCRT64
-            note: "ucrt-x86_64-static"
+            note: "ucrt-x86_64-standalone"
             host_rust_target: "x86_64-pc-windows-gnu"
     env:
       MSYS: "winsymlinks:native"
