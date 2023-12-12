@@ -139,6 +139,8 @@ There is also an old MinGW port, it works great:
 > **Note**
 > Cygwin support is not actively tested currently
 
+An experimental CI build is available [here](../../releases/cygwin-test).
+
 To build for Cygwin, you need to compile a Rust toolchain from source, for more info: [Cygwin Rust porting](https://gist.github.com/ookiineko/057eb3a91825313caeaf6d793a33b0b2)
 
 Currently Cygwin Rust has no host tools support, so you have patch the CMakeLists and make it cross-compile for Cygwin.
@@ -147,17 +149,15 @@ NOTE: This project doesn't support cross-compiling for now, but it should be eas
 
 You will also need to compile the LLVM/Clang from source to add Cygwin target, see: [my unofficial cygports](https://github.com/orgs/ookiineko-cygpkg/repositories)
 
-Finally, read [this part](#help-my-build-has-failed) before you start.
-
 </details>
 
 ### Download
 
-For prebuilt binaries, go check [GitHub Releases](../../releases) for selected CI builds (TODO: run some automated testsuites in CI).
+For prebuilt binaries, go check [GitHub Releases](../../releases/latest) for selected CI builds (TODO: run some automated testsuites in CI).
 
 ### Build & Install
 
-First get and extract the latest source tarball (called `magiskboot_<COMMIT_ID>_<VERCODE>-src.tar.xz`) from [Github Releases](../../releases).
+First get and extract the latest source tarball (called `magiskboot_<COMMIT_ID>_<VERCODE>-src.tar.xz`) from [Github Releases](../../releases/latest).
 
 Or clone this repository using Git with this option: `--recurse-submodules`. (If you already have a cloned repository without using that option, run: `git submodule update --init --recursive` instead)
 
