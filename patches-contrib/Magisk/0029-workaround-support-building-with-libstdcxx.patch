@@ -1,0 +1,103 @@
+From 03220a4a97225457eb88e25ceb1d11abcc80f84c Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Tue, 12 Dec 2023 03:07:40 +0000
+Subject: [PATCH] workaround: support building with libstdc++
+
+* may be useful for some really old distros
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ native/src/base/files.cpp  | 3 +++
+ native/src/base/files.hpp  | 3 +++
+ native/src/base/misc.cpp   | 3 +++
+ native/src/base/misc.hpp   | 3 +++
+ native/src/base/stream.cpp | 3 +++
+ native/src/boot/format.hpp | 3 +++
+ 6 files changed, 18 insertions(+)
+
+diff --git a/native/src/base/files.cpp b/native/src/base/files.cpp
+index 050bda6..c05cf18 100644
+--- a/native/src/base/files.cpp
++++ b/native/src/base/files.cpp
+@@ -32,6 +32,9 @@
+ #define dirent _dirent_stub
+ #define getline msvc_getline
+ #endif
++#ifndef _LIBCPP_VERSION
++#include <cstring>
++#endif
+ 
+ #include <base.hpp>
+ 
+diff --git a/native/src/base/files.hpp b/native/src/base/files.hpp
+index 9c2d890..19c2dd6 100644
+--- a/native/src/base/files.hpp
++++ b/native/src/base/files.hpp
+@@ -5,6 +5,9 @@
+ #include <string_view>
+ #include <string>
+ #include <vector>
++#ifndef _LIBCPP_VERSION
++#include <memory>
++#endif
+ 
+ #ifdef __linux__
+ #include <linux/fs.h>
+diff --git a/native/src/base/misc.cpp b/native/src/base/misc.cpp
+index 249b698..4e3c342 100644
+--- a/native/src/base/misc.cpp
++++ b/native/src/base/misc.cpp
+@@ -28,6 +28,9 @@
+ #endif
+ #include <random>
+ #include <string>
++#ifndef _LIBCPP_VERSION
++#include <cstring>
++#endif
+ #if !defined(__ANDROID__) && !defined(__APPLE__)
+ #include <libbsd_compat.h>
+ #endif
+diff --git a/native/src/base/misc.hpp b/native/src/base/misc.hpp
+index 7ced155..3e9869f 100644
+--- a/native/src/base/misc.hpp
++++ b/native/src/base/misc.hpp
+@@ -6,6 +6,9 @@
+ #include <string_view>
+ #include <bitset>
+ #include <random>
++#ifndef _LIBCPP_VERSION
++#include <memory>
++#endif
+ #include <cxx.h>
+ 
+ #include "xwrap.hpp"
+diff --git a/native/src/base/stream.cpp b/native/src/base/stream.cpp
+index 271cad2..850beb0 100644
+--- a/native/src/base/stream.cpp
++++ b/native/src/base/stream.cpp
+@@ -1,5 +1,8 @@
+ #include <unistd.h>
+ #include <cstddef>
++#ifndef _LIBCPP_VERSION
++#include <cstring>
++#endif
+ 
+ #include <base.hpp>
+ #include <stream.hpp>
+diff --git a/native/src/boot/format.hpp b/native/src/boot/format.hpp
+index e0634ba..c9e3773 100644
+--- a/native/src/boot/format.hpp
++++ b/native/src/boot/format.hpp
+@@ -1,6 +1,9 @@
+ #pragma once
+ 
+ #include <string_view>
++#ifndef _LIBCPP_VERSION
++#include <cstring>
++#endif
+ 
+ typedef enum {
+     UNKNOWN,
+-- 
+2.41.0
+

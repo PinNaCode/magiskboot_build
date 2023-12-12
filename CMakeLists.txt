@@ -11,7 +11,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-if (NOT NO_TARGETS_OR_DEPS)
+if (NOT NO_TARGETS_OR_DEPS AND NOT WITHOUT_LIBCXX)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++")
 endif()
@@ -34,6 +34,8 @@ option(USE_LTO_LINKER_PLUGIN "Keep LLVM bitcode in objects for LTO (requires LLD
 # on any device with the same operating system and architecture.
 # This requires installing depended static libraries on the host.
 option(PREFER_STATIC_LINKING "Prefer static libraries when linking" OFF)
+
+option(WITHOUT_LIBCXX "Don't link libcxx instead of libstdc++" OFF)
 
 # XXX: can be detected if dump target JSON (rustc)
 if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" AND NOT CYGWIN AND NOT APPLE)

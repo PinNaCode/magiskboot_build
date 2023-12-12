@@ -23,7 +23,7 @@ for build-time dependencies:
 4. [Rust][Rust]
 5. [Cargo][Cargo]
 6. [CMake][CMake]
-7. [Libc++][Libcxx]
+7. [Libc++][Libcxx] (optional, see [this part](#help-my-build-has-failed))
 
 please ensure you have installed the above softwares before building
 
@@ -33,7 +33,7 @@ there are examples for some popular operating systems/distributions:
 
 #### Ubuntu 22.04 (jammy)
 
-Make sure to read [this part](#help-my-rust-build-has-failed) before you start.
+Make sure to read [this part](#help-my-build-has-failed) before you start.
 
 ````shell
 sudo apt update
@@ -145,7 +145,7 @@ NOTE: This project doesn't support cross-compiling for now, but it should be eas
 
 You will also need to compile the LLVM/Clang from source to add Cygwin target, see: [my unofficial cygports](https://github.com/orgs/ookiineko-cygpkg/repositories)
 
-Finally, read [this part](#help-my-rust-build-has-failed) before you start.
+Finally, read [this part](#help-my-build-has-failed) before you start.
 
 </details>
 
@@ -190,13 +190,15 @@ you should be able to find your source package under the `build` folder
 
 ### FAQ
 
-#### Help, my Rust build has failed
+#### Help, my build has failed
 
 A recent version of Rust is needed since the upstream is actually using a custom nightly Rust compiler,
 
 if your distribution's Rust compiler is too old (e.g. Debian/Ubuntu based), manually applying some extra patches is probably needed,
 
 you can try to pick some known ones from [here](patches-contrib), or report it by filing an [Issue](../../issues) if that doesn't help.
+
+If you need to build with [Libstdc++][Libstdcxx] instead of [Libc++][Libcxx], pass `-DWITHOUT_LIBCXX=ON` to CMake during configuring, also apply [this patch](patches-contrib/0029-workaround-support-building-with-libstdcxx.patch).
 
 #### Is this thing using the latest Magisk source?
 
@@ -258,4 +260,5 @@ When syncing upstream `vendor/{android_libbase,Magisk}` changes, here is a few t
 [android-tools]: https://github.com/nmeum/android-tools
 [Homebrew]: https://brew.sh/
 [Libcxx]: https://libcxx.llvm.org/
+[Libstdcxx]: https://gcc.gnu.org/onlinedocs/libstdc++/
 [MSYS2]: https://www.msys2.org/
