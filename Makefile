@@ -2,10 +2,11 @@ all:
 
 clean:
 	rm -rf build
+ifneq ($(wildcard .git),)
 	rm -f flags.h
 ifeq ($(OS),Windows_NT)
 	git submodule foreach --recursive git config core.symlinks true
-endif
+endif  # Windows_NT
 	git submodule update -f --recursive
 	git submodule foreach --recursive git clean -fd
 # HACK: On Windows, symlinks have two different types: file and directory,
@@ -19,4 +20,5 @@ endif
 ifeq ($(OS),Windows_NT)
 	find -type l -exec rm -f {} +
 	git submodule update -f --recursive
-endif
+endif  # Windows_NT
+endif  # wildcard .git
