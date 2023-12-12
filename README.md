@@ -198,7 +198,7 @@ if your distribution's Rust compiler is too old (e.g. Debian/Ubuntu based), manu
 
 you can try to pick some known ones from [here](patches-contrib), or report it by filing an [Issue](../../issues) if that doesn't help.
 
-If you need to build with [Libstdc++][Libstdcxx] instead of [Libc++][Libcxx], pass `-DWITHOUT_LIBCXX=ON` to CMake during configuring, also apply [this patch](patches-contrib/0029-workaround-support-building-with-libstdcxx.patch).
+If you need to build with [Libstdc++][Libstdcxx] instead of [Libc++][Libcxx], pass `-DWITHOUT_LIBCXX=ON` to CMake during configuring, also apply [this patch](patches-contrib/Magisk/0029-workaround-support-building-with-libstdcxx.patch).
 
 #### Is this thing using the latest Magisk source?
 
