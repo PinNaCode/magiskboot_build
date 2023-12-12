@@ -105,6 +105,8 @@ apt install build-essential liblzma liblz4 libbz2 zlib pkg-config \
             clang lld rust cmake ninja
 ````
 
+When configuring, pass `-DCMAKE_INSTALL_PREFIX=$PREFIX` to CMake.
+
 You can also directly use the `libmagiskboot.so` extracted from the Magisk APK, it's just a static ELF program.
 
 </details>
@@ -163,9 +165,9 @@ Or clone this repository using Git with this option: `--recurse-submodules`. (If
 cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release  # configure
 cmake --build build -j $(nproc)  # build
 ./build/magiskboot  # running
-# install to system (or to a directory specified by the `DESTDIR' environment variable)
-sudo cmake --install build
-	````
+# install to system (may need sudo, to specify different install dir, set the `DESTDIR' environment variable)
+cmake --install build
+````
 
 If you prefer a statically linked binary (optional), pass `-DPREFER_STATIC_LINKING=ON` to CMake while configuring, make sure your distribution provided you the static version of the [depended libraries](#requirements), otherwise you'll run into configure errors and you have to change your distribution or try to compile the static version of those libraries yourself and install them to your system for the static build.
 
