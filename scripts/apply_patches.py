@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
+"""
+a cursed script doesn't use argparse
+"""
 import os
 import os.path
 import sys
 
 
 files = []
-list(map(lambda x: files.extend(x.split()) if x else None, sys.argv[1:]))
+list(map(lambda x: files.extend(x.strip().split()) if x else None, sys.argv[1:]))
+
+if not files:
+    print(f'Usage: {sys.argv[0]} <patch file 0> [patch file 1] ... [patch file N]')
 
 top = os.getcwd()
 
@@ -23,4 +29,5 @@ for patch in filter(bool, map(str.strip, files)):
     os.chdir(os.path.join('vendor', vndproj))
     assert not os.system(f'patch -p1 -i {pfile!r} --no-backup-if-mismatch -f'), f'failed to apply {pfile!r}'
 
-print('Done!')
+if files:
+    print('Done!')
