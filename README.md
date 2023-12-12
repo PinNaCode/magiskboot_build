@@ -101,7 +101,7 @@ Termux build is not actively tested by CI.
 ````shell
 apt update
 apt upgrade  # upgrade all existing packages (optional)
-apt install build-essentials liblzma liblz4 libbz2 zlib pkg-config \
+apt install build-essential liblzma liblz4 libbz2 zlib pkg-config \
             clang lld rust cmake ninja
 ````
 
