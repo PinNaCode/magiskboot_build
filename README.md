@@ -145,6 +145,8 @@ NOTE: This project doesn't support cross-compiling for now, but it should be eas
 
 You will also need to compile the LLVM/Clang from source to add Cygwin target, see: [my unofficial cygports](https://github.com/orgs/ookiineko-cygpkg/repositories)
 
+Finally, read [this part](#help-my-rust-build-has-failed) before you start.
+
 </details>
 
 ### Download

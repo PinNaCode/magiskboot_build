@@ -10,6 +10,7 @@ list(map(lambda x: files.extend(x.split()) if x else None, sys.argv[1:]))
 top = os.getcwd()
 
 for patch in filter(bool, map(str.strip, files)):
+    os.chdir(top)
     if not os.path.isfile(patch) or not os.access(patch, os.R_OK):
         print(f'{patch!r} is not a file or inaccessible')
         assert False
@@ -17,7 +18,6 @@ for patch in filter(bool, map(str.strip, files)):
         print(f'path {patch!r} is invalid')
         assert False
     print(f'applying {patch!r}')
-    os.chdir(top)
     pfile = os.path.abspath(patch)
     _p, vndproj, _f = patch.split(os.path.sep)
     os.chdir(os.path.join('vendor', vndproj))
