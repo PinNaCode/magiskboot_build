@@ -164,8 +164,8 @@ cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release  # configure
 cmake --build build -j $(nproc)  # build
 ./build/magiskboot  # running
 # install to system (or to a directory specified by the `DESTDIR' environment variable)
-sudo cmake --install install
-````
+sudo cmake --install build
+	````
 
 If you prefer a statically linked binary (optional), pass `-DPREFER_STATIC_LINKING=ON` to CMake while configuring, make sure your distribution provided you the static version of the [depended libraries](#requirements), otherwise you'll run into configure errors and you have to change your distribution or try to compile the static version of those libraries yourself and install them to your system for the static build.
 
