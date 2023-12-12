@@ -2,7 +2,7 @@
 
 extern "C" {
     #[link_name = "lseek"]
-    pub fn lsee64(fd: crate::c_int, offset: crate::off_t, whence: crate::c_int) -> crate::off_t;
+    pub fn lseek64(fd: crate::c_int, offset: crate::off_t, whence: crate::c_int) -> crate::off_t;
 }
 
 // syscall
@@ -30,7 +30,7 @@ f! {
         if offset.is_null() {
             real_sendfile(out_fd, in_fd, count);
             0
-        else {
+        } else {
             panic!("unreachable code")
         }
     }
