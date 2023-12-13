@@ -1,16 +1,20 @@
 name: CI
 on:
+  workflow_dispatch:
+
   push:
     branches-ignore:
       - main
     paths-ignore:
       - '.github/workflows/release.yaml'
+      - 'patches-contrib/**'
       - 'LICENSE'
       - 'README.md'
 
   pull_request:
     paths-ignore:
       - '.github/workflows/release.yaml'
+      - 'patches-contrib/**'
       - 'LICENSE'
       - 'README.md'
 
