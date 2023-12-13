@@ -200,9 +200,11 @@ if your distribution's Rust compiler is too old (e.g. Debian/Ubuntu based), manu
 
 you can try to pick some known ones from [here](patches-contrib), or report it by filing an [Issue](../../issues) if that doesn't help.
 
-If you need to build with [Libstdc++][Libstdcxx] instead of [Libc++][Libcxx], pass `-DWITHOUT_LIBCXX=ON` to CMake during configuring, also apply [this patch](patches-contrib/Magisk/0029-workaround-support-building-with-libstdcxx.patch).
+Or you can try to install it using [rustup][rustup] instead.
 
-Passing `-DLIBCPP_ABI_UNSTABLE=ON` to CMake while configuring may help fixing "undefined reference to `bad_function_call`" if your Libc++ is old.
+If you need to build with [Libstdc++][Libstdcxx] instead of [Libc++][Libcxx] (not recommended), pass `-DWITHOUT_LIBCXX=ON` to CMake during configuring, also apply [this patch](patches-contrib/Magisk/0029-workaround-support-building-with-libstdcxx.patch).
+
+Passing `-DLIBCPP_ABI_UNSTABLE=ON` to CMake while configuring may help fixing "undefined reference to `bad_function_call`" if your Libc++ is old (but may break binary compatibility across DLL/shared library versions).
 
 #### Is this thing using the latest Magisk source?
 
@@ -262,6 +264,7 @@ When syncing upstream `vendor/{android_libbase,Magisk}` changes, here is a few t
 [CMake]: https://cmake.org/
 [Magisk]: https://github.com/topjohnwu/Magisk.git
 [android-tools]: https://github.com/nmeum/android-tools
+[rustup]: https://rustup.rs/
 [Homebrew]: https://brew.sh/
 [Libcxx]: https://libcxx.llvm.org/
 [Libstdcxx]: https://gcc.gnu.org/onlinedocs/libstdc++/
