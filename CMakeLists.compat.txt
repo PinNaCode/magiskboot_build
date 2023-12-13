@@ -80,3 +80,7 @@ if(SHOULD_DEFINE_STUBS)
     add_compile_definitions(lseek64=lseek)
     add_compile_definitions(ftruncate64=ftruncate)
 endif()
+
+if(DEFINED LIBCPP_ABI_UNSTABLE)
+add_compile_definitions(_LIBCPP_ABI_UNSTABLE)
+endif()

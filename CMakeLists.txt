@@ -37,6 +37,8 @@ option(PREFER_STATIC_LINKING "Prefer static libraries when linking" OFF)
 
 option(WITHOUT_LIBCXX "Don't link libcxx instead of libstdc++" OFF)
 
+option(LIBCPP_ABI_UNSTABLE "Workaround for linking with old Libc++" OFF)
+
 # XXX: can be detected if dump target JSON (rustc)
 if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" AND NOT CYGWIN AND NOT APPLE)
 set(USE_LTO_LINKER_PLUGIN ON)
