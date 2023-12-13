@@ -1,8 +1,7 @@
 From 7fd8c4ce3c681e34959607fdf5a204495989b4b9 Mon Sep 17 00:00:00 2001
 From: Ookiineko <chiisaineko@protonmail.com>
 Date: Wed, 22 Nov 2023 16:04:22 +0800
-Subject: [PATCH] bootimg: add bit_cast stubs for low macOS version with Apple
- Clang
+Subject: [PATCH] bootimg: add bit_cast stubs for old Clang
 
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
@@ -21,7 +20,7 @@ index f853e61..1f6b2dc 100644
 +//       https://stackoverflow.com/questions/67521312/safe-equivalent-of-stdbit-cast-in-c11
 +#if !defined(__cpp_lib_bit_cast) || __cpp_lib_bit_cast < 201806L
 +template <class T2, class T1>
-+T2 cpp11_bit_cast(T1 t1) {
++constexpr T2 cpp11_bit_cast(T1 t1) {
 +  static_assert(sizeof(T1)==sizeof(T2), "Types must match sizes");
 +  static_assert(std::is_pod<T1>::value, "Requires POD input");
 +  static_assert(std::is_pod<T2>::value, "Requires POD output");
