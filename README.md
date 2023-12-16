@@ -204,8 +204,6 @@ Or you can try to install it using [rustup][rustup] instead.
 
 If you need to build with [Libstdc++][Libstdcxx] instead of [Libc++][Libcxx] (not recommended), pass `-DWITHOUT_LIBCXX=ON` to CMake during configuring, also apply [this patch](patches-contrib/Magisk/0029-workaround-support-building-with-libstdcxx.patch).
 
-Passing `-DLIBCPP_ABI_UNSTABLE=ON` to CMake while configuring may help fixing "undefined reference to `bad_function_call`" if your Libc++ is old (but may break binary compatibility across DLL/shared library versions).
-
 #### Is this thing using the latest Magisk source?
 
 This project is very similiar to [android-tools][android-tools] which just maintains a set of patches on top of a specific upstream Magisk commit and require manual adaption for compiling with newer version source.
