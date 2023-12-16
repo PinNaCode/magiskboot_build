@@ -1,6 +1,6 @@
 ## magiskboot_build
 
-![Magisk Version Badge](https://img.shields.io/badge/Magisk%20version-v26.4-green?logo=magisk)
+![Magisk Version Badge](https://img.shields.io/badge/Magisk%20version-v26.4%20Canary%20(26403)-green?logo=magisk)
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ookiineko/magiskboot_build/ci.yaml?logo=githubactions&logoColor=orange&label=CI%20build)
 ![Last Upstream Sync Date](https://img.shields.io/github/gist/last-commit/e6601e2e396dfb74e5ae289fcf2ef16b?logo=git&label=Last%20upstream%20sync&color=blue)
 
@@ -205,6 +205,8 @@ Or you can try to install it using [rustup][rustup] instead.
 If you need to build with [Libstdc++][Libstdcxx] instead of [Libc++][Libcxx] (not recommended), pass `-DWITHOUT_LIBCXX=ON` to CMake during configuring, also apply [this patch](patches-contrib/Magisk/0029-workaround-support-building-with-libstdcxx.patch).
 
 #### Is this thing using the latest Magisk source?
+
+Check the version status badges at [the top of README](#magiskboot_build).
 
 This project is very similiar to [android-tools][android-tools] which just maintains a set of patches on top of a specific upstream Magisk commit and require manual adaption for compiling with newer version source.
 
