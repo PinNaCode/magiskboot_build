@@ -37,7 +37,7 @@ index cb21104..db47417 100644
          self.entries
 -            .extract_if(|name, _| name.starts_with(".backup/"))
 +            .drain_filter(|name, _| name.starts_with(".backup/"))
-             .for_each(|(name, entry)| {
+             .for_each(|(name, mut entry)| {
                  if name == ".backup/.rmlist" {
                      if let Ok(data) = from_utf8(&entry.data) {
 -- 
