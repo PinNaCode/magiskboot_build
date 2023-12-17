@@ -23,7 +23,6 @@ void log_err(const char *tag, const char *fmt, ...) {
 }
 
 static char __win_strerror_buf[64 * 1024 - 1];
-static const char *__unknown_strerror = "Unknown error";
 
 const char *win_strerror(DWORD winerr) {
     if (!FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL,
@@ -32,7 +31,7 @@ const char *win_strerror(DWORD winerr) {
 #ifndef NDEBUG
         LOG_ERR("FormatMessage for WinError %ld failed (WinError %ld)", winerr, GetLastError());
 #endif
-        return __unknown_strerror;
+        return "Unknown error (win_strerror failed)";
     }
 
     return __win_strerror_buf;
