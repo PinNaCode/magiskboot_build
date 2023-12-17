@@ -131,12 +131,24 @@ char *__get_path_at(int dirfd, const char *name) {
         return NULL;
     }
 
-    char *buff = malloc(PATH_MAX);
+    char *buff = NULL;
+
+    if ((strlen(parent) + 1 + strlen(name)) > PATH_MAX) {
+        errno = ENAMETOOLONG;
+
+        goto exit;
+    }
+
+    buff = malloc(PATH_MAX + 1);
 
     if (!buff)
-        return NULL;
+        goto exit;
 
-    snprintf(buff, PATH_MAX, "%s/%s", parent, name);
+    snprintf(buff, PATH_MAX + 1, "%s/%s", parent, name);
+
+exit:
+    if (parent)
+        free(parent);
 
     return buff;
 }
