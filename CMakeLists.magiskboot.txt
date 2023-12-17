@@ -32,7 +32,7 @@ add_library(libzopfli STATIC
 target_include_directories(libzopfli PUBLIC
     vendor/Magisk/native/src/external/zopfli/src)
 target_compile_options(libzopfli PRIVATE
-    -Wall -Werror -Wno-unused -Wno-unused-parameter)
+    -Werror -Wno-unused -Wno-unused-parameter)
 
 add_executable(magiskboot
     vendor/Magisk/native/src/boot/main.cpp
