@@ -1,8 +1,11 @@
 #include <assert.h>
 #include <errno.h>
-#include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#ifndef NDEBUG
+#include <stdio.h>
+#endif
 
 #define sf_min(a, b)  (((a) < (b)) ? (a) : (b))
 
@@ -20,7 +23,9 @@ void _sendfile_stub(int out_fd, int in_fd, size_t count) {
         if (n_read < 0) {
             if (errno == EINTR)  // operation interrupted by signal
                 continue;  // retry the read
-            perror("sendfile");
+#ifndef NDEBUG
+            perror("read");
+#endif
             break;
         }
         n_write = write(out_fd, &sf_buf, n_read);
@@ -29,7 +34,9 @@ void _sendfile_stub(int out_fd, int in_fd, size_t count) {
             if (errno == EINTR)  // operation interrupted by signal
                 n_write = 0;  // allow retrying the write
             else {
-                perror("sendfile");
+#ifndef NDEBUG
+                perror("write");
+#endif
                 return;
             }
         }
@@ -39,7 +46,9 @@ void _sendfile_stub(int out_fd, int in_fd, size_t count) {
             if (n_write_new < 0) {
                 if (errno == EINTR)  // operation interrupted by signal
                     continue;  // retry the write
-                perror("sendfile");
+#ifndef NDEBUG
+                perror("write");
+#endif
                 return;
             }
             n_write += n_write_new;
