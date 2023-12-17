@@ -27,7 +27,6 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string.h>
 #include <sys/types.h>
 
 #include "../include/libbsd_compat.h"
