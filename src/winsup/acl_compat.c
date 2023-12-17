@@ -58,15 +58,8 @@ int fchmod (int fd, mode_t mode) {
 }
 
 int     chown (const char *path, uid_t owner, gid_t group) {
-    if (access(path, F_OK) != 0) {
-        errno = ENOENT;
-
+    if (access(path, F_OK) != 0)
         return -1;
-    } else if (access(path, W_OK) != 0) {
-        errno = EACCES;
-
-        return -1;
-    }
 
     return 0;  // FIXME: stub
 }
@@ -77,12 +70,6 @@ int     fchown (int fildes, uid_t owner, gid_t group) {
     if (_fstat_stub(fildes, &buf) < 0)
         return -1;
 
-    if (!(buf.st_mode & (S_IWUSR | S_IWGRP | S_IWOTH))) {
-        errno = EACCES;
-
-        return -1;
-    }
-
     return 0;  // FIXME: stub
 }
 
@@ -91,12 +78,6 @@ int lchown (const char *path, uid_t owner, gid_t group) {
 
     if (lstat(path, &buf) < 0)
         return -1;
-
-    if (!(buf.st_mode & (S_IWUSR | S_IWGRP | S_IWOTH))) {
-        errno = EACCES;
-
-        return -1;
-    }
 
     return 0;  // FIXME: stub
 }
