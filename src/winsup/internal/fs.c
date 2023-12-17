@@ -11,10 +11,16 @@
 #include "assert.h"
 #include "fd.h"
 
+// Origin: https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ne-minwinbase-file_info_by_handle_class
+// XXX: mingw may set this to 0x10 wrongly in some condition, so let's provide our own version of this enum for now
+#define __FileCaseSensitiveInfo     (0x17)
+
+_Static_assert(__FileCaseSensitiveInfo == 0x17, "FileCaseSensitiveInfo is set to a wrong value");
+
 #define fs_min(a, b)  (((a) < (b)) ? (a) : (b))
 
-#define LOG_TAG             "fs_internal"
-#define LOG_ERR(...)        log_err(LOG_TAG, __VA_ARGS__);
+#define LOG_TAG                     "fs_internal"
+#define LOG_ERR(...)                log_err(LOG_TAG, __VA_ARGS__);
 
 static bool enforce_case;
 
@@ -70,7 +76,7 @@ get_handle_failed:
 
     FILE_CASE_SENSITIVE_INFO fcsi;
 
-    if (!GetFileInformationByHandleEx(h, FileCaseSensitiveInfo, &fcsi, sizeof(fcsi))) {
+    if (!GetFileInformationByHandleEx(h, __FileCaseSensitiveInfo, &fcsi, sizeof(fcsi))) {
 #ifndef NDEBUG
         LOG_ERR("GetFileInformationByHandleEx failed: %s", win_strerror(GetLastError()))
 #endif
@@ -95,7 +101,7 @@ get_handle_failed:
 
     fcsi.Flags |= FILE_CS_FLAG_CASE_SENSITIVE_DIR;
 
-    if (!SetFileInformationByHandle(h, FileCaseSensitiveInfo, &fcsi, sizeof(fcsi))) {
+    if (!SetFileInformationByHandle(h, __FileCaseSensitiveInfo, &fcsi, sizeof(fcsi))) {
 #ifndef NDEBUG
         LOG_ERR("SetFileInformationByHandle failed: %s", win_strerror(GetLastError()))
 #endif
