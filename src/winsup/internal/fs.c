@@ -75,11 +75,31 @@ get_handle_failed:
     fd = -1;  // ownership transferred
 
     FILE_CASE_SENSITIVE_INFO fcsi;
+    DWORD winerr;
 
     if (!GetFileInformationByHandleEx(h, __FileCaseSensitiveInfo, &fcsi, sizeof(fcsi))) {
+        winerr = GetLastError();
+
 #ifndef NDEBUG
-        LOG_ERR("GetFileInformationByHandleEx failed: %s", win_strerror(GetLastError()))
+        LOG_ERR("GetFileInformationByHandleEx failed: %s", win_strerror(winerr))
 #endif
+
+diag_and_quit:
+        switch (winerr) {
+            case ERROR_INVALID_PARAMETER:
+                LOG_ERR("Detected: You may be on an OS version that doesn't support case sensitivity settings.")
+                break;
+            case ERROR_NOT_SUPPORTED:
+                LOG_ERR("Detected: Windows Subsystem for Linux may not be enabled on this machine.")
+                break;
+            case ERROR_ACCESS_DENIED:
+                LOG_ERR("Detected: You may not have enough rights to have this directory case sensitive with current user.")
+                break;
+            default:
+                // unknown error !?
+                LOG_ERR("Note: Unable to determine reason, try using fsutil to set the case sensitivity manually and see.")
+                break;
+        }
 
         goto quit;
     }
@@ -102,11 +122,13 @@ get_handle_failed:
     fcsi.Flags |= FILE_CS_FLAG_CASE_SENSITIVE_DIR;
 
     if (!SetFileInformationByHandle(h, __FileCaseSensitiveInfo, &fcsi, sizeof(fcsi))) {
+        winerr = GetLastError();
+
 #ifndef NDEBUG
-        LOG_ERR("SetFileInformationByHandle failed: %s", win_strerror(GetLastError()))
+        LOG_ERR("SetFileInformationByHandle failed: %s", win_strerror(winerr))
 #endif
 
-        goto quit;
+        goto diag_and_quit;
     }
 
 done:
@@ -120,10 +142,13 @@ quit:
         CloseHandle(h);
 
     if (!success && enforce_case) {
-        LOG_ERR("An error occurred while ensuring case sensitivity of the directory '%s'\n"
+        LOG_ERR("Friendly error: Unable to ensure case sensitivity of the directory '%s'\n"
                     "Now the program will stop in order to avoid any potential incorrect file operations.\n"
                     "Please run 'fsutil.exe file setCaseSensitiveInfo <path> enable' manually for this directory and try again.\n"
-                    "To disable this check, set the environment variable MAGISKBOOT_WINSUP_NOCASE to 1 before running this program.", path)
+                    "You may want to make sure Windows Subsystem for Linux is enabled on this machine.\n"
+                    "On OS version older than Windows 10 1803, reactOS and wine, this feature may not be available.\n"
+                    "To disable this check, set the environment variable MAGISKBOOT_WINSUP_NOCASE to 1 before running this program.\n"
+                    "Make sure you understand what are you doing before disabling the check.", path)
 
         abort();
     }
