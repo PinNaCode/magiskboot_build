@@ -216,7 +216,7 @@ Although I may update the version once in a while, [Pull requests](../../pulls) 
 
 This project aims to be portable, and it should be possible to port it to new platforms, as long as your platform meets the the above [requirements](#requirements).
 
-Not? Check out the [Cygwin](#cygwin-wip) platform for example, maybe you can try to port those dependencies yourself.
+Not? Check out the [Cygwin](#cygwin-early-test) platform for example, maybe you can try to port those dependencies yourself.
 
 Or, try to make a port without the missing dependencies (and you may need to rewrite some stuffs, this may not always be easy, for example the upstream Rust codebase is likely to grow). However, these are not covered by this project, just some friendly suggestions.
 
