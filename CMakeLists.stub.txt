@@ -1,22 +1,22 @@
 add_library(platform_stubs STATIC
-    src/sendfile_compat.c
-    src/libbsd_compat.c)
+    src/libbsd_compat.c
+    src/sendfile_compat.c)
 target_include_directories(platform_stubs PUBLIC include)
 
 if (WIN32)
 target_sources(platform_stubs PRIVATE
-    src/winsup/mkdir_compat.c
-    src/winsup/io_compat.c
-    src/winsup/stat_compat.c
-    src/winsup/dirent_compat.c
-    src/winsup/link_compat.c
-    src/winsup/at_compat.c
-    src/winsup/mknod_compat.c
     src/winsup/acl_compat.c
+    src/winsup/at_compat.c
+    src/winsup/dirent_compat.c
+    src/winsup/file_compat.c
+    src/winsup/io_compat.c
+    src/winsup/link_compat.c
+    src/winsup/mkdir_compat.c
+    src/winsup/mknod_compat.c
+    src/winsup/open_compat.c
+    src/winsup/stat_compat.c
     src/winsup/str_compat.c
     src/winsup/uio_compat.c
-    src/winsup/open_compat.c
-    src/winsup/file_compat.c
     src/winsup/internal/assert.c
     src/winsup/internal/errno.c
     src/winsup/internal/fd.c
@@ -30,7 +30,7 @@ target_include_directories(libmman PUBLIC vendor/mman-win32)
 target_link_libraries(platform_stubs INTERFACE libmman)
 
 add_library(libgetline STATIC
-        vendor/msvc_getline/getline.c)
+    vendor/msvc_getline/getline.c)
 target_include_directories(libgetline PUBLIC vendor/msvc_getline)
 target_link_libraries(platform_stubs INTERFACE libgetline)
 
