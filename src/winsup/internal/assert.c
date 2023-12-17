@@ -20,8 +20,6 @@ void log_err(const char *tag, const char *fmt, ...) {
     va_end(ap);
 
     fprintf(stderr, "\n");
-
-    fflush(stderr);
 }
 
 static char __win_strerror_buf[64 * 1024 - 1];
