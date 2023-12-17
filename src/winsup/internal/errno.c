@@ -1,6 +1,5 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <winternl.h>
 
 #include "winerr_map.h"
 
@@ -28,24 +27,6 @@ unk_err:
 #endif
 
         errno = -1;
-    }
-
-    return;
-}
-
-void __set_errno_via_ntstatus(DWORD status) {
-    if (NT_SUCCESS(status))
-        errno = 0;
-    else {
-        DWORD winerr = RtlNtStatusToDosError(status);
-
-        if (winerr == ERROR_MR_MID_NOT_FOUND) {
-#ifndef NDEBUG
-            LOG_ERR("Unmapped ntstatus: %s (%ld)", nt_strstatus(status), status)
-#endif
-            errno = -1;
-        } else
-            __set_errno_via_winerr(winerr);
     }
 
     return;

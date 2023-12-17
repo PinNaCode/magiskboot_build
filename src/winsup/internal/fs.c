@@ -4,18 +4,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <limits.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <winternl.h>
 
 #include "assert.h"
-
-// According to: https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntqueryinformationfile
-#ifndef FileCaseSensitiveInformation
-#define FileCaseSensitiveInformation    (71)
-#endif
+#include "fd.h"
 
 #define fs_min(a, b)  (((a) < (b)) ? (a) : (b))
 
@@ -49,58 +43,36 @@ void __ensure_case_sensitive(const char *path, bool file) {
     if (stat(path, &buf) < 0 || !S_ISDIR(buf.st_mode) || access(path, W_OK) != 0)
         return;  // path is not a valid directory or inaccessible
 
-    WCHAR path_buf[PATH_MAX];
-    size_t chars;
-    size_t path_len = strlen(path);
-
-    int err = mbstowcs_s(&chars, path_buf, PATH_MAX, path, fs_min(PATH_MAX - 1, path_len));
-
-    HANDLE h = NULL;
+    HANDLE h = INVALID_HANDLE_VALUE;
     bool success = false;
-    UNICODE_STRING nt_path = {};
 
-    if (err) {
+    int fd;
+
+    if ((fd = __open_dir_fd(path, GENERIC_READ, FILE_SHARE_VALID_FLAGS, 0)) < 0) {
+open_dir_fd_failed:
 #ifndef NDEBUG
-        perror("mbstowcs_s");
+        LOG_ERR("__open_dir_fd failed: %s", win_strerror(GetLastError()))
 #endif
 
         goto quit;
     }
 
-    if (RtlDosPathNameToNtPathName_U(path_buf, &nt_path, NULL, NULL) == FALSE) {
+    if ((h = (HANDLE) _get_osfhandle(fd)) == INVALID_HANDLE_VALUE) {
+get_handle_failed:
 #ifndef NDEBUG
-        LOG_ERR("RtlDosPathNameToNtPathName_U failed")
+        LOG_ERR("_get_osfhandle failed")
 #endif
 
         goto quit;
     }
 
-    OBJECT_ATTRIBUTES object;
-
-    // just a macro for initializing the struct, no need to free this
-    InitializeObjectAttributes(&object, &nt_path, 0, NULL, NULL);
-
-    NTSTATUS status;
-    IO_STATUS_BLOCK io;
-
-    status = NtOpenFile(&h, GENERIC_READ, &object, &io, FILE_SHARE_VALID_FLAGS, FILE_DIRECTORY_FILE);
-
-    if (!NT_SUCCESS(status)) {
-ntopenfile_failed:
-#ifndef NDEBUG
-        LOG_ERR("NtOpenFile failed: %s", nt_strstatus(status))
-#endif
-
-        goto quit;
-    }
+    fd = -1;  // ownership transferred
 
     FILE_CASE_SENSITIVE_INFO fcsi;
 
-    status = NtQueryInformationFile(h, &io, &fcsi, sizeof(fcsi), FileCaseSensitiveInformation);
-
-    if (!NT_SUCCESS(status)) {
+    if (!GetFileInformationByHandleEx(h, FileCaseSensitiveInfo, &fcsi, sizeof(fcsi))) {
 #ifndef NDEBUG
-        LOG_ERR("NtQueryInformationFile failed: %s", nt_strstatus(status))
+        LOG_ERR("GetFileInformationByHandleEx failed: %s", win_strerror(GetLastError()))
 #endif
 
         goto quit;
@@ -110,20 +82,22 @@ ntopenfile_failed:
         goto done;  // already case sensitive, skip
 
     // reopen with write permission
-    NtClose(h);
+    CloseHandle(h);
     h = NULL;
-    status = NtOpenFile(&h, GENERIC_WRITE, &object, &io, FILE_SHARE_VALID_FLAGS, FILE_DIRECTORY_FILE);
 
-    if (!NT_SUCCESS(status))
-        goto ntopenfile_failed;
+    if ((fd = __open_dir_fd(path, GENERIC_WRITE, FILE_SHARE_VALID_FLAGS, 0)) < 0)
+        goto open_dir_fd_failed;
 
-    fcsi.Flags = FILE_CS_FLAG_CASE_SENSITIVE_DIR;
+    if ((h = (HANDLE) _get_osfhandle(fd)) == INVALID_HANDLE_VALUE)
+        goto get_handle_failed;
 
-    status = NtSetInformationFile(h, &io, &fcsi, sizeof(fcsi), FileCaseSensitiveInformation);
+    fd = -1;
 
-    if (!NT_SUCCESS(status)) {
+    fcsi.Flags |= FILE_CS_FLAG_CASE_SENSITIVE_DIR;
+
+    if (!SetFileInformationByHandle(h, FileCaseSensitiveInfo, &fcsi, sizeof(fcsi))) {
 #ifndef NDEBUG
-        LOG_ERR("NtSetInformationFile failed: %s", nt_strstatus(status))
+        LOG_ERR("SetFileInformationByHandle failed: %s", win_strerror(GetLastError()))
 #endif
 
         goto quit;
@@ -133,11 +107,11 @@ done:
     success = true;
 
 quit:
-    if (h)
-        NtClose(h);
+    if (!(fd < 0))
+        close(fd);
 
-    if (nt_path.Buffer)
-        RtlFreeUnicodeString(&nt_path);
+    if (h != INVALID_HANDLE_VALUE)
+        CloseHandle(h);
 
     if (!success && enforce_case) {
         LOG_ERR("An error occurred while ensuring case sensitivity of the directory '%s'\n"
