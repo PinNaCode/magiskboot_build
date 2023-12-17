@@ -71,6 +71,8 @@ int __open_dir_fd(const char *path, DWORD access, DWORD share_mode, int flags) {
 #endif
         SetLastError(ERROR_INVALID_PARAMETER);  // EINVAL
 
+        CloseHandle(h);
+
         return -1;
     }
 
@@ -92,6 +94,8 @@ int __open_symlink_fd(const char *path, DWORD access, DWORD share_mode, int flag
         LOG_ERR("_open_osfhandle failed")
 #endif
         SetLastError(ERROR_INVALID_PARAMETER);  // EINVAL
+
+        CloseHandle(h);
 
         return -1;
     }
