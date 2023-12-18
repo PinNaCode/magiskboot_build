@@ -324,7 +324,7 @@ jobs:
           cd magiskboot_*-src/
 
           echo -e "\n### configure: debug ###\n"
-          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release \
+          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Debug \
                      -DPREFER_STATIC_LINKING=ON
 
           echo -e "\n### build debug ###\n"
