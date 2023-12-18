@@ -91,6 +91,11 @@ get_handle_failed:
 #endif
 
 diag_and_quit:
+#ifdef NDEBUG
+        if (!enforce_case)
+            goto quit;  // dont show diagnosis info if user requested to disable check
+#endif
+
         switch (winerr) {
             case ERROR_INVALID_PARAMETER:
                 LOG_ERR("Detected: You may be on an OS version that doesn't support case sensitivity settings.")
