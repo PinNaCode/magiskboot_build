@@ -95,6 +95,10 @@ diag_and_quit:
             case ERROR_ACCESS_DENIED:
                 LOG_ERR("Detected: You may not have enough rights to have this directory case sensitive with current user.")
                 break;
+            case ERROR_DIR_NOT_EMPTY:
+                LOG_ERR("Detected: The directory is not empty, due to Windows limitation, please place magiskboot binary and image files outside of your working directory.\n"
+                            "Or, use fsutil to set the case sensitivity before filling this directory with files.")
+                break;
             default:
                 // unknown error !?
                 LOG_ERR("Note: Unable to determine reason, try using fsutil to set the case sensitivity manually and see.")
