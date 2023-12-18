@@ -66,6 +66,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: srcpkg
+          if-no-files-found: error
           path: ${{ github.workspace }}/build/magiskboot_*-src.tar.xz
 
   build-linux:
@@ -157,25 +158,43 @@ jobs:
           echo -e "\n### patch source ###\n"
           ./scripts/apply_patches.py ${{ matrix.extra_patches }}
 
-          echo -e "\n### configure ###\n"
-          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_flag }}
+          echo -e "\n### configure: debug ###\n"
+          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Debug ${{ matrix.cmake_flag }}
 
-          echo -e "\n### make ###\n"
+          echo -e "\n### build debug ###\n"
           cmake --build build -j $(nproc)
 
           file build/magiskboot
-
           ldd build/magiskboot || true
-
           ./build/magiskboot || true
+          cp -afv build/magiskboot /workspace/magiskboot_debug
 
+          echo -e "\n### configure: release ###\n"
+          make clean
+          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_flag }}
+
+          echo -e "\n### build release ###\n"
+          cmake --build build -j $(nproc)
+
+          file build/magiskboot
+          ldd build/magiskboot || true
+          ./build/magiskboot || true
           cp -afv build/magiskboot /workspace/magiskboot
 
-      - name: Upload artifacts
+      - name: Upload artifacts (Debug)
         if: matrix.upload == 'yes'
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-${{ matrix.os }}-${{ matrix.tag }}-${{ matrix.note }}
+          if-no-files-found: error
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-debug-${{ matrix.os }}-${{ matrix.tag }}-${{ matrix.note }}
+          path: ${{ github.workspace }}/magiskboot_debug
+
+      - name: Upload artifacts (Release)
+        if: matrix.upload == 'yes'
+        uses: actions/upload-artifact@v3
+        with:
+          if-no-files-found: error
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-${{ matrix.os }}-${{ matrix.tag }}-${{ matrix.note }}
           path: ${{ github.workspace }}/magiskboot
 
   build-macos:
@@ -213,25 +232,43 @@ jobs:
 
           cd magiskboot_*-src/
 
-          echo -e "\n### configure ###\n"
-          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release \
+          echo -e "\n### configure: debug ###\n"
+          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Debug \
                      -DPREFER_STATIC_LINKING=ON
 
-          echo -e "\n### make ###\n"
+          echo -e "\n### build debug ###\n"
           cmake --build build -j $(nproc)
 
           file build/magiskboot
-
           otool -L build/magiskboot
-
           ./build/magiskboot || true
+          cp -afv build/magiskboot $GITHUB_WORKSPACE/magiskboot_debug
 
+          echo -e "\n### configure: release ###\n"
+          make clean
+          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release \
+                     -DPREFER_STATIC_LINKING=ON
+
+          echo -e "\n### build release ###\n"
+          cmake --build build -j $(nproc)
+
+          file build/magiskboot
+          otool -L build/magiskboot
+          ./build/magiskboot || true
           cp -afv build/magiskboot $GITHUB_WORKSPACE/magiskboot
 
-      - name: Upload artifacts
+      - name: Upload artifacts (Debug)
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-macos-${{ matrix.os_release }}-${{ env.upload_suffix }}
+          if-no-files-found: error
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-debug-macos-${{ matrix.os_release }}-${{ env.upload_suffix }}
+          path: ${{ github.workspace }}/magiskboot_debug
+
+      - name: Upload artifacts (Release)
+        uses: actions/upload-artifact@v3
+        with:
+          if-no-files-found: error
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-macos-${{ matrix.os_release }}-${{ env.upload_suffix }}
           path: ${{ github.workspace }}/magiskboot
 
   build-windows:
@@ -286,24 +323,43 @@ jobs:
 
           cd magiskboot_*-src/
 
-          echo -e "\n### configure ###\n"
+          echo -e "\n### configure: debug ###\n"
           cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release \
                      -DPREFER_STATIC_LINKING=ON
 
-          echo -e "\n### make ###\n"
+          echo -e "\n### build debug ###\n"
           cmake --build build -j $(nproc)
 
           file build/magiskboot.exe
-
           ldd build/magiskboot.exe
-
           ./build/magiskboot.exe || true
+          cp -afv build/magiskboot.exe $GITHUB_WORKSPACE/magiskboot_debug.exe
 
+          echo -e "\n### configure: release ###\n"
+          make clean
+          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release \
+                     -DPREFER_STATIC_LINKING=ON
+
+          echo -e "\n### build release ###\n"
+          cmake --build build -j $(nproc)
+
+          file build/magiskboot.exe
+          ldd build/magiskboot.exe
+          ./build/magiskboot.exe || true
           cp -afv build/magiskboot.exe $GITHUB_WORKSPACE/magiskboot.exe
 
-      - name: Upload artifacts
+      - name: Upload artifacts (Debug)
         if: matrix.upload == 'yes'
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-${{ env.upload_prefix }}-${{ matrix.note }}
+          if-no-files-found: error
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-debug-${{ env.upload_prefix }}-${{ matrix.note }}
+          path: ${{ github.workspace }}/magiskboot_debug.exe
+
+      - name: Upload artifacts (Release)
+        if: matrix.upload == 'yes'
+        uses: actions/upload-artifact@v3
+        with:
+          if-no-files-found: error
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-${{ env.upload_prefix }}-${{ matrix.note }}
           path: ${{ github.workspace }}/magiskboot.exe

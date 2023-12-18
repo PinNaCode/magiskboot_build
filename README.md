@@ -192,6 +192,10 @@ you should be able to find your source package under the `build` folder
 
 ### FAQ
 
+#### Something isn't working
+
+Please use debug builds and paste your information (like crash or error logs) in a new [Issue](../../issues).
+
 #### Help, my build has failed
 
 A recent version of Rust is needed since the upstream is actually using a custom nightly Rust compiler,
