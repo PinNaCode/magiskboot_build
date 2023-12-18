@@ -38,7 +38,9 @@ int __ensure_path_access(const char *path, DWORD access) {
     int ret = -1;
 
     // owner and group info are required for the AccessCheck below
-    if ((winerr = GetNamedSecurityInfo(path, SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION, NULL, NULL, &oldDacl, NULL, (void **)&sd))) {
+    if ((winerr = GetNamedSecurityInfo(path, SE_FILE_OBJECT,
+            OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
+            NULL, NULL, &oldDacl, NULL, (void **)&sd))) {
         SetLastError(winerr);
 
 #ifndef NDEBUG
@@ -48,19 +50,13 @@ int __ensure_path_access(const char *path, DWORD access) {
         goto exit;
     }
 
-    EXPLICIT_ACCESS ea = {};
-
-    BuildExplicitAccessWithName(&ea, userBuff, access, GRANT_ACCESS, SUB_CONTAINERS_AND_OBJECTS_INHERIT);
-
     // next, check if our process already have the requested permission
 
-    GENERIC_MAPPING _mapping = {};  // unused
-
     // unused
+    GENERIC_MAPPING _mapping = {};
     PRIVILEGE_SET _privs = {};
     DWORD _priv_size = sizeof(_privs);
-
-    DWORD _granted = 0;  // unused
+    DWORD _granted = 0;
 
     BOOL status = FALSE;
 
@@ -73,6 +69,10 @@ int __ensure_path_access(const char *path, DWORD access) {
 
     if (status)
         goto success;  // already has the permission, skip
+
+    EXPLICIT_ACCESS ea = {};
+
+    BuildExplicitAccessWithName(&ea, userBuff, access, GRANT_ACCESS, SUB_CONTAINERS_AND_OBJECTS_INHERIT);
 
     // merge with the old DACL
 
