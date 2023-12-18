@@ -63,7 +63,7 @@ jobs:
           cmake --build build -t package_source
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: srcpkg
           if-no-files-found: error
@@ -115,7 +115,7 @@ jobs:
 
     steps:
       - name: Prepare (source)
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: srcpkg
 
@@ -183,7 +183,7 @@ jobs:
 
       - name: Upload artifacts (Debug)
         if: matrix.upload == 'yes'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
           name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-debug-${{ matrix.os }}-${{ matrix.tag }}-${{ matrix.note }}
@@ -191,7 +191,7 @@ jobs:
 
       - name: Upload artifacts (Release)
         if: matrix.upload == 'yes'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
           name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-${{ matrix.os }}-${{ matrix.tag }}-${{ matrix.note }}
@@ -211,7 +211,7 @@ jobs:
 
     steps:
       - name: Prepare (source)
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: srcpkg
 
@@ -258,14 +258,14 @@ jobs:
           cp -afv build/magiskboot $GITHUB_WORKSPACE/magiskboot
 
       - name: Upload artifacts (Debug)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
           name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-debug-macos-${{ matrix.os_release }}-${{ env.upload_suffix }}
           path: ${{ github.workspace }}/magiskboot_debug
 
       - name: Upload artifacts (Release)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
           name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-macos-${{ matrix.os_release }}-${{ env.upload_suffix }}
@@ -300,7 +300,7 @@ jobs:
 
     steps:
       - name: Prepare (source)
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: srcpkg
 
@@ -350,7 +350,7 @@ jobs:
 
       - name: Upload artifacts (Debug)
         if: matrix.upload == 'yes'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
           name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-debug-${{ env.upload_prefix }}-${{ matrix.note }}
@@ -358,7 +358,7 @@ jobs:
 
       - name: Upload artifacts (Release)
         if: matrix.upload == 'yes'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
           name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-${{ env.upload_prefix }}-${{ matrix.note }}
