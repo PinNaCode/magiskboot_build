@@ -1,18 +1,15 @@
 #include <assert.h>
+#include <stdio.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <aclapi.h>
 #include <Lmcons.h>
 
-#ifndef NDEBUG
-#include <stdio.h>
-
 #include "assert.h"
 
 #define LOG_TAG                     "fs_internal"
 #define LOG_ERR(...)                log_err(LOG_TAG, __VA_ARGS__);
-#endif
 
 static char userBuff[UNLEN + 1];
 
