@@ -204,7 +204,7 @@ if your distribution's Rust compiler is too old (e.g. Debian/Ubuntu based), manu
 
 you can try to pick some known ones from [here](patches-contrib), or report it by filing an [Issue](../../issues) if that doesn't help.
 
-Or you can try to install it using [rustup][rustup] instead.
+Or you can try installing Rust via [rustup][rustup] instead.
 
 If you need to build with [Libstdc++][Libstdcxx] instead of [Libc++][Libcxx] (not recommended), pass `-DWITHOUT_LIBCXX=ON` to CMake during configuring, also apply [this patch](patches-contrib/Magisk/0029-workaround-support-building-with-libstdcxx.patch).
 
