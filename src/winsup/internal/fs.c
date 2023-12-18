@@ -8,6 +8,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
+#include "acl.h"
 #include "assert.h"
 #include "fd.h"
 
@@ -122,6 +123,8 @@ diag_and_quit:
         goto get_handle_failed;
 
     fd = -1;
+
+    __ensure_path_access(path, FILE_DELETE_CHILD);  // undocumented but required for non-administrator?
 
     fcsi.Flags |= FILE_CS_FLAG_CASE_SENSITIVE_DIR;
 
