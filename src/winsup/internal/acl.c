@@ -8,7 +8,7 @@
 
 #include "assert.h"
 
-#define LOG_TAG                     "fs_internal"
+#define LOG_TAG                     "acl_internal"
 #define LOG_ERR(...)                log_err(LOG_TAG, __VA_ARGS__);
 
 static char userBuff[UNLEN + 1];
