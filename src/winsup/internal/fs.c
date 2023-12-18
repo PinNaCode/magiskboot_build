@@ -34,7 +34,12 @@ void __ensure_case_sensitive(const char *path, bool file) {
 
         char *tmp = strdup(path);
 
-        assert(tmp);
+        if (!tmp) {
+#ifndef NDEBUG
+            perror("strdup");
+#endif
+            assert(0);
+        }
 
         const char *parent = dirname(tmp);
 

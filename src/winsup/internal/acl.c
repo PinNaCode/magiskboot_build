@@ -23,7 +23,7 @@ int __ensure_path_access(const char *path, DWORD access) {
 
     if (!pathBuff) {
 #ifndef NDEBUG
-        LOG_ERR("strdup failed");
+        perror("strdup");
 #endif
         SetLastError(ERROR_NOT_ENOUGH_MEMORY);
 

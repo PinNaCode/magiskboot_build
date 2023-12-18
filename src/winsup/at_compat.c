@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -65,18 +66,29 @@ int     linkat (int dirfd1, const char *path1, int dirfd2, const char *path2, in
 
     // ignore dirfd if path is absolute
 
-    if (PathIsRelative(path1) == FALSE)
+    if (PathIsRelative(path1) == FALSE) {
         real_path1 = strdup(path1);
-    else {
+
+        if (!real_path1) {
+strdup_failed:
+#ifndef NDEBUG
+            perror("strdup");
+#endif
+            assert(0);
+        }
+    } else {
         real_path1 = __get_path_at(dirfd1, path1);  // errno is set by this call
 
         if (!real_path1)
             goto error;
     }
 
-    if (PathIsRelative(path2) == FALSE)
+    if (PathIsRelative(path2) == FALSE) {
         real_path2 = strdup(path2);
-    else {
+
+        if (!real_path2)
+            goto strdup_failed;
+    } else {
         real_path2 = __get_path_at(dirfd2, path2);  // errno is set by this call
 
         if (!real_path2)
@@ -128,9 +140,16 @@ int unlinkat (int dirfd, const char *pathname, int flags) {
 int openat (int dirfd, const char *pathname, int flags, ...) {
     char *real_pathname;
 
-    if (PathIsRelative(pathname) == FALSE)
+    if (PathIsRelative(pathname) == FALSE) {
         real_pathname = strdup(pathname);
-    else {
+
+        if (!real_pathname) {
+#ifndef NDEBUG
+            perror("strdup");
+#endif
+            assert(0);
+        }
+    } else {
         real_pathname = __get_path_at(dirfd, pathname);
 
         if (!real_pathname)
@@ -249,18 +268,29 @@ int renameat (int olddirfd, const char *oldpath, int newdirfd, const char * newp
 
     // ignore dirfd if path is absolute
 
-    if (PathIsRelative(oldpath) == FALSE)
+    if (PathIsRelative(oldpath) == FALSE) {
         real_oldpath = strdup(oldpath);
-    else {
+
+        if (!real_oldpath) {
+strdup_failed:
+#ifndef NDEBUG
+            perror("strdup");
+#endif
+            assert(0);
+        }
+    } else {
         real_oldpath = __get_path_at(olddirfd, oldpath);  // errno is set by this call
 
         if (!real_oldpath)
             goto error;
     }
 
-    if (PathIsRelative(newpath) == FALSE)
+    if (PathIsRelative(newpath) == FALSE) {
         real_newpath = strdup(newpath);
-    else {
+
+        if (!real_newpath)
+            goto strdup_failed;
+    } else {
         real_newpath = __get_path_at(newdirfd, newpath);  // errno is set by this call
 
         if (!real_newpath)
