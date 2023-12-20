@@ -17,6 +17,10 @@ bool __is_dirfd(int fd);
 
 int __open_symlink_fd(const char *path, DWORD access, DWORD share_mode, int flags);
 
+int __get_osfhandle_oflag(HANDLE h);
+
+void __fd_cache_oflag(int fd, int oflag);
+
 #ifdef WIN32_LEAN_AND_MEAN
 #undef WIN32_LEAN_AND_MEAN
 #endif

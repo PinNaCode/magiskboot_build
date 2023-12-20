@@ -20,23 +20,19 @@
 #define LOG_ERR(...)        log_err(LOG_TAG, __VA_ARGS__);
 #endif
 
-int _open_stub(const char *path, int oflag, ... ) {
+static int open_impl(const char *path, int oflag, va_list ap) {
     oflag |= O_BINARY;
 
     struct stat buf;
 
     if (oflag & O_CREAT) {
         // creating file, cannot be a directory
-        va_list ap;
-        va_start(ap, oflag);
 
         // if we are creating a new file, make sure the parent directory is case sensitive
         if (access(path, F_OK) != 0)
             __ensure_case_sensitive(path, true);
 
         int ret = open(path, oflag, (mode_t) va_arg(ap, int));
-
-        va_end(ap);
 
         return ret;
     }
@@ -83,4 +79,18 @@ int _open_stub(const char *path, int oflag, ... ) {
 
 use_mingw:
     return open(path, oflag);  // not a directory, mingw impl is good
+}
+
+int _open_stub(const char *path, int oflag, ... ) {
+    va_list ap;
+    va_start(ap, oflag);
+
+    int fd = open_impl(path, oflag, ap);
+
+    va_end(ap);
+
+    if (!(fd < 0))
+        __fd_cache_oflag(fd, oflag);
+
+    return fd;
 }

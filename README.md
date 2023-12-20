@@ -246,6 +246,7 @@ When syncing upstream `vendor/{android_libbase,Magisk}` changes, here is a few t
     * struct dirent
     * mkdir
     * {open,read,close,rewind,seek,tell}dir
+    * creat
     * open
     * fopen
     * fstat

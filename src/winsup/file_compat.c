@@ -7,9 +7,14 @@
 
 #include "../../include/winsup/open_compat.h"
 
+#include "internal/fd.h"
+
 #ifndef O_CLOEXEC
 #define O_CLOEXEC               O_NOINHERIT
 #endif
+
+// Origin: https://github.com/wine-mirror/wine/blob/0170cd3a4c67bd99291234dd8e0d638a824d7715/dlls/msvcrt/file.c#L2629
+#define CREAT_OFLAGS            (O_CREAT | O_TRUNC | O_RDWR)
 
 // From musl:
 //      https://github.com/bminor/musl/blob/f314e133929b6379eccc632bef32eaebb66a7335/src/stdio/__fmodeflags.c
@@ -116,6 +121,8 @@ FILE *_fopen_stub(const char *__restrict pathname, const char *__restrict mode) 
     if (fd < 0)
         return NULL;
 
+    __fd_cache_oflag(fd, flags);
+
     return _fdopen_stub(fd, mode);
 }
 
@@ -124,5 +131,18 @@ int _creat_stub(const char *path, int mode) {
     // msvcrt ignores unsupported modes
     // but UCRT will give EINVAL
 
-    return creat(path, mode & (S_IRUSR | S_IWUSR));
+    int fixed_mode = 0;
+
+    if (mode & (S_IRUSR | S_IRGRP | S_IROTH))
+        fixed_mode |= S_IREAD;
+
+    if (mode & (S_IWUSR | S_IWGRP | S_IWOTH))
+        fixed_mode |= S_IWRITE;
+
+    int fd = _open_stub(path, CREAT_OFLAGS, fixed_mode);
+
+    if (!(fd < 0))
+        __fd_cache_oflag(fd, CREAT_OFLAGS);
+
+    return fd;
 }

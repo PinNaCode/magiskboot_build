@@ -1,9 +1,9 @@
-pub use std::os::windows::io::{RawHandle, OwnedHandle as OwnedFd, BorrowedHandle as BorrowedFd};
+pub use std::os::windows::io::{OwnedHandle as OwnedFd, BorrowedHandle as BorrowedFd};
 pub use libc::c_int as RawFd;
-pub use std::os::windows::io::{FromRawHandle, AsHandle, AsRawHandle, IntoRawHandle};
 
-use std::fs;
-use libc::{get_osfhandle, c_void, open_osfhandle};
+use std::fs::File;
+use std::os::windows::io::{RawHandle, FromRawHandle, AsHandle, AsRawHandle, IntoRawHandle};
+use libc::{get_osfhandle, c_void, open_osfhandle, c_int, O_BINARY};
 
 pub trait FromRawFd {
     unsafe fn from_raw_fd(fd: RawFd) -> Self;
@@ -21,9 +21,9 @@ pub trait IntoRawFd {
     fn into_raw_fd(self) -> RawFd;
 }
 
-impl FromRawFd for fs::File {
+impl FromRawFd for File {
     #[inline]
-    unsafe fn from_raw_fd(fd: RawFd) -> fs::File {
+    unsafe fn from_raw_fd(fd: RawFd) -> File {
         Self::from_raw_handle(get_osfhandle(fd) as *mut c_void)
     }
 }
@@ -70,44 +70,54 @@ impl AsFd for OwnedFd {
     }
 }
 
-impl AsFd for fs::File {
+impl AsFd for File {
     #[inline]
     fn as_fd(&self) -> BorrowedFd<'_> {
         self.as_handle()
     }
 }
 
-impl AsRawFd for fs::File {
+extern "C" {
+    #[link_name = "__get_osfhandle_oflag"]
+    fn get_oflag(h: RawHandle) -> c_int;
+}
+
+impl AsRawFd for File {
     #[inline]
     fn as_raw_fd(&self) -> RawFd {
-        unsafe { open_osfhandle(self.as_raw_handle() as isize, 0) }
+        let h = self.as_raw_handle();
+        unsafe { open_osfhandle(h as isize, get_oflag(h) | O_BINARY) }
     }
 }
 
 impl AsRawFd for BorrowedFd<'_> {
     #[inline]
     fn as_raw_fd(&self) -> RawFd {
-        unsafe { open_osfhandle(self.as_raw_handle() as isize, 0) }
+        let h = self.as_raw_handle();
+        unsafe { open_osfhandle(h as isize, get_oflag(h) | O_BINARY) }
     }
 }
 
 impl AsRawFd for OwnedFd {
     #[inline]
     fn as_raw_fd(&self) -> RawFd {
-        unsafe { open_osfhandle(self.as_raw_handle() as isize, 0) }
+        let h = self.as_raw_handle();
+        unsafe { open_osfhandle(h as isize, get_oflag(h) | O_BINARY) }
     }
 }
 
-impl IntoRawFd for fs::File {
+impl IntoRawFd for File {
     #[inline]
     fn into_raw_fd(self) -> RawFd {
-        unsafe { open_osfhandle(self.into_raw_handle() as isize, 0) }
+        let h = self.into_raw_handle();
+        unsafe { open_osfhandle(h as isize, get_oflag(h) | O_BINARY) }
     }
 }
 
 impl IntoRawFd for OwnedFd {
     #[inline]
     fn into_raw_fd(self) -> RawFd {
-        unsafe { open_osfhandle(self.into_raw_handle() as isize, 0) }
+        let h = self.into_raw_handle();
+        unsafe { open_osfhandle(h as isize, get_oflag(h) | O_BINARY) }
     }
 }

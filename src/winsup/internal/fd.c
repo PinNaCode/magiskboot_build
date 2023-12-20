@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
@@ -8,6 +9,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <winternl.h>
 
 #include "../../../include/winsup/stat_compat.h"
 
@@ -19,6 +21,24 @@
 #define LOG_TAG             "fd_internal"
 #define LOG_ERR(...)        log_err(LOG_TAG, __VA_ARGS__);
 #endif
+
+#ifndef OPEN_MAX
+#ifndef _UCRT
+// this value can be found in Windows SDK source
+#define OPEN_MAX            (8192)
+#else
+// Origin: https://github.com/reactos/reactos/blob/f889c29af691e0e956c8d3bae08f7b647c9ff643/sdk/lib/crt/stdio/file.c#L111-L112
+#define OPEN_MAX            (2048)
+#endif
+#endif
+
+struct fd_cache_entry {
+    int oflag;
+};
+
+static struct fd_cache_entry fd_cache[OPEN_MAX];
+
+static size_t fd_cache_max_idx = -1;
 
 char *__fd_get_path(int fd) {
     HANDLE h = (HANDLE) _get_osfhandle(fd);
@@ -151,4 +171,74 @@ exit:
         free(parent);
 
     return buff;
+}
+
+static int __get_osfhandle_oflag_fallback(HANDLE h) {
+    OBJECT_BASIC_INFORMATION obi;
+
+    NTSTATUS status = NtQueryObject(h, ObjectBasicInformation, &obi, sizeof(obi), NULL);
+
+    if (!NT_SUCCESS(status)) {
+#ifndef NDEBUG
+        LOG_ERR("NtQueryObject failed: %s", win_strerror(RtlNtStatusToDosError(status)))
+#endif
+
+        return 0;
+    }
+
+    // Ref: https://github.com/rust-lang/rust/blob/32f5db98909de7bfb23cad3a48f740b99a19b01c/library/std/src/sys/windows/fs.rs#L245-L248
+
+    if (obi.GrantedAccess & FILE_WRITE_DATA)
+        return 0;  // not append mode
+
+    return (obi.GrantedAccess & FILE_APPEND_DATA) ? O_APPEND : 0;
+}
+
+int __get_osfhandle_oflag(HANDLE h) {
+    int fd;
+    int oflag;
+    HANDLE other;
+
+    if (h == INVALID_HANDLE_VALUE)
+        return 0;
+
+    for (fd = 0; fd <= fd_cache_max_idx; fd++) {
+        if ((oflag = fd_cache[fd].oflag) < 0)
+            continue;  // not cached, check next one
+
+        if ((other = (HANDLE) _get_osfhandle(fd)) == INVALID_HANDLE_VALUE) {
+            // cache is outdated, fd is already closed
+
+            fd_cache[fd].oflag = -1;
+
+            if (fd == fd_cache_max_idx)
+                fd_cache_max_idx--;
+
+            continue;
+        }
+
+        if (h == other)
+            return oflag;
+    }
+
+    // not cached, maybe handle opened from Rust with no fd associcated
+
+    return __get_osfhandle_oflag_fallback(h);
+}
+
+void __fd_cache_oflag(int fd, int oflag) {
+    assert(!(fd < 0));
+    assert(fd < OPEN_MAX);
+
+    fd_cache[fd].oflag = oflag & O_APPEND;  // only O_APPEND is useful for opened handle
+
+    if (fd_cache_max_idx < fd)
+        fd_cache_max_idx = fd;
+}
+
+__attribute__((constructor)) static void __init_oflag_cache(void) {
+    int fd;
+
+    for (fd = 0; fd < OPEN_MAX; fd++)
+        fd_cache[fd].oflag = -1;
 }
