@@ -160,11 +160,14 @@ index 3bead41..d097388 100644
  int exec_command(exec_t &exec);
  template <class ...Args>
  int exec_command(exec_t &exec, Args &&...args) {
-@@ -322,3 +323,4 @@ void exec_command_async(Args &&...args) {
+@@ -322,6 +323,7 @@ void exec_command_async(Args &&...args) {
      };
      exec_command(exec);
  }
 +#endif
+ 
+ template <typename T>
+ constexpr auto operator+(T e) noexcept ->
 diff --git a/native/src/base/xwrap.rs b/native/src/base/xwrap.rs
 index 7e7a894..04fb1f9 100644
 --- a/native/src/base/xwrap.rs
