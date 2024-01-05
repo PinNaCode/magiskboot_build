@@ -22,6 +22,11 @@ Good title examples:
 - unpacked results lack of ... file
 - command `magiskboot compress=xz` says "write failed with 9: Bad file description"
 - repack says "sendfile: no error" on macOS
+
+
+
+Also, please try to search for the existing related issues (by title or error log) first in this repository in case of
+duplicating!
 -->
 
 **Basic information**
