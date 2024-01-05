@@ -25,9 +25,9 @@ for build-time dependencies:
 6. [CMake][CMake]
 7. [Libc++][Libcxx] (optional, see [this part](#help-my-build-has-failed))
 
-please ensure you have installed the above softwares before building
+please make sure you have installed the above softwares before building
 
-there are examples for some popular operating systems/distributions:
+here are some examples for popular operating systems/distributions:
 
 <details><summary>Linux</summary>
 
@@ -139,7 +139,7 @@ There is also an old MinGW port, it works great:
 > **Note**
 > Cygwin support is not actively tested currently
 
-An experimental CI build is available [here](../../releases/cygwin-test).
+An experimental build is available [here](../../releases/cygwin-test).
 
 To build for Cygwin, you need to compile a Rust toolchain from source, for more info: [Cygwin Rust porting](https://gist.github.com/ookiineko/057eb3a91825313caeaf6d793a33b0b2)
 
@@ -177,7 +177,7 @@ If you want to perform LTO at the final link time, pass `-DUSE_LTO_LINKER_PLUGIN
 
 And you will need to install LLD.
 
-Note: you may need to make sure your LLVM and LLD are sharing the same LLVM version as Rust.
+Note: you may need to make sure your LLVM and LLD are sharing the same LLVM version with Rust.
 
 ### Generating source tarball
 
@@ -212,13 +212,13 @@ If you need to build with [Libstdc++][Libstdcxx] instead of [Libc++][Libcxx] (no
 
 Check the version status badges at [the top of README](#magiskboot_build).
 
-This project is very similiar to [android-tools][android-tools] which just maintains a set of patches on top of a specific upstream Magisk commit and require manual adaption for compiling with newer version source.
+This project is very similiar to [android-tools][android-tools] which just maintains a set of patches on top of a specific upstream Magisk commit and require manual adaption for compiling with newer source.
 
 Although I may update the version once in a while, [Pull requests](../../pulls) are welcome.
 
 #### Eh, so my platform is not supported by your sh*t
 
-This project aims to be portable, and it should be possible to port it to new platforms, as long as your platform meets the the above [requirements](#requirements).
+This project aims to be portable, so it should be possible to port it to new platforms with some efforts, as long as your platform meets the the above [requirements](#requirements).
 
 Not? Check out the [Cygwin](#cygwin-early-test) platform for example, maybe you can try to port those dependencies yourself.
 
@@ -226,16 +226,26 @@ Or, try to make a port without the missing dependencies (and you may need to rew
 
 ### Development
 
+#### Clean builds
+
 To quickly discard the current `build` directory and dirty `vendor/` submodule changes, please run `make clean`.
+
+#### Tweaking patches
 
 To temporarily disable `vendor/` projects patching, re-configure with `-DPATCH_VENDOR_PROJECTS=OFF` (useful if you are patching them manually).
 To enable it again, use `-DPATCH_VENDOR_PROJECTS=ON` (Note this will clean up changes in `vendor/` modules and re-apply all the patches).
 
+#### Rust stuffs
+
 If you modify something in the Rust part, you will have to perform `rm build/libmagiskboot-rs.a` manually before rebuilding. (TODO: let CMake detect source changes)
+
+#### Debug builds
 
 Pass `-DCMAKE_BUILD_TYPE=Debug` to CMake instead of `Release` during configuring to make some error log more verbose.
 
-For `vendor/` submodules with their name starting with `android_`, most of the patches are imported from [android-tools][android-tools], and don't always require updating.
+#### Updating sources
+
+For `vendor/` submodules with their name starting with `android_`, most patches are imported from [android-tools][android-tools], and don't always require updating.
 
 When syncing upstream `vendor/{android_libbase,Magisk}` changes, here is a few things to check:
   * `build.py` changes
