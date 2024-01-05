@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Tell us if something doesn't work correctly
+about: Tell us if something doesn't work correctly.
 title: "[bug report] CHANGE ME TO A SHORT TITLE"
 labels: unconfirmed
 assignees: ''
