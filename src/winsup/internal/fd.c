@@ -38,7 +38,7 @@ struct fd_cache_entry {
 
 static struct fd_cache_entry fd_cache[OPEN_MAX];
 
-static size_t fd_cache_max_idx = -1;
+static size_t fd_cache_max_size = 0;
 
 char *__fd_get_path(int fd) {
     HANDLE h = (HANDLE) _get_osfhandle(fd);
@@ -202,7 +202,7 @@ int __get_osfhandle_oflag(HANDLE h) {
     if (h == INVALID_HANDLE_VALUE)
         return 0;
 
-    for (fd = 0; fd <= fd_cache_max_idx; fd++) {
+    for (fd = 0; fd < fd_cache_max_size; fd++) {
         if ((oflag = fd_cache[fd].oflag) < 0)
             continue;  // not cached, check next one
 
@@ -211,8 +211,8 @@ int __get_osfhandle_oflag(HANDLE h) {
 
             fd_cache[fd].oflag = -1;
 
-            if (fd == fd_cache_max_idx)
-                fd_cache_max_idx--;
+            if (fd == (fd_cache_max_size - 1))
+                fd_cache_max_size--;
 
             continue;
         }
@@ -232,8 +232,8 @@ void __fd_cache_oflag(int fd, int oflag) {
 
     fd_cache[fd].oflag = oflag & O_APPEND;  // only O_APPEND is useful for opened handle
 
-    if (fd_cache_max_idx < fd)
-        fd_cache_max_idx = fd;
+    if (fd_cache_max_size <= fd)
+        fd_cache_max_size = fd + 1;
 }
 
 __attribute__((constructor)) static void __init_oflag_cache(void) {
