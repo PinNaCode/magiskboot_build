@@ -1,0 +1,35 @@
+> *Note*
+>
+> ARM and macOS 14 CI builds are not yet added at the moment
+>
+> For Apple Silicon (M series) and Windows ARM users, you can compile magiskboot from source, or i686/x86_64 binaries should run with emulation.
+>
+> Similarly, ARM Linux users can install from source or use box86/box64 and QEMU to run i386/x86_64 binaries.
+>
+> For macOS user, binaries for the previous OS releases might work too.
+
+### Tags
+
+#### Build types
+
+- `debug`: for getting logs only, don't use unless you know what are you doing
+
+- `release`: if you are a normal user, download package with this tag
+
+#### Linking method
+
+- `aio`: all dependencies are included in the zip package
+
+- `standalone`: single binary unlike `aio`, works without extra dependency
+
+- `static`: similar to `standalone`, but C runtime library is also bundled within the binary, should theoretically work on all version of the specified OS, for example you can usually use `ubuntu-...-glibc-...-static` on all different Linux distributions, even if the distribution is using a different libc (e.g. Alpine Linux)
+
+#### For Windows release only
+
+- `msvcrt`: usually works on most Windows versions without extra setup
+
+- `ucrt`: available by default only since Windows 10+, sometimes requires installing or shipping with C runtime library manually to use on older version
+
+#### Miscellaneous
+
+- `src`: source package, download this if you plan to compile magiskboot from source on your end

@@ -14,6 +14,8 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: Download artifacts
         id: download-artifact
         uses: dawidd6/action-download-artifact@v3
@@ -51,6 +53,7 @@ jobs:
             name: Last CI build
             target_commitish: dev
             tag_name: last-ci
+            body_path: ${{ github.workspace }}/.github/__release_template.txt
             draft: false
             prerelease: false
             fail_on_unmatched_files: true
