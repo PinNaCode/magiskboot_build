@@ -8,6 +8,7 @@ on:
     paths-ignore:
       - '.github/workflows/release.yaml'
       - '.github/ISSUE_TEMPLATE/**'
+      - '.github/__release_template.txt'
       - 'patches-contrib/**'
       - 'LICENSE'
       - 'README.md'
@@ -16,6 +17,7 @@ on:
     paths-ignore:
       - '.github/workflows/release.yaml'
       - '.github/ISSUE_TEMPLATE/**'
+      - '.github/__release_template.txt'
       - 'patches-contrib/**'
       - 'LICENSE'
       - 'README.md'
