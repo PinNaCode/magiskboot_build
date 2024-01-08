@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 #define WIN32_MEAN_AND_LEAN
-#include <Windows.h>
+#include <windows.h>
 
 #include "../../include/winsup/acl_compat.h"
 #include "../../include/winsup/stat_compat.h"

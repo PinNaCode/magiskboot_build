@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 #define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+#include <windows.h>
 
 #include "../../include/libbsd_compat.h"
 #include "../../include/winsup/at_compat.h"

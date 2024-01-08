@@ -4,7 +4,7 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif /* WIN32_LEAN_AND_MEAN */
-#include <Windows.h>
+#include <windows.h>
 
 void __set_errno_via_winerr(DWORD winerr);
 
