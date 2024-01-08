@@ -1,6 +1,6 @@
 > *Note*
 >
-> ARM and macOS 14 CI builds are not yet added at the moment
+> ARM and macOS 14 CI builds are not yet added at the moment (#9) (#16)
 >
 > For Apple Silicon (M series) and Windows ARM users, you can compile magiskboot from source, or i686/x86_64 binaries should run with emulation.
 >
