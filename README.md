@@ -116,6 +116,7 @@ You can also directly use the `libmagiskboot.so` extracted from the Magisk APK, 
 #### Windows (MinGW)
 
 > **Note**
+>
 > A minor amount of POSIX functions in `src/winsup/*_compat.c` are currently stubbed and no-op (e.g. chmod, chown, mknod), but it shouldn't cause too much trouble for magiskboot to work.
 >
 > However, if you know a better way to do this, please feel free to open a Pull Request to change it :)
@@ -137,6 +138,7 @@ There is also an old MinGW port, it works great:
 #### Cygwin (early test)
 
 > **Note**
+>
 > Cygwin support is not actively tested currently
 
 An experimental build is available [here](../../releases/cygwin-test).
