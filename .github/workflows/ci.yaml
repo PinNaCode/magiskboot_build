@@ -163,7 +163,7 @@ jobs:
           ./scripts/apply_patches.py ${{ matrix.extra_patches }}
 
           echo -e "\n### configure: debug ###\n"
-          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Debug ${{ matrix.cmake_flag }}
+          CC=clang CXX=clang++ cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Debug ${{ matrix.cmake_flag }}
 
           echo -e "\n### build debug ###\n"
           cmake --build build -j $(nproc)
@@ -175,7 +175,7 @@ jobs:
 
           echo -e "\n### configure: release ###\n"
           make clean
-          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_flag }}
+          CC=clang CXX=clang++ cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_flag }}
 
           echo -e "\n### build release ###\n"
           cmake --build build -j $(nproc)
@@ -242,8 +242,8 @@ jobs:
           cd magiskboot_*-src/
 
           echo -e "\n### configure: debug ###\n"
-          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Debug \
-                     -DPREFER_STATIC_LINKING=ON
+          CC=clang CXX=clang++ cmake -G Ninja -B build \
+              -DCMAKE_BUILD_TYPE=Debug -DPREFER_STATIC_LINKING=ON
 
           echo -e "\n### build debug ###\n"
           cmake --build build -j $(nproc)
@@ -255,8 +255,8 @@ jobs:
 
           echo -e "\n### configure: release ###\n"
           make clean
-          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release \
-                     -DPREFER_STATIC_LINKING=ON
+          CC=clang CXX=clang++ cmake -G Ninja -B build \
+              -DCMAKE_BUILD_TYPE=Release -DPREFER_STATIC_LINKING=ON
 
           echo -e "\n### build release ###\n"
           cmake --build build -j $(nproc)
@@ -339,8 +339,8 @@ jobs:
           cd magiskboot_*-src/
 
           echo -e "\n### configure: debug ###\n"
-          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Debug \
-                     -DPREFER_STATIC_LINKING=ON
+          CC=clang CXX=clang++ cmake -G Ninja -B build \
+              -DCMAKE_BUILD_TYPE=Debug -DPREFER_STATIC_LINKING=ON
 
           echo -e "\n### build debug ###\n"
           cmake --build build -j $(nproc)
@@ -352,8 +352,8 @@ jobs:
 
           echo -e "\n### configure: release ###\n"
           make clean
-          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release \
-                     -DPREFER_STATIC_LINKING=ON
+          CC=clang CXX=clang++ cmake -G Ninja -B build \
+              -DCMAKE_BUILD_TYPE=Release -DPREFER_STATIC_LINKING=ON
 
           echo -e "\n### build release ###\n"
           cmake --build build -j $(nproc)

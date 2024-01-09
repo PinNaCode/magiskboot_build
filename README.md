@@ -164,7 +164,7 @@ First get and extract the latest source tarball (called `magiskboot_<COMMIT_ID>_
 Or clone this repository using Git with this option: `--recurse-submodules`. (If you already have a cloned repository without using that option, run: `git submodule update --init --recursive` instead)
 
 ````shell
-cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release  # configure
+CC=clang CXX=clang++ cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release  # configure
 cmake --build build -j $(nproc)  # build
 ./build/magiskboot  # running
 # install to system (may need sudo, to specify different install dir, set the `DESTDIR' environment variable)
