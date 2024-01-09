@@ -61,6 +61,7 @@ elseif (APPLE)
             message(FATAL_ERROR "Cannot find Homebrew")
         endif()
         list(INSERT CMAKE_SYSTEM_PREFIX_PATH 0 ${HOMEBREW_PREFIX} ${HOMEBREW_PREFIX}/opt/bzip2)
+        list(INSERT CMAKE_SYSTEM_PREFIX_PATH 1 ${HOMEBREW_PREFIX} ${HOMEBREW_PREFIX}/opt/zlib)
     endif()
 
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_DARWIN_C_SOURCE -D__DARWIN_C_LEVEL=__DARWIN_C_FULL")
