@@ -79,7 +79,7 @@ find_package(PkgConfig REQUIRED)
 find_package(LibLZMA REQUIRED)
 pkg_check_modules(liblz4 REQUIRED IMPORTED_TARGET liblz4)
 find_package(BZip2 REQUIRED)
-pkg_check_modules(zlib REQUIRED IMPORTED_TARGET zlib)
+find_package(ZLIB REQUIRED)
 endif() # NO_TARGETS_OR_DEPS
 
 add_compile_options(-Wall)

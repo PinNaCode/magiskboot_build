@@ -41,15 +41,13 @@ add_executable(magiskboot
     vendor/Magisk/native/src/boot/format.cpp
     vendor/Magisk/native/src/boot/boot-rs.cpp)
 target_include_directories(magiskboot PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/external/cxx-rs/include
-    ${LIBLZMA_INCLUDE_DIRS}
-    ${BZIP2_INCLUDE_DIRS})
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/external/cxx-rs/include)
 target_link_libraries(magiskboot
     libbase
-    ${LIBLZMA_LIBRARIES}
+    LibLZMA::LibLZMA
     PkgConfig::liblz4
-    ${BZIP2_LIBRARIES}
-    PkgConfig::zlib
+    BZip2::BZip2
+    ZLIB::ZLIB
     libzopfli
     Threads::Threads)
 
