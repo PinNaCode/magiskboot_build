@@ -155,7 +155,7 @@ You will also need to compile the LLVM/Clang from source to add Cygwin target, s
 
 ### Download
 
-For prebuilt binaries, go check [GitHub Releases](../../releases/latest) for selected CI builds (TODO: run some automated testsuites in CI).
+For prebuilt binaries, go check [GitHub Releases](../../releases/latest) for selected CI builds.
 
 ### Build & Install
 
@@ -180,6 +180,45 @@ If you want to perform LTO at the final link time, pass `-DUSE_LTO_LINKER_PLUGIN
 And you will need to install LLD.
 
 Note: you may need to make sure your LLVM and LLD are sharing the same LLVM version with Rust.
+
+### Testing
+
+> [!NOTE]
+> Features not tested by CI doesn't necessarily mean it can't work.
+
+A very basic shell script is provided under the [`scripts`](scripts/magiskboot_test.sh) directory, currently the following functions are automatically tested with Github CI:
+
+- [x] unpack* (currently not all header versions and variants are tested)
+- [x] repack* (same as above)
+- [ ] verify
+- [ ] sign
+- [ ] extract
+- [x] hexpatch
+
+* cpio* (currently not widely tested on all common ramdisks)
+  - [ ] cpio exists
+  - [x] cpio ls
+  - [ ] cpio rm
+  - [ ] cpio mkdir
+  - [ ] cpio ln
+  - [ ] cpio mv
+  - [x] cpio add
+  - [x] cpio extract
+  - [ ] cpio test
+  - [ ] cpio patch
+  - [ ] cpio backup
+  - [ ] cpio restore
+
+* dtb
+  - [ ] dtb print
+  - [x] dtb test
+  - [ ] dtb patch
+
+- [ ] split
+- [x] sha1
+- [ ] cleanup
+- [x] compress
+- [x] decompress
 
 ### Generating source tarball
 
