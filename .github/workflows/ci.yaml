@@ -129,7 +129,7 @@ jobs:
           _arch=${{ matrix.dpkg_arch }}
           dpkg --add-architecture $_arch
           apt update
-          DEBIAN_FRONTEND=noninteractive apt install -y curl tar patch file python3 \
+          DEBIAN_FRONTEND=noninteractive apt install -y curl wget tar patch file xxd python3 \
               libc6-dev:$_arch binutils:$_arch liblzma-dev:$_arch liblz4-dev:$_arch \
               libbz2-dev:$_arch zlib1g-dev:$_arch pkg-config:$_arch clang-15:$_arch \
               libc++-15-dev:$_arch libc++abi-15-dev:$_arch cmake:$_arch \
@@ -142,14 +142,14 @@ jobs:
         if: matrix.os == 'alpine'
         run: |
           apk update
-          apk add build-base linux-headers curl file xz-dev lz4-dev bzip2-dev zlib-dev \
+          apk add build-base linux-headers bash curl wget file xxd xz-dev lz4-dev bzip2-dev zlib-dev \
                   python3 pkgconf clang libc++-dev cmake samurai rust cargo
 
       - name: Prepare (archlinux)
         if: matrix.os == 'archlinux'
         run: |
           pacman -Syu --noconfirm
-          pacman -S --noconfirm --needed curl file base-devel xz lz4 bzip2 python \
+          pacman -S --noconfirm --needed curl wget file xxd base-devel xz lz4 bzip2 python \
                            zlib pkgconf clang libc++ cmake ninja rust
 
       - name: Build
@@ -184,6 +184,11 @@ jobs:
           ldd build/magiskboot || true
           ./build/magiskboot || true
           cp -afv build/magiskboot /workspace/magiskboot
+
+      - name: Check
+        run: |
+          cd magiskboot_*-src/
+          ./scripts/magiskboot_test.sh /workspace/magiskboot_debug
 
       - name: Upload artifacts (Debug)
         if: matrix.upload == 'yes'
@@ -221,7 +226,7 @@ jobs:
 
       - name: Prepare
         run: |
-          brew install --overwrite coreutils file xz lz4 \
+          brew install --overwrite coreutils wget file xz lz4 \
               bzip2 zlib pkg-config cmake ninja rust
 
       - name: Fix up Rust
@@ -260,6 +265,11 @@ jobs:
           otool -L build/magiskboot
           ./build/magiskboot || true
           cp -afv build/magiskboot $GITHUB_WORKSPACE/magiskboot
+
+      - name: Check
+        run: |
+          cd magiskboot_*-src/
+          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot_debug
 
       - name: Upload artifacts (Debug)
         uses: actions/upload-artifact@v4
@@ -313,8 +323,9 @@ jobs:
         with:
           msystem: ${{ matrix.msystem }}
           update: true
+          # installing vim for xxd
           install: >-
-            base-devel file
+            base-devel file wget vim
           pacboy: >-
             xz:p lz4:p bzip2:p zlib:p pkgconf:p clang:p
             lld:p cmake:p libc++:p ninja:p rust:p
@@ -351,6 +362,12 @@ jobs:
           ldd build/magiskboot.exe
           ./build/magiskboot.exe || true
           cp -afv build/magiskboot.exe $GITHUB_WORKSPACE/magiskboot.exe
+
+      - name: Check
+        shell: msys2 {0}
+        run: |
+          cd magiskboot_*-src/
+          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot_debug.exe
 
       - name: Upload artifacts (Debug)
         if: matrix.upload == 'yes'
