@@ -96,7 +96,11 @@ brew install xz lz4 bzip2 zlib pkg-config cmake ninja rust
 
 #### Termux
 
-Termux build is not actively tested by CI.
+> **Note**
+>
+> Termux build is not actively tested by CI, but it might work without problem.
+>
+> If you find the build is broken, please file a [bug report](../../issues).
 
 ````shell
 apt update
@@ -135,21 +139,69 @@ There is also an old MinGW port, it works great:
 
 [svoboda18/magiskboot](https://github.com/svoboda18/magiskboot.git): a dirty Windows port with custom GNU Make based build system
 
-#### Cygwin (early test)
+#### Cygwin (test)
 
 > **Note**
 >
-> Cygwin support is not actively tested currently
+> Cygwin build is not actively tested by CI, but it might work without problem.
+>
+> If you find the build is broken, please file a [bug report](../../issues).
 
 An experimental build is available [here](../../releases/cygwin-test).
 
 To build for Cygwin, you need to compile a Rust toolchain from source, for more info: [Cygwin Rust porting](https://gist.github.com/ookiineko/057eb3a91825313caeaf6d793a33b0b2)
 
-Currently Cygwin Rust has no host tools support, so you have patch the CMakeLists and make it cross-compile for Cygwin.
+You will also need to compile the LLVM & Clang from source with Cygwin patches, you can pick them from: [Ookiineko's unofficial cygpkgs](https://github.com/orgs/ookiineko-cygpkg/repositories)
 
-NOTE: This project doesn't support cross-compiling for now, but it should be easy to get patched to support that.
+Currently Cygwin Rust has no host tools support, so cross compiling is needed, make sure to read the instructions for [Cross compiling](#cross-compiling).
 
-You will also need to compile the LLVM/Clang from source to add Cygwin target, see: [my unofficial cygports](https://github.com/orgs/ookiineko-cygpkg/repositories)
+The cross compiler is available on Fedora Linux, provided by the [Fedora Cygwin][fedora-cygwin].
+
+Install these packages: `cygwin`, `cygport` and `cygwin-{filesystem,binutils,gcc,pkg-config}`.
+
+Build and install the [dependencies](#requirements) from source to sysroot using cygport, or download and extract the prebuilt package from a Cygwin mirror. Another way is to extract those files from an actual Cygwin installation.
+
+When configuring, use `cygwin64-cmake` instead of `cmake`, but don't use it for `cmake --build` and other CMake commands.
+
+To use the patched Clang with Fedora Cygwin, set both `CMAKE_C_COMPILER_TARGET` and `CMAKE_CXX_COMPILER_TARGET` to `x86_64-unknown-windows-cygnus` and `CMAKE_SYSROOT` to `/usr/x86_64-pc-cygwin/sys-root` when configuring.
+
+Another issue is `cygwin64-cmake` overrides C and C++ compilers to GCC which is not supported by Magisk, and somehow ignoring the `CC` and `CXX` variables set by us. To workaround this, set `CMAKE_C_COMPILER` and `CMAKE_CXX_COMPILER` manually with the path to the previous Cygwin cross Clang and Clang++.
+
+Cygwin's Libc++ is buggy, if you can't pass linking with Libc++, see [this part](#help-my-build-has-failed) to apply patches for building without Libc++. (You will also need to apply patches to compile with old Rust toolchain.)
+
+Finally, you should be able to pass the build and get it working now :D
+
+Feel free to ask questions about Cygwin support in [Issues](../../issues).
+
+</details>
+
+<details><summary>Web Assembly</summary>
+
+#### Emscripten (WIP)
+
+> **Note**
+>
+> Currently this port only compiles, prints a usage, and does nothing.
+>
+> Helps are welcome QwQ
+
+Currently, cross-compiling from Arch Linux is tested, please read the [Cross compiling](#cross-compiling) instructions.
+
+First, install [Emscripten][Emscripten] and basic build dependencies using pacman.
+
+````shell
+sudo pacman -S --needed base-devel pkgconf emscripten cmake ninja rust
+````
+
+Use [vcpkg][vcpkg] to install the [depended libraries](#requirements) (`vcpkg` itself can be installed from [AUR][AUR]), the triplet is called `wasm32-emscripten`.
+
+If you install `vcpkg` from `AUR`, the installation path is `/opt/vcpkg`.
+
+When configuring, use `emcmake` instead of `cmake` (but don't use it for `cmake --build` and other CMake commands) , and use `/usr/lib/emscripten/cmake/Modules/Platform/Emscripten.cmake` as the toolchain file for vcpkg.
+
+the cross Rust target is `wasm32-unknown-emscripten` and you will need to enable Rust STD build (install the `rust-src` package via pacman).
+
+finally, copy the output `magiskboot.{js,html,wasm}` to a web server and open the html page, usage will be printed in the browser's developer console.
 
 </details>
 
@@ -172,6 +224,26 @@ cmake --install build
 ````
 
 If you prefer a statically linked binary (optional), pass `-DPREFER_STATIC_LINKING=ON` to CMake while configuring, make sure your distribution provided you the static version of the [depended libraries](#requirements), otherwise you'll run into configure errors and you have to change your distribution or try to compile the static version of those libraries yourself and install them to your system for the static build.
+
+#### Cross compiling
+
+First get a cross-compiler with Libc++ and Clang by either installing from source or downloading it from somewhere (usually your distribution's package manager).
+
+To cross-compile, you may need a [CMake toolchain file][cmake-toolchains] describing your target specs, the location of the cross compiler toolchain and strategy for CMake to seek for the depended libraries.
+
+You can install the depended libraries for your cross target by using [vcpkg][vcpkg], for example:
+
+````shell
+vcpkg install bzip2:arm64-linux
+````
+
+`arm64-linux` is the triplet of your cross target, pass this value to CMake using the `VCPKG_TARGET_TRIPLET` variable during configuration.
+
+Set variable `RUSTC_TARGET` to the Rust target you wanted to cross compile for, e.g. `aarch64-unknown-linux-gnu`.
+
+To use your toolchain file with `vcpkg`, first pass `-DCMAKE_TOOLCHAIN_FILE=/path/to/your/vcpkg/install/path/scripts/buildsystems/vcpkg.cmake` to CMake, and set the variable `VCPKG_CHAINLOAD_TOOLCHAIN_FILE` to the path of your actual toolchain file.
+
+If the cross Rust target is not installed, you can still compile if you build the Rust standard library (STD) from source, to do this, pass `-DRUST_BUILD_STD=ON` during configuration (Note this will require the Rust source code to be installed on your system).
 
 #### LTO
 
@@ -325,3 +397,8 @@ When syncing upstream `vendor/{android_libbase,Magisk}` changes, here is a few t
 [Libcxx]: https://libcxx.llvm.org/
 [Libstdcxx]: https://gcc.gnu.org/onlinedocs/libstdc++/
 [MSYS2]: https://www.msys2.org/
+[fedora-cygwin]: https://copr.fedorainfracloud.org/coprs/yselkowitz/cygwin/
+[cmake-toolchains]: https://cmake.org/cmake/help/latest/manual/cmake-toolchains.7.html
+[vcpkg]: https://vcpkg.io/
+[Emscripten]: https://emscripten.org/
+[AUR]: https://wiki.archlinux.org/title/Arch_User_Repository
