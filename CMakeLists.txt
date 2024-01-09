@@ -41,6 +41,17 @@ option(PREFER_STATIC_LINKING "Prefer static libraries when linking" OFF)
 
 option(WITHOUT_LIBCXX "Don't link libcxx instead of libstdc++" OFF)
 
+# useful for cross-compiling
+option(RUST_BUILD_STD "Build Rust standard library" OFF)
+option(RUSTC_TARGET "Rust target" "")
+
+if (RUST_BUILD_STD)
+set(RUSTC_BOOTSTRAP 1)
+set(CARGO_FLAGS -Zbuild-std)
+else()
+set(RUSTC_BOOTSTRAP winsup,base,magiskboot)
+endif()
+
 # XXX: can be detected if dump target JSON (rustc)
 if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" AND NOT CYGWIN AND NOT APPLE)
 set(USE_LTO_LINKER_PLUGIN ON)
@@ -52,7 +63,7 @@ find_program(LLD_EXECUTABLE lld REQUIRED)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fuse-ld=lld -Wno-unused-command-line-argument")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=lld -Wno-unused-command-line-argument")
-set(RUSTFLAGS -Clinker-plugin-lto)
+set(RUSTFLAGS "${RUSTFLAGS} -Clinker-plugin-lto")
 endif() # USE_LTO_LINKER_PLUGIN
 endif() # NO_TARGETS_OR_DEPS
 
