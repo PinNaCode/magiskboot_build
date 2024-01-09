@@ -12,7 +12,7 @@ diff --git a/native/src/base/files.rs b/native/src/base/files.rs
 index bcaea46..196c000 100644
 --- a/native/src/base/files.rs
 +++ b/native/src/base/files.rs
-@@ -4,7 +4,22 @@ use std::ffi::CStr;
+@@ -4,7 +4,25 @@ use std::ffi::CStr;
  use std::fs::File;
  use std::io::{BufRead, Read, Seek, SeekFrom, Write};
  use std::ops::Deref;
@@ -31,6 +31,9 @@ index bcaea46..196c000 100644
 +
 +#[cfg(target_os = "cygwin")]
 +use std::os::cygwin::fs::MetadataExt;
++
++#[cfg(target_os = "emscripten")]
++use std::os::emscripten::fs::MetadataExt;
 +
  use std::os::fd::{AsFd, BorrowedFd, IntoRawFd};
  use std::os::unix::fs::FileTypeExt;

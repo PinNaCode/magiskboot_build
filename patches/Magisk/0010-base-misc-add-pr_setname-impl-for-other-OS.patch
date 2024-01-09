@@ -12,7 +12,7 @@ diff --git a/native/src/base/misc.cpp b/native/src/base/misc.cpp
 index cf16b3b..c5bcfd7 100644
 --- a/native/src/base/misc.cpp
 +++ b/native/src/base/misc.cpp
-@@ -175,7 +175,15 @@ void init_argv0(int argc, char **argv) {
+@@ -175,7 +175,17 @@ void init_argv0(int argc, char **argv) {
  void set_nice_name(const char *name) {
      memset(argv0, 0, name_len);
      strscpy(argv0, name, name_len);
@@ -22,6 +22,8 @@ index cf16b3b..c5bcfd7 100644
 +    pthread_setname_np(name);
 +#elif defined(__CYGWIN__) || defined(_WIN32)
 +    pthread_setname_np(pthread_self(), name);
++#elif defined(__EMSCRIPTEN__)
++    // no-op
 +#else
 +#error unknown PR_SET_NAME impl on this platform
 +#endif

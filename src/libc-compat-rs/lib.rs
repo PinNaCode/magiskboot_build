@@ -18,6 +18,9 @@ cfg_if::cfg_if! {
     } else if #[cfg(target_os = "windows")] {
         mod windows;
         pub use windows::*;
+    } else if #[cfg(target_os = "emscripten")] {
+        mod emscripten;
+        pub use emscripten::*;
     } else {
         pub use libc::*;
     }

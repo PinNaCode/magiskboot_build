@@ -34,7 +34,7 @@ index f107c34..465d63a 100644
 +            const BLKGETSIZE64: u32 = 0x80041272;
 +        } else if #[cfg(target_os = "cygwin")] {
 +            const BLKGETSIZE64: u32 = 0x00041268;
-+        } else if #[cfg(target_os = "windows")] {
++        } else if #[cfg(any(target_os = "windows", target_os = "emscripten"))] {
 +            // no-op
 +        } else {
 +            compile_error!("Unknown BLKGETSIZE impl on this platform");
@@ -60,7 +60,7 @@ index f107c34..465d63a 100644
 +                let mut sz = 0_u64;
 +                unsafe { ioctl(f.as_raw_fd(), BLKGETSIZE64, &mut sz) }.check_os_err()?;
 +                sz
-+            } else if #[cfg(target_os = "windows")] {
++            } else if #[cfg(any(target_os = "windows", target_os = "emscripten"))] {
 +                panic!("Unreachable code");
 +            } else {
 +                compile_error!("Unknown BLKGETSIZE impl on this platform");
@@ -85,7 +85,7 @@ index 0d8d11c..3fda87d 100644
 +                  DKIOCGETBLOCKCOUNT == 0x40086419);
 +#elif defined(__CYGWIN__)
 +    static_assert(BLKGETSIZE64 == 0x00041268);
-+#elif !defined(_WIN32)
++#elif !defined(_WIN32) && !defined(__EMSCRIPTEN__)
 +#error "Unknown BLKGETSIZE impl on this platform"
 +#endif
      ALLOW_MOVE_ONLY(mmap_data)
