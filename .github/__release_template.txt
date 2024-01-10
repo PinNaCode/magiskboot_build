@@ -12,10 +12,6 @@
 
 #### Build types
 
-- `wip`: work in progress, don't expected the build to be useful.
-
-- `test`: better than `wip`, early debug build, things works, but may be considered as unstable and experimental.
-
 - `debug`: for getting logs only, don't use unless you know what are you doing
 
 - `release`: if you are a normal user, download package with this tag
@@ -28,7 +24,7 @@
 
 - `static`: similar to `standalone`, but C runtime library is also bundled within the binary, should theoretically work on all version of the specified OS, for example you can usually use `ubuntu-...-glibc-...-static` on all different Linux distributions, even if the distribution is using a different libc (e.g. Alpine Linux)
 
-#### For Windows releases only
+#### For Windows release only
 
 - `msvcrt`: usually works on most Windows versions without extra setup
 
