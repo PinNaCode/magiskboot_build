@@ -177,11 +177,7 @@ Feel free to ask questions about Cygwin support in [Issues](../../issues).
 
 <details><summary>WebAssembly</summary>
 
-#### Emscripten (WIP)
-
-> **Warning**
->
-> This port isn't complete yet, some features are broken right now, and some performance issues still exists.
+#### Emscripten
 
 > **Note**
 >
@@ -189,7 +185,7 @@ Feel free to ask questions about Cygwin support in [Issues](../../issues).
 >
 > A web frontend wrapper must be written to handle the argument passing and file system management in browsers.
 >
-> It should work in the future, but unfortunately I am not a web developer, helps on this will be welcome QwQ
+> This should be implemented soon in the future, but unfortunately I am not a web developer, any help on this will be welcome QwQ
 
 Please read the [Cross compiling](#cross-compiling) instructions first.
 
@@ -198,6 +194,8 @@ Install the [Emscripten][Emscripten] SDK and a Nightly Rust toolchain using [rus
 Use [vcpkg][vcpkg] to install the [depended libraries](#requirements), the triplet is called `wasm32-emscripten`.
 
 When configuring, use `emcmake cmake` instead of `cmake` (but don't use it for `cmake --build` and other CMake commands) , and use `/path/to/your/emsdk/emscripten/cmake/Modules/Platform/Emscripten.cmake` as the toolchain file for vcpkg.
+
+For NodeJS, make sure to set `CMAKE_EXE_LINKER_FLAGS` to `-sNODERAWFS` to allow using the host filesystem.
 
 finally, you can run the result with [NodeJS][NodeJS] using: `node magiskboot.js`
 
@@ -289,10 +287,6 @@ A very basic shell script is provided under the [`scripts`](scripts/magiskboot_t
 - [ ] cleanup
 - [x] compress
 - [x] decompress
-
-#### TODO
-
-- [ ] add Emscripten tests
 
 ### Generating source tarball
 

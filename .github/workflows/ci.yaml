@@ -456,11 +456,36 @@ jobs:
           node ./build/magiskboot_debug.js || true
           cp -afv build/magiskboot_debug.* $GITHUB_WORKSPACE
 
-      # TODO: Add tests
+          echo -e "\n### configure: release ###\n"
+          emcmake cmake -G Ninja -B build -DCMAKE_EXE_LINKER_FLAGS="-sNODERAWFS" \
+              -DRUSTC_TARGET=${{ env.rust_target }} -DRUST_BUILD_STD=ON \
+              -DCMAKE_BUILD_TYPE=Release -DPREFER_STATIC_LINKING=ON \
+              -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
+              -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }} \
+              -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE="$(dirname $(which emcc))/cmake/Modules/Platform/Emscripten.cmake"
 
-      - name: Upload artifacts
+          echo -e "\n### build release ###\n"
+          cmake --build build -j $(nproc)
+
+          file build/magiskboot.*
+          node ./build/magiskboot.js || true
+          cp -afv build/magiskboot.* $GITHUB_WORKSPACE
+
+      - name: Check
+        run: |
+          cd magiskboot_*-src/
+          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot_debug.js
+
+      - name: Upload artifacts (Debug)
         uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-wip-${{ env.upload_suffix }}
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-debug-${{ env.upload_suffix }}
           path: ${{ github.workspace }}/magiskboot_debug.*
+
+      - name: Upload artifacts (Release)
+        uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: error
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-${{ env.upload_suffix }}
+          path: ${{ github.workspace }}/magiskboot.*
