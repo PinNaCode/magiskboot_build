@@ -193,15 +193,13 @@ Feel free to ask questions about Cygwin support in [Issues](../../issues).
 
 Please read the [Cross compiling](#cross-compiling) instructions first.
 
-Install [Emscripten][Emscripten] SDK and Nightly Rust using [rustup][rustup].
+Install the [Emscripten][Emscripten] SDK and a Nightly Rust toolchain using [rustup][rustup] with Emscripten's target (`wasm32-unknown-emscripten`).
 
 Use [vcpkg][vcpkg] to install the [depended libraries](#requirements), the triplet is called `wasm32-emscripten`.
 
 When configuring, use `emcmake cmake` instead of `cmake` (but don't use it for `cmake --build` and other CMake commands) , and use `/path/to/your/emsdk/emscripten/cmake/Modules/Platform/Emscripten.cmake` as the toolchain file for vcpkg.
 
-the cross Rust target is `wasm32-unknown-emscripten` and you will need to enable Rust STD build (install the `rust-src` package via pacman).
-
-finally, run the result with [NodeJS][NodeJS] using: `node magiskboot.js`
+finally, you can run the result with [NodeJS][NodeJS] using: `node magiskboot.js`
 
 </details>
 
