@@ -175,35 +175,33 @@ Feel free to ask questions about Cygwin support in [Issues](../../issues).
 
 </details>
 
-<details><summary>Web Assembly</summary>
+<details><summary>WebAssembly</summary>
 
 #### Emscripten (WIP)
 
+> **Warning**
+>
+> This port isn't complete yet, some features are broken right now, and some performance issues still exists.
+
 > **Note**
 >
-> Currently this port only compiles, prints a usage, and does nothing.
+> Currently this port only support running with NodeJS.
 >
-> A web frontend wrapper must be written to handle the argument passing and file system management.
+> A web frontend wrapper must be written to handle the argument passing and file system management in browsers.
 >
 > It should work in the future, but unfortunately I am not a web developer, helps on this will be welcome QwQ
 
-Currently, cross-compiling from Arch Linux is tested, please read the [Cross compiling](#cross-compiling) instructions.
+Please read the [Cross compiling](#cross-compiling) instructions first.
 
-First, install [Emscripten][Emscripten] and basic build dependencies using pacman.
+Install [Emscripten][Emscripten] SDK and Nightly Rust using [rustup][rustup].
 
-````shell
-sudo pacman -S --needed base-devel pkgconf emscripten cmake ninja rust
-````
+Use [vcpkg][vcpkg] to install the [depended libraries](#requirements), the triplet is called `wasm32-emscripten`.
 
-Use [vcpkg][vcpkg] to install the [depended libraries](#requirements) (`vcpkg` itself can be installed from [AUR][AUR]), the triplet is called `wasm32-emscripten`.
-
-If you install `vcpkg` from `AUR`, the installation path is `/opt/vcpkg`.
-
-When configuring, use `emcmake` instead of `cmake` (but don't use it for `cmake --build` and other CMake commands) , and use `/usr/lib/emscripten/cmake/Modules/Platform/Emscripten.cmake` as the toolchain file for vcpkg.
+When configuring, use `emcmake cmake` instead of `cmake` (but don't use it for `cmake --build` and other CMake commands) , and use `/path/to/your/emsdk/emscripten/cmake/Modules/Platform/Emscripten.cmake` as the toolchain file for vcpkg.
 
 the cross Rust target is `wasm32-unknown-emscripten` and you will need to enable Rust STD build (install the `rust-src` package via pacman).
 
-finally, copy the output `magiskboot.{js,html,wasm}` to a web server and open the html page, usage will be printed in the browser's developer console.
+finally, run the result with [NodeJS][NodeJS] using: `node magiskboot.js`
 
 </details>
 
@@ -243,7 +241,7 @@ vcpkg install bzip2:arm64-linux
 
 Set variable `RUSTC_TARGET` to the Rust target you wanted to cross compile for, e.g. `aarch64-unknown-linux-gnu`.
 
-To use your toolchain file with `vcpkg`, first pass `-DCMAKE_TOOLCHAIN_FILE=/path/to/your/vcpkg/install/path/scripts/buildsystems/vcpkg.cmake` to CMake, and set the variable `VCPKG_CHAINLOAD_TOOLCHAIN_FILE` to the path of your actual toolchain file.
+To use your toolchain file with `vcpkg`, first pass `-DCMAKE_TOOLCHAIN_FILE=/path/to/your/vcpkg/scripts/buildsystems/vcpkg.cmake` to CMake, and set the variable `VCPKG_CHAINLOAD_TOOLCHAIN_FILE` to the path of your actual toolchain file.
 
 If the cross Rust target is not installed, you can still compile if you build the Rust standard library (STD) from source, to do this, pass `-DRUST_BUILD_STD=ON` during configuration (Note this will require the Rust source code to be installed on your system).
 
@@ -405,4 +403,4 @@ When syncing upstream `vendor/{android_libbase,Magisk}` changes, here is a few t
 [cmake-toolchains]: https://cmake.org/cmake/help/latest/manual/cmake-toolchains.7.html
 [vcpkg]: https://vcpkg.io/
 [Emscripten]: https://emscripten.org/
-[AUR]: https://wiki.archlinux.org/title/Arch_User_Repository
+[NodeJS]: https://nodejs.org/
