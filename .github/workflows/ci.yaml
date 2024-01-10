@@ -168,10 +168,10 @@ jobs:
           echo -e "\n### build debug ###\n"
           cmake --build build -j $(nproc)
 
-          file build/magiskboot
-          ldd build/magiskboot || true
-          ./build/magiskboot || true
-          cp -afv build/magiskboot /workspace/magiskboot_debug
+          file build/magiskboot_debug
+          ldd build/magiskboot_debug || true
+          ./build/magiskboot_debug || true
+          cp -afv build/magiskboot_debug /workspace
 
           echo -e "\n### configure: release ###\n"
           make clean
@@ -183,7 +183,7 @@ jobs:
           file build/magiskboot
           ldd build/magiskboot || true
           ./build/magiskboot || true
-          cp -afv build/magiskboot /workspace/magiskboot
+          cp -afv build/magiskboot /workspace
 
       - name: Check
         run: |
@@ -248,10 +248,10 @@ jobs:
           echo -e "\n### build debug ###\n"
           cmake --build build -j $(nproc)
 
-          file build/magiskboot
-          otool -L build/magiskboot
-          ./build/magiskboot || true
-          cp -afv build/magiskboot $GITHUB_WORKSPACE/magiskboot_debug
+          file build/magiskboot_debug
+          otool -L build/magiskboot_debug
+          ./build/magiskboot_debug || true
+          cp -afv build/magiskboot_debug $GITHUB_WORKSPACE
 
           echo -e "\n### configure: release ###\n"
           make clean
@@ -264,7 +264,7 @@ jobs:
           file build/magiskboot
           otool -L build/magiskboot
           ./build/magiskboot || true
-          cp -afv build/magiskboot $GITHUB_WORKSPACE/magiskboot
+          cp -afv build/magiskboot $GITHUB_WORKSPACE
 
       - name: Check
         run: |
@@ -345,10 +345,10 @@ jobs:
           echo -e "\n### build debug ###\n"
           cmake --build build -j $(nproc)
 
-          file build/magiskboot.exe
-          ldd build/magiskboot.exe
-          ./build/magiskboot.exe || true
-          cp -afv build/magiskboot.exe $GITHUB_WORKSPACE/magiskboot_debug.exe
+          file build/magiskboot_debug.exe
+          ldd build/magiskboot_debug.exe
+          ./build/magiskboot_debug.exe || true
+          cp -afv build/magiskboot_debug.exe $GITHUB_WORKSPACE
 
           echo -e "\n### configure: release ###\n"
           make clean
@@ -361,7 +361,7 @@ jobs:
           file build/magiskboot.exe
           ldd build/magiskboot.exe
           ./build/magiskboot.exe || true
-          cp -afv build/magiskboot.exe $GITHUB_WORKSPACE/magiskboot.exe
+          cp -afv build/magiskboot.exe $GITHUB_WORKSPACE
 
       - name: Check
         shell: msys2 {0}

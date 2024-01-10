@@ -78,6 +78,12 @@ endif() # NO_TARGETS_OR_DEPS
 
 add_compile_options(-U_FORTIFY_SOURCE)
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+set(MAGISKBOOT_TARGET magiskboot_debug)
+else()
+set(MAGISKBOOT_TARGET magiskboot)
+endif()
+
 if (NOT NO_TARGETS_OR_DEPS)
 include(CMakeLists.compat.txt)
 include(CMakeLists.android.txt)

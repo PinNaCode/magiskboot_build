@@ -34,15 +34,15 @@ target_include_directories(libzopfli PUBLIC
 target_compile_options(libzopfli PRIVATE
     -Werror -Wno-unused -Wno-unused-parameter)
 
-add_executable(magiskboot
+add_executable(${MAGISKBOOT_TARGET}
     vendor/Magisk/native/src/boot/main.cpp
     vendor/Magisk/native/src/boot/bootimg.cpp
     vendor/Magisk/native/src/boot/compress.cpp
     vendor/Magisk/native/src/boot/format.cpp
     vendor/Magisk/native/src/boot/boot-rs.cpp)
-target_include_directories(magiskboot PRIVATE
+target_include_directories(${MAGISKBOOT_TARGET} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/external/cxx-rs/include)
-target_link_libraries(magiskboot
+target_link_libraries(${MAGISKBOOT_TARGET}
     libbase
     LibLZMA::LibLZMA
     PkgConfig::liblz4
@@ -51,4 +51,4 @@ target_link_libraries(magiskboot
     libzopfli
     Threads::Threads)
 
-install(TARGETS magiskboot DESTINATION bin)
+install(TARGETS ${MAGISKBOOT_TARGET} DESTINATION bin)

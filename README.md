@@ -358,6 +358,8 @@ If you modify something in the Rust part, you will have to perform `rm build/lib
 
 Pass `-DCMAKE_BUILD_TYPE=Debug` to CMake instead of `Release` during configuring to make some error log more verbose.
 
+The result `magiskboot` executable will have a `_debug` suffix.
+
 #### Updating sources
 
 For `vendor/` submodules with their name starting with `android_`, most patches are imported from [android-tools][android-tools], and don't always require updating.
