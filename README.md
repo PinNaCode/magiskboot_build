@@ -261,7 +261,7 @@ A very basic shell script is provided under the [`scripts`](scripts/magiskboot_t
 - [ ] verify
 - [ ] sign
 - [ ] extract
-- [x] hexpatch
+- [x] hexpatch (TODO: make this test pass on Emscripten)
 
 * cpio* (currently not widely tested on all common ramdisks)
   - [ ] cpio exists
