@@ -6,6 +6,8 @@
 # dependencies: coreutils, file, wget, xxd
 #
 
+# TODO: support Emscripten
+
 # fail fast
 set -e
 set -o pipefail

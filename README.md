@@ -292,6 +292,10 @@ A very basic shell script is provided under the [`scripts`](scripts/magiskboot_t
 - [x] compress
 - [x] decompress
 
+#### TODO
+
+- [ ] add Emscripten tests
+
 ### Generating source tarball
 
 ````shell
