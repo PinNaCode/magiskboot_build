@@ -63,7 +63,12 @@ endif()
 
 if (NOT NO_TARGETS_OR_DEPS)
 if (USE_LTO_LINKER_PLUGIN)
-find_program(LLD_EXECUTABLE lld REQUIRED)
+include(CheckLinkerFlag)
+check_linker_flag(C -fuse-ld=lld C_FUSE_LD_EQ_LLD_WORKS)
+check_linker_flag(CXX -fuse-ld=lld CXX_FUSE_LD_EQ_LLD_WORKS)
+if (NOT C_FUSE_LD_EQ_LLD_WORKS OR NOT CXX_FUSE_LD_EQ_LLD_WORKS)
+message(FATAL_ERROR "Failed to compile test C/CXX program with -fuse-ld=lld")
+endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fuse-ld=lld -Wno-unused-command-line-argument")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=lld -Wno-unused-command-line-argument")
