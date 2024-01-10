@@ -183,7 +183,9 @@ Feel free to ask questions about Cygwin support in [Issues](../../issues).
 >
 > Currently this port only compiles, prints a usage, and does nothing.
 >
-> Helps are welcome QwQ
+> A web frontend wrapper must be written to handle the argument passing and file system management.
+>
+> It should work in the future, but unfortunately I am not a web developer, helps on this will be welcome QwQ
 
 Currently, cross-compiling from Arch Linux is tested, please read the [Cross compiling](#cross-compiling) instructions.
 
