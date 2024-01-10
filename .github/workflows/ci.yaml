@@ -384,3 +384,83 @@ jobs:
           if-no-files-found: error
           name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-${{ env.upload_prefix }}-${{ matrix.note }}
           path: ${{ github.workspace }}/magiskboot.exe
+
+  build-wasm:
+    name: Build (WebAssembly)
+    runs-on: ubuntu-latest
+    needs: [vars, src]
+    env:
+      vcpkg_triplet: "wasm32-emscripten"
+      emsdk_ver: 3.1.51
+      emsdk_cache_dir: "emsdk-cache"
+      rust_target: "wasm32-unknown-emscripten"
+      upload_suffix: "emscripten-wasm32-noderawfs-static"
+
+    steps:
+      - name: Prepare (source)
+        uses: actions/download-artifact@v4
+        with:
+          name: srcpkg
+
+      - name: Prepare (Host)
+        run: |
+          sudo apt update
+          sudo DEBIAN_FRONTEND=noninteractive apt install -y curl tar patch file \
+                    python3 build-essential pkg-config cmake ninja-build nodejs
+
+      - name: Cache (Emscripten)
+        id: cache-emsdk-system-libs
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.emsdk_cache_dir }}
+          key: emsdk-${{ env.emsdk_ver }}-${{ runner.os }}
+
+      - name: Prepare (Emscripten)
+        uses: mymindstorm/setup-emsdk@v13
+        with:
+          version: ${{ env.emsdk_ver }}
+          actions-cache-folder: ${{ env.emsdk_cache_dir }}
+
+      - name: Prepare (Cross)
+        run: |
+          vcpkg install --host-triplet=${{ env.vcpkg_triplet }} \
+                        zlib liblzma lz4 bzip2
+
+      - name: Prepare (Rust)
+        run: |
+          curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
+          . "$HOME/.cargo/env"
+          rustup target add ${{ env.rust_target }}
+          rustup component add rust-src
+
+      - name: Build
+        run: |
+          echo -e "\n### extract source ###\n"
+          tar -xf magiskboot_*-src.tar.xz
+
+          cd magiskboot_*-src/
+
+          echo -e "\n### configure: debug ###\n"
+          . "$HOME/.cargo/env"
+          emcmake cmake -G Ninja -B build -DCMAKE_EXE_LINKER_FLAGS="-sNODERAWFS" \
+              -DRUSTC_TARGET=${{ env.rust_target }} -DRUST_BUILD_STD=ON \
+              -DCMAKE_BUILD_TYPE=Debug -DPREFER_STATIC_LINKING=ON \
+              -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
+              -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }} \
+              -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE="$(dirname $(which emcc))/cmake/Modules/Platform/Emscripten.cmake"
+
+          echo -e "\n### build debug ###\n"
+          cmake --build build -j $(nproc)
+
+          file build/magiskboot_debug.*
+          node ./build/magiskboot_debug.js || true
+          cp -afv build/magiskboot_debug.* $GITHUB_WORKSPACE
+
+      # TODO: Add tests
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: error
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-wip-${{ env.upload_suffix }}
+          path: ${{ github.workspace }}/magiskboot_debug.*
