@@ -228,6 +228,10 @@ jobs:
           - upload_suffix: "ubuntu-jammy-glibc-armhf-static"
             cmake_arch: arm
             gcc_target: arm-linux-gnueabihf
+
+            # XXX: workaround for: __divsi3
+            ldflags: -Wl,--allow-multiple-definition
+
             vcpkg_triplet: arm-linux
             clang_target: arm-linux-gnueabihf
             rust_target: arm-unknown-linux-gnueabihf
@@ -275,7 +279,8 @@ jobs:
                 -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSROOT=${{ matrix.gcc_target }} -DRUSTC_TARGET=${{ matrix.rust_target }} \
                 -DCMAKE_C_COMPILER_TARGET=${{ matrix.clang_target }} -DCMAKE_CXX_COMPILER_TARGET=${{ matrix.clang_target }} \
                 -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
-                -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} -DWITHOUT_LIBCXX=ON -DPREFER_STATIC_LINKING=ON
+                -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} -DWITHOUT_LIBCXX=ON -DPREFER_STATIC_LINKING=ON \
+                -DCMAKE_EXE_LINKER_FLAGS="${{ matrix.ldflags }}"
 
           echo -e "\n### build debug ###\n"
           cmake --build build -j $(nproc)
@@ -291,7 +296,8 @@ jobs:
                 -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSROOT=${{ matrix.gcc_target }} -DRUSTC_TARGET=${{ matrix.rust_target }} \
                 -DCMAKE_C_COMPILER_TARGET=${{ matrix.clang_target }} -DCMAKE_CXX_COMPILER_TARGET=${{ matrix.clang_target }} \
                 -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
-                -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} -DWITHOUT_LIBCXX=ON -DPREFER_STATIC_LINKING=ON
+                -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} -DWITHOUT_LIBCXX=ON -DPREFER_STATIC_LINKING=ON \
+                -DCMAKE_EXE_LINKER_FLAGS="${{ matrix.ldflags }}"
 
           echo -e "\n### build release ###\n"
           cmake --build build -j $(nproc)
