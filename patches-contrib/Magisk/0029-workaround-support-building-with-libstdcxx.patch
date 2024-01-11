@@ -33,11 +33,12 @@ diff --git a/native/src/base/files.hpp b/native/src/base/files.hpp
 index 9c2d890..19c2dd6 100644
 --- a/native/src/base/files.hpp
 +++ b/native/src/base/files.hpp
-@@ -5,6 +5,9 @@
+@@ -5,6 +5,10 @@
  #include <string_view>
  #include <string>
  #include <vector>
 +#ifndef _LIBCPP_VERSION
++#include <cstring>
 +#include <memory>
 +#endif
  
@@ -61,11 +62,12 @@ diff --git a/native/src/base/misc.hpp b/native/src/base/misc.hpp
 index 7ced155..3e9869f 100644
 --- a/native/src/base/misc.hpp
 +++ b/native/src/base/misc.hpp
-@@ -6,6 +6,9 @@
+@@ -6,6 +6,10 @@
  #include <string_view>
  #include <bitset>
  #include <random>
 +#ifndef _LIBCPP_VERSION
++#include <cstring>
 +#include <memory>
 +#endif
  #include <cxx.h>
