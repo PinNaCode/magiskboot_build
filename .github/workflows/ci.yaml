@@ -225,6 +225,15 @@ jobs:
             emulator: qemu-aarch64
             extra_pkgs: "g++-aarch64-linux-gnu"
 
+          - upload_suffix: "ubuntu-jammy-glibc-armhf-static"
+            cmake_arch: arm
+            gcc_target: arm-linux-gnueabihf
+            vcpkg_triplet: arm-linux
+            clang_target: arm-linux-gnueabihf
+            rust_target: arm-unknown-linux-gnueabihf
+            emulator: qemu-arm
+            extra_pkgs: "g++-arm-linux-gnueabihf"
+
     runs-on: ubuntu-latest
     needs: [vars, src]
     steps:
