@@ -47,9 +47,10 @@ option(RUSTC_TARGET "Rust target" "")
 
 if (RUST_BUILD_STD)
 if (EMSCRIPTEN)
-set(CARGO_FLAGS -Zbuild-std=std,panic_abort)
+set(CARGO_FLAGS ${CARGO_FLAGS} -Zbuild-std=std,panic_abort)
+set(RUSTFLAGS "${RUSTFLAGS} -Cpanic=abort")
 else()
-set(CARGO_FLAGS -Zbuild-std)
+set(CARGO_FLAGS ${CARGO_FLAGS} -Zbuild-std)
 endif()
 endif()
 
