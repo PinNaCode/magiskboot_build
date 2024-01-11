@@ -1,0 +1,31 @@
+From 7fc174b7c03bd83f72e1499cf51dd1246a669524 Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Thu, 11 Jan 2024 09:47:29 +0800
+Subject: [PATCH] fix Cargo config
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ native/src/Cargo.toml | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/native/src/Cargo.toml b/native/src/Cargo.toml
+index 2ab2887..1eb3186 100644
+--- a/native/src/Cargo.toml
++++ b/native/src/Cargo.toml
+@@ -38,13 +38,6 @@ git = "https://github.com/tafia/quick-protobuf.git"
+ rev = "2f37d5a65504de7d716b5b28fd82219501a901a9"
+ 
+-[profile.dev]
+-opt-level = "z"
+-lto = true
+-codegen-units = 1
+-panic = "abort"
+ 
+ [profile.release]
+-opt-level = "z"
+ lto = true
+ codegen-units = 1
+-panic = "abort"
+-- 
+2.43.0
+
