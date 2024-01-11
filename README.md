@@ -229,6 +229,10 @@ If you prefer a statically linked binary (optional), pass `-DPREFER_STATIC_LINKI
 
 First get a cross-compiler with Libc++ and Clang by either installing from source or downloading it from somewhere (usually your distribution's package manager).
 
+Install Rust using [rustup][rustup] and add your cross target like this: `rustup target add aarch64-unknown-linux-gnu` (replace `aarch64-unknown-linux-gnu` with the Rust target of your target platform).
+
+If the cross Rust target can't be installed using [rustup][rustup], you can still compile if you build the Rust standard library (STD) from source, to do this, pass `-DRUST_BUILD_STD=ON` during configuration (Note this will require Nightly Rust and the STD source code to be installed on your system).
+
 To cross-compile, you may need a [CMake toolchain file][cmake-toolchains] describing your target specs, the location of the cross compiler toolchain and strategy for CMake to seek for the depended libraries.
 
 You can install the depended libraries for your cross target by using [vcpkg][vcpkg], for example:
@@ -242,8 +246,6 @@ vcpkg install bzip2:arm64-linux
 Set variable `RUSTC_TARGET` to the Rust target you wanted to cross compile for, e.g. `aarch64-unknown-linux-gnu`.
 
 To use your toolchain file with `vcpkg`, first pass `-DCMAKE_TOOLCHAIN_FILE=/path/to/your/vcpkg/scripts/buildsystems/vcpkg.cmake` to CMake, and set the variable `VCPKG_CHAINLOAD_TOOLCHAIN_FILE` to the path of your actual toolchain file.
-
-If the cross Rust target is not installed, you can still compile if you build the Rust standard library (STD) from source, to do this, pass `-DRUST_BUILD_STD=ON` during configuration (Note this will require the Rust source code to be installed on your system).
 
 #### LTO
 
