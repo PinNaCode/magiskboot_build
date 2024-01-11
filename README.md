@@ -119,8 +119,6 @@ When configuring, pass `-DCMAKE_INSTALL_PREFIX=$PREFIX` to CMake.
 
 To build a static version, also install the `ndk-multilib` package, the result might need to patched using `termux-elf-cleaner` first to run.
 
-You can also directly use the `libmagiskboot.so` extracted from the Magisk APK, it's just a static ELF program.
-
 </details>
 
 <details><summary>Windows</summary>
@@ -144,10 +142,6 @@ pacboy -S --needed {xz,lz4,bzip2,zlib,pkgconf,clang,lld,cmake,libc++,ninja,rust}
 ````
 
 If you are cross-compiling and using vcpkg to manage the dependencies, please make sure CMake variable `MINGW` is set to `TRUE` during configuring.
-
-There is also an old MinGW port, it works great:
-
-[svoboda18/magiskboot](https://github.com/svoboda18/magiskboot.git): a dirty Windows port with custom GNU Make based build system
 
 #### Cygwin (test)
 
@@ -343,13 +337,11 @@ This project is very similiar to [android-tools][android-tools] which just maint
 
 Although I may update the version once in a while, [Pull requests](../../pulls) are welcome.
 
-#### Eh, so my platform is not supported by your sh*t
+#### Can you add ... platform support?
 
-This project aims to be portable, so it should be possible to port it to new platforms with some efforts, as long as your platform meets the the above [requirements](#requirements).
+This project aims to be portable, it should be possible to port it to new platforms with some efforts, as long as your platform meets the the above [requirements](#requirements).
 
-Not? Check out the [Cygwin](#cygwin-early-test) platform for example, maybe you can try to port those dependencies yourself.
-
-Or, try to make a port without the missing dependencies (and you may need to rewrite some stuffs, this may not always be easy, for example the upstream Rust codebase is likely to grow). However, these are not covered by this project, just some friendly suggestions.
+Feel free to add an [Issue](../../issues) about support on your new platform.
 
 ### Development
 
