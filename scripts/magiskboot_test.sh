@@ -27,7 +27,7 @@ file $1
 
 __workspace="$(mktemp -d -t magiskboot_test.XXXXXXXXXX)"
 echo -e "\n### created temporary working directory: ${__workspace} ###\n"
-pushd "${__workspace}"
+cd "${__workspace}"
 if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
     # set current directory to case sensitive
     set -x; chattr +C .; set +x
@@ -37,9 +37,8 @@ elif [[ "$(uname -s)" == "Windows_NT" ]]; then
 fi
 cleanup() {
     if [ -d "${__workspace}" ]; then
-        rm -rf "${__workspace}"
-        echo -e "\n### removed working directory: ${__workspace} ###\n"
-        popd
+        cd ${TMPDIR:-/tmp}
+        (rm -rf "${__workspace}" && echo -e "\n### removed working directory: ${__workspace} ###\n") || true
     fi
 }
 trap cleanup EXIT
