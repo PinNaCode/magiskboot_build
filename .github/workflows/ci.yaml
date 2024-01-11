@@ -415,6 +415,98 @@ jobs:
           cd magiskboot_*-src/
           ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot
 
+  build-macos-cross:
+    name: Build (macOS) (Cross)
+    strategy:
+      matrix:
+        os_release: [11, 12, 13]
+    runs-on: macos-${{ matrix.os_release }}
+    needs: [vars, src]
+    env:
+      HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
+
+      upload_suffix: "arm64-standalone"
+      cmake_arch: "aarch64"
+      clang_target: "aarch64-apple-darwin"
+      vcpkg_triplet: "arm64-osx"
+      rust_target: "aarch64-apple-darwin"
+
+    steps:
+      - name: Prepare (source)
+        uses: actions/download-artifact@v4
+        with:
+          name: srcpkg
+
+      - name: Prepare (Host)
+        run: |
+          brew install --overwrite coreutils file pkg-config cmake ninja
+
+      - name: Prepare (Cross)
+        run: |
+          vcpkg install --host-triplet=${{ env.vcpkg_triplet }} zlib liblzma lz4 bzip2
+
+      - name: Prepare (Rust)
+        run: |
+          curl https://sh.rustup.rs -sSf | sh -s -- -y
+          . "$HOME/.cargo/env"
+          rustup target add ${{ env.rust_target }}
+
+      - name: Fix up Rust
+        if: matrix.os_release == 13
+        run: |
+          rm -rf ~/.cargo/registry/index
+
+      - name: Build
+        run: |
+          echo -e "\n### extract source ###\n"
+          tar -xf magiskboot_*-src.tar.xz
+
+          cd magiskboot_*-src/
+
+          echo -e "\n### configure: debug ###\n"
+          . "$HOME/.cargo/env"
+          CC=clang CXX=clang++ cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_SYSTEM_PROCESSOR=${{ env.cmake_arch }} \
+              -DCMAKE_C_COMPILER_TARGET=${{ env.clang_target }} -DCMAKE_CXX_COMPILER_TARGET=${{ env.clang_target }} \
+              -DCMAKE_SYSTEM_NAME=Darwin -DRUSTC_TARGET=${{ env.rust_target }} -DPREFER_STATIC_LINKING=ON \
+              -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
+              -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }}
+
+          echo -e "\n### build debug ###\n"
+          cmake --build build -j $(nproc)
+
+          file build/magiskboot_debug
+          otool -L build/magiskboot_debug
+          cp -afv build/magiskboot_debug $GITHUB_WORKSPACE
+
+          echo -e "\n### configure: release ###\n"
+          make clean
+          CC=clang CXX=clang++ cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_PROCESSOR=${{ env.cmake_arch }} \
+              -DCMAKE_C_COMPILER_TARGET=${{ env.clang_target }} -DCMAKE_CXX_COMPILER_TARGET=${{ env.clang_target }} \
+              -DCMAKE_SYSTEM_NAME=Darwin -DRUSTC_TARGET=${{ env.rust_target }} -DPREFER_STATIC_LINKING=ON \
+              -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
+              -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }}
+
+          echo -e "\n### build release ###\n"
+          cmake --build build -j $(nproc)
+
+          file build/magiskboot
+          otool -L build/magiskboot
+          cp -afv build/magiskboot $GITHUB_WORKSPACE
+
+      - name: Upload artifacts (Debug)
+        uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: error
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-debug-macos-${{ matrix.os_release }}-${{ env.upload_suffix }}
+          path: ${{ github.workspace }}/magiskboot_debug
+
+      - name: Upload artifacts (Release)
+        uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: error
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-macos-${{ matrix.os_release }}-${{ env.upload_suffix }}
+          path: ${{ github.workspace }}/magiskboot
+
   build-windows:
     name: Build (Windows)
     runs-on: windows-latest
