@@ -77,7 +77,7 @@ elseif (CYGWIN)
     add_compile_definitions(__USE_LINUX_IOCTL_DEFS)
     set(CXXBRIDGE_GEN_TARGET_OS "cygwin")
 elseif (EMSCRIPTEN)
-    if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
+    if (NOT (CMAKE_BUILD_TYPE MATCHES "Debug") AND NOT (CMAKE_BUILD_TYPE MATCHES "MinSize"))
         # FIXME: why this is needed to pass linking
         set(RUSTFLAGS "${RUSTFLAGS} -Copt-level=z")
     endif()

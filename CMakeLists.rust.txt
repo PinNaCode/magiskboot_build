@@ -45,9 +45,17 @@ else()
 endif()
 message(STATUS "Found cargo: ${CARGO_EXECUTABLE}, version ${CARGO_VERSION}")
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (CMAKE_BUILD_TYPE MATCHES "Debug")
     set(CARGO_OUT "debug")
 else()
     set(CARGO_FLAGS ${CARGO_FLAGS} -r)
     set(CARGO_OUT "release")
+endif()
+
+if (CMAKE_BUILD_TYPE MATCHES "MinSize")
+    set(RUSTFLAGS "${RUSTFLAGS} -Copt-level=z")
+endif()
+
+if (CMAKE_BUILD_TYPE MATCHES "WithDebInfo")
+    set(RUSTFLASG "${RUSTFLAGS} -g")
 endif()
