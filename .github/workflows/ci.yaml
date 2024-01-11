@@ -424,7 +424,6 @@ jobs:
         run: |
           curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
           . "$HOME/.cargo/env"
-          rustup target add ${{ env.rust_target }}
           rustup component add rust-src
 
       - name: Build
