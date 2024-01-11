@@ -4,7 +4,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <aclapi.h>
-#include <Lmcons.h>
+#include <lmcons.h>
 
 #include "assert.h"
 
