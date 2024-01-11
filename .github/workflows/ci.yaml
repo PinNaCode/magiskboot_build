@@ -185,16 +185,6 @@ jobs:
           ./build/magiskboot || true
           cp -afv build/magiskboot /workspace
 
-      - name: Check (Debug)
-        run: |
-          cd magiskboot_*-src/
-          ./scripts/magiskboot_test.sh /workspace/magiskboot_debug
-
-      - name: Check (Release)
-        run: |
-          cd magiskboot_*-src/
-          ./scripts/magiskboot_test.sh /workspace/magiskboot
-
       - name: Upload artifacts (Debug)
         if: matrix.upload == 'yes'
         uses: actions/upload-artifact@v4
@@ -210,6 +200,16 @@ jobs:
           if-no-files-found: error
           name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-${{ matrix.os }}-${{ matrix.tag }}-${{ matrix.note }}
           path: ${{ github.workspace }}/magiskboot
+
+      - name: Check (Debug)
+        run: |
+          cd magiskboot_*-src/
+          ./scripts/magiskboot_test.sh /workspace/magiskboot_debug
+
+      - name: Check (Release)
+        run: |
+          cd magiskboot_*-src/
+          ./scripts/magiskboot_test.sh /workspace/magiskboot
 
   build-macos:
     name: Build (macOS)
@@ -271,16 +271,6 @@ jobs:
           ./build/magiskboot || true
           cp -afv build/magiskboot $GITHUB_WORKSPACE
 
-      - name: Check (Debug)
-        run: |
-          cd magiskboot_*-src/
-          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot_debug
-
-      - name: Check (Release)
-        run: |
-          cd magiskboot_*-src/
-          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot
-
       - name: Upload artifacts (Debug)
         uses: actions/upload-artifact@v4
         with:
@@ -294,6 +284,16 @@ jobs:
           if-no-files-found: error
           name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-macos-${{ matrix.os_release }}-${{ env.upload_suffix }}
           path: ${{ github.workspace }}/magiskboot
+
+      - name: Check (Debug)
+        run: |
+          cd magiskboot_*-src/
+          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot_debug
+
+      - name: Check (Release)
+        run: |
+          cd magiskboot_*-src/
+          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot
 
   build-windows:
     name: Build (Windows)
@@ -367,18 +367,6 @@ jobs:
           ./build/magiskboot.exe || true
           cp -afv build/magiskboot.exe $GITHUB_WORKSPACE
 
-      - name: Check (Debug)
-        shell: msys2 {0}
-        run: |
-          cd magiskboot_*-src/
-          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot_debug.exe
-
-      - name: Check (Release)
-        shell: msys2 {0}
-        run: |
-          cd magiskboot_*-src/
-          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot.exe
-
       - name: Upload artifacts (Debug)
         if: matrix.upload == 'yes'
         uses: actions/upload-artifact@v4
@@ -394,6 +382,18 @@ jobs:
           if-no-files-found: error
           name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-${{ env.upload_prefix }}-${{ matrix.note }}
           path: ${{ github.workspace }}/magiskboot.exe
+
+      - name: Check (Debug)
+        shell: msys2 {0}
+        run: |
+          cd magiskboot_*-src/
+          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot_debug.exe
+
+      - name: Check (Release)
+        shell: msys2 {0}
+        run: |
+          cd magiskboot_*-src/
+          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot.exe
 
   build-wasm:
     name: Build (WebAssembly)
@@ -481,16 +481,6 @@ jobs:
           node ./build/magiskboot.js || true
           cp -afv build/magiskboot.* $GITHUB_WORKSPACE
 
-      - name: Check (Debug)
-        run: |
-          cd magiskboot_*-src/
-          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot_debug.js
-
-      - name: Check (Release)
-        run: |
-          cd magiskboot_*-src/
-          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot.js
-
       - name: Upload artifacts (Debug)
         uses: actions/upload-artifact@v4
         with:
@@ -504,3 +494,13 @@ jobs:
           if-no-files-found: error
           name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-${{ env.upload_suffix }}
           path: ${{ github.workspace }}/magiskboot.*
+
+      - name: Check (Debug)
+        run: |
+          cd magiskboot_*-src/
+          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot_debug.js
+
+      - name: Check (Release)
+        run: |
+          cd magiskboot_*-src/
+          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot.js
