@@ -219,6 +219,10 @@ cmake --install build
 
 If you prefer a statically linked binary (optional), pass `-DPREFER_STATIC_LINKING=ON` to CMake while configuring, make sure your distribution provided you the static version of the [depended libraries](#requirements), otherwise you'll run into configure errors and you have to change your distribution or try to compile the static version of those libraries yourself and install them to your system for the static build.
 
+#### Rust
+
+You can specify extra arguments passed to Cargo by setting CMake variable `CARGO_FLAGS` while configuring, you can also provide an initial value of environment `RUSTFLAGS` by setting the corresponding CMake variable.
+
 #### Cross compiling
 
 First get a cross-compiler with Libc++ and Clang by either installing from source or downloading it from somewhere (usually your distribution's package manager).
