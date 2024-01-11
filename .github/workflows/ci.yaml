@@ -292,12 +292,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - msystem: CLANG32
-            note: "ucrt-i686-standalone"
-            upload: "yes"
-          - msystem: MINGW32
-            note: "msvcrt-i686-standalone"
-            upload: "yes"
           - msystem: CLANG64
             note: "ucrt-x86_64-standalone"
             upload: "yes"
