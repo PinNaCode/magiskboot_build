@@ -74,7 +74,9 @@ set(RUSTFLAGS "${RUSTFLAGS} -Clinker-plugin-lto")
 endif() # USE_LTO_LINKER_PLUGIN
 endif() # NO_TARGETS_OR_DEPS
 
+if (NOT CMAKE_SYSTEM_NAME MATCHES "Android")
 add_compile_options(-U_FORTIFY_SOURCE)
+endif()
 
 if (CMAKE_BUILD_TYPE MATCHES "Debug")
 set(MAGISKBOOT_TARGET magiskboot_debug)
@@ -84,7 +86,9 @@ endif()
 
 if (NOT NO_TARGETS_OR_DEPS)
 include(CMakeLists.compat.txt)
+if (NOT CMAKE_SYSTEM_NAME MATCHES "Android")
 include(CMakeLists.android.txt)
+endif()
 endif()
 include(CMakeLists.magisk.txt)
 

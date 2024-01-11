@@ -66,10 +66,6 @@ sudo pacman -S --needed base-devel xz lz4 bzip2 zlib pkgconf \
                         clang libc++ cmake ninja rust  # optional: lld
 ````
 
-##### See also
-
-[xiaoxindada/magiskboot_ndk_on_linux](https://github.com/xiaoxindada/magiskboot_ndk_on_linux): minimal build system for magiskboot with ondk on Linux
-
 </details>
 
 <details><summary>macOS</summary>
@@ -88,6 +84,22 @@ brew install xz lz4 bzip2 zlib pkg-config cmake ninja rust
 
 <details><summary>Android</summary>
 
+#### Android
+
+> **Note**
+>
+> Android build is not actively tested by CI, but it might work without problem.
+>
+> If you find the build is broken, please file a [bug report](../../issues)
+
+Download [NDK][NDK], set environment variable `ANDROID_NDK` to the extracted toolchain, and use [vcpkg][vcpkg] to install the dependencies.
+
+Use `/path/to/your/ndk/build/cmake/android.toolchain.cmake` as the toolchain file for vcpkg.
+
+Then, set `ANDROID_PLATFORM` to the desired API level, and `ANDROID_ABI` to the desired archiecture,
+
+for more details about these variable, please refer to the [NDK documentation](https://developer.android.com/ndk/guides/cmake#variables).
+
 #### Termux
 
 > **Note**
@@ -104,6 +116,8 @@ apt install build-essential liblzma liblz4 libbz2 zlib pkg-config \
 ````
 
 When configuring, pass `-DCMAKE_INSTALL_PREFIX=$PREFIX` to CMake.
+
+To build a static version, also install the `ndk-multilib` package, the result might need to patched using `termux-elf-cleaner` first to run.
 
 You can also directly use the `libmagiskboot.so` extracted from the Magisk APK, it's just a static ELF program.
 
@@ -236,7 +250,7 @@ To cross-compile, you may need a [CMake toolchain file][cmake-toolchains] descri
 You can install the depended libraries for your cross target by using [vcpkg][vcpkg], for example:
 
 ````shell
-vcpkg install bzip2:arm64-linux
+vcpkg install --host-triplet=arm64-linux bzip2 lz4 zlib liblzma
 ````
 
 `arm64-linux` is the triplet of your cross target, pass this value to CMake using the `VCPKG_TARGET_TRIPLET` variable during configuration.
@@ -404,3 +418,4 @@ When syncing upstream `vendor/{android_libbase,Magisk}` changes, here is a few t
 [vcpkg]: https://vcpkg.io/
 [Emscripten]: https://emscripten.org/
 [NodeJS]: https://nodejs.org/
+[NDK]: https://developer.android.com/ndk/downloads
