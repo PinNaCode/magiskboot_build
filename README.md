@@ -38,22 +38,16 @@ Make sure to read [this part](#help-my-build-has-failed) before you start.
 ````shell
 sudo apt update
 sudo apt upgrade  # upgrade all existing packages (optional)
-# replace clang-15, libc++-15-dev, libc++abi-15-dev with clang, libc++-dev and libc++abi-dev
-#  if your Ubuntu is too old, do the same for lld if you want to use it
+
+# replace clang-15, libc++-15-dev, libc++abi-15-dev with
+# appropriate version according to your Ubuntu release
+# do the same for lld if you want to use it
 sudo apt install build-essential lzma-dev liblzma-dev liblz4-dev libbz2-dev \
                  zlib1g-dev pkg-config clang-15 libc++-15-dev libc++abi-15-dev cmake \
                  ninja-build rustc cargo  # optional: lld-15
-# the following cmds are only for Ubuntu jammy:
-mkdir ~/.bin
-ln -s `which clang-15` ~/.bin/clang
-ln -s `which clang++-15` ~/.bin/clang++
-
-# optional:
-# ln -s `which lld-15` ~/.bin/lld
-
-# finally 
-export PATH=~/.bin:$PATH
 ````
+
+When configuring, set `CC` and `CXX` with correct values, for example: `clang-15` and `clang++-15`.
 
 #### Alpine Linux (edge)
 
