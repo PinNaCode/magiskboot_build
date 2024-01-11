@@ -185,10 +185,15 @@ jobs:
           ./build/magiskboot || true
           cp -afv build/magiskboot /workspace
 
-      - name: Check
+      - name: Check (Debug)
         run: |
           cd magiskboot_*-src/
           ./scripts/magiskboot_test.sh /workspace/magiskboot_debug
+
+      - name: Check (Release)
+        run: |
+          cd magiskboot_*-src/
+          ./scripts/magiskboot_test.sh /workspace/magiskboot
 
       - name: Upload artifacts (Debug)
         if: matrix.upload == 'yes'
@@ -266,10 +271,15 @@ jobs:
           ./build/magiskboot || true
           cp -afv build/magiskboot $GITHUB_WORKSPACE
 
-      - name: Check
+      - name: Check (Debug)
         run: |
           cd magiskboot_*-src/
           ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot_debug
+
+      - name: Check (Release)
+        run: |
+          cd magiskboot_*-src/
+          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot
 
       - name: Upload artifacts (Debug)
         uses: actions/upload-artifact@v4
@@ -357,11 +367,17 @@ jobs:
           ./build/magiskboot.exe || true
           cp -afv build/magiskboot.exe $GITHUB_WORKSPACE
 
-      - name: Check
+      - name: Check (Debug)
         shell: msys2 {0}
         run: |
           cd magiskboot_*-src/
           ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot_debug.exe
+
+      - name: Check (Release)
+        shell: msys2 {0}
+        run: |
+          cd magiskboot_*-src/
+          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot.exe
 
       - name: Upload artifacts (Debug)
         if: matrix.upload == 'yes'
@@ -465,10 +481,15 @@ jobs:
           node ./build/magiskboot.js || true
           cp -afv build/magiskboot.* $GITHUB_WORKSPACE
 
-      - name: Check
+      - name: Check (Debug)
         run: |
           cd magiskboot_*-src/
           ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot_debug.js
+
+      - name: Check (Release)
+        run: |
+          cd magiskboot_*-src/
+          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot.js
 
       - name: Upload artifacts (Debug)
         uses: actions/upload-artifact@v4
