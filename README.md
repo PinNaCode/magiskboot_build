@@ -135,6 +135,8 @@ pacman -S --needed base-devel pactoys
 pacboy -S --needed {xz,lz4,bzip2,zlib,pkgconf,clang,lld,cmake,libc++,ninja,rust}:p
 ````
 
+If you are cross-compiling and using vcpkg to manage the dependencies, please make sure CMake variable `MINGW` is set to `TRUE` during configuring.
+
 There is also an old MinGW port, it works great:
 
 [svoboda18/magiskboot](https://github.com/svoboda18/magiskboot.git): a dirty Windows port with custom GNU Make based build system
