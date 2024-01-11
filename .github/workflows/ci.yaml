@@ -628,7 +628,7 @@ jobs:
         run: |
           sudo apt update
           sudo DEBIAN_FRONTEND=noninteractive apt install -y curl tar patch file \
-                    python3 build-essential pkg-config cmake ninja-build nodejs
+                        build-essential pkg-config cmake ninja-build nodejs
 
       - name: Cache (Emscripten)
         id: cache-emsdk-system-libs
