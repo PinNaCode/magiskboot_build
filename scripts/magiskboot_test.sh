@@ -17,6 +17,8 @@ fi
 
 if [[ "$1" == *.js ]]; then
     magiskboot=node\ $1
+elif [[ ! -z "${EMULATOR}" ]]; then
+    magiskboot=$EMULATOR\ $1
 else
     magiskboot=$1
 fi

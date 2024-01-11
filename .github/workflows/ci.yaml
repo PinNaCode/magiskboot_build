@@ -211,6 +211,111 @@ jobs:
           cd magiskboot_*-src/
           ./scripts/magiskboot_test.sh /workspace/magiskboot
 
+  build-linux-cross:
+    name: Build (Linux) (Cross)
+    strategy:
+      matrix:
+        include:
+          - upload_suffix: "ubuntu-jammy-glibc-arm64-static"
+            cmake_arch: aarch64
+            gcc_target: aarch64-linux-gnu
+            vcpkg_triplet: arm64-linux
+            clang_target: aarch64-linux-gnu
+            rust_target: aarch64-unknown-linux-gnu
+            emulator: qemu-aarch64
+            extra_pkgs: "g++-aarch64-linux-gnu"
+
+    runs-on: ubuntu-latest
+    needs: [vars, src]
+    steps:
+      - name: Prepare (source)
+        uses: actions/download-artifact@v4
+        with:
+          name: srcpkg
+
+      - name: Prepare (Host)
+        run: |
+          sudo apt update
+          sudo DEBIAN_FRONTEND=noninteractive apt install -y curl wget tar patch file xxd python3 \
+                    build-essential pkg-config clang-15 cmake ninja-build ${{ matrix.extra_pkgs }}
+          sudo apt install -y --no-install-recommends --no-install-suggests qemu-user
+
+      - name: Prepare (Cross)
+        run: |
+          vcpkg install --host-triplet=${{ matrix.vcpkg_triplet }} zlib liblzma lz4 bzip2
+
+      - name: Prepare (Rust)
+        run: |
+          curl https://sh.rustup.rs -sSf | sh -s -- -y
+          . "$HOME/.cargo/env"
+          rustup target add ${{ matrix.rust_target }}
+
+      - name: Build
+        run: |
+          echo -e "\n### extract source ###\n"
+          tar -xf magiskboot_*-src.tar.xz
+
+          cd magiskboot_*-src/
+
+          echo -e "\n### patch source ###\n"
+          ./scripts/apply_patches.py patches-contrib/Magisk/0029-workaround-support-building-with-libstdcxx.patch
+
+          echo -e "\n### configure: debug ###\n"
+          . "$HOME/.cargo/env"
+          CC=clang-15 CXX=clang++-15 cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} \
+                -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSROOT=${{ matrix.gcc_target }} -DRUSTC_TARGET=${{ matrix.rust_target }} \
+                -DCMAKE_C_COMPILER_TARGET=${{ matrix.clang_target }} -DCMAKE_CXX_COMPILER_TARGET=${{ matrix.clang_target }} \
+                -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
+                -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} -DWITHOUT_LIBCXX=ON -DPREFER_STATIC_LINKING=ON
+
+          echo -e "\n### build debug ###\n"
+          cmake --build build -j $(nproc)
+
+          file build/magiskboot_debug
+          readelf -d build/magiskboot_debug || true
+          ${{ matrix.emulator }} ./build/magiskboot_debug || true
+          cp -afv build/magiskboot_debug $GITHUB_WORKSPACE
+
+          echo -e "\n### configure: release ###\n"
+          make clean
+          CC=clang-15 CXX=clang++-15 cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} \
+                -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSROOT=${{ matrix.gcc_target }} -DRUSTC_TARGET=${{ matrix.rust_target }} \
+                -DCMAKE_C_COMPILER_TARGET=${{ matrix.clang_target }} -DCMAKE_CXX_COMPILER_TARGET=${{ matrix.clang_target }} \
+                -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
+                -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} -DWITHOUT_LIBCXX=ON -DPREFER_STATIC_LINKING=ON
+
+          echo -e "\n### build release ###\n"
+          cmake --build build -j $(nproc)
+
+          file build/magiskboot
+          readelf -d build/magiskboot || true
+          ${{ matrix.emulator }} ./build/magiskboot || true
+          cp -afv build/magiskboot $GITHUB_WORKSPACE
+
+      - name: Upload artifacts (Debug)
+        uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: error
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-debug-${{ matrix.upload_suffix }}
+          path: ${{ github.workspace }}/magiskboot_debug
+
+      - name: Upload artifacts (Release)
+        uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: error
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-${{ matrix.upload_suffix }}
+          path: ${{ github.workspace }}/magiskboot
+
+      - name: Check (Debug)
+        run: |
+          cd magiskboot_*-src/
+          EMULATOR=${{ matrix.emulator }} ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot_debug
+
+      - name: Check (Release)
+        run: |
+          cd magiskboot_*-src/
+          EMULATOR=${{ matrix.emulator }} ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot
+
   build-macos:
     name: Build (macOS)
     strategy:
