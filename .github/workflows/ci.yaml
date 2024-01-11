@@ -457,6 +457,7 @@ jobs:
           cp -afv build/magiskboot_debug.* $GITHUB_WORKSPACE
 
           echo -e "\n### configure: release ###\n"
+          make clean
           emcmake cmake -G Ninja -B build -DCMAKE_EXE_LINKER_FLAGS="-sNODERAWFS" \
               -DRUSTC_TARGET=${{ env.rust_target }} -DRUST_BUILD_STD=ON \
               -DCMAKE_BUILD_TYPE=Release -DPREFER_STATIC_LINKING=ON \
