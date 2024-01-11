@@ -5,7 +5,7 @@ if(PATCH_VENDOR_PROJECTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/patches")
 
     find_package(Git REQUIRED)
 
-    if (WIN32)
+    if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Windows|MSYS")
         # for searching "find" program, not the win32 one
         find_program(cygpath_EXECUTABLE cygpath REQUIRED)
         message(STATUS "Found cygpath: ${cygpath_EXECUTABLE}")
@@ -31,14 +31,14 @@ if(PATCH_VENDOR_PROJECTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/patches")
         mman-win32
         msvc_getline)
 
-    if (WIN32)
+    if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Windows|MSYS")
         execute_process(COMMAND ${GIT_EXECUTABLE} submodule foreach --recursive ${GIT_EXECUTABLE} config core.symlinks true)
     endif()
 
     execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --force --recursive)
     execute_process(COMMAND ${GIT_EXECUTABLE} submodule foreach --recursive ${GIT_EXECUTABLE} clean -fd)
 
-    if (WIN32)
+    if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Windows|MSYS")
         # HACK: On Windows, symlinks have two different types: file and directory,
         #       if the target path doesn't exist when the symlink is created,
         #       Cygwin will fallback to create a non-native link, which makes the
