@@ -57,5 +57,7 @@ if (CMAKE_BUILD_TYPE MATCHES "MinSize")
 endif()
 
 if (CMAKE_BUILD_TYPE MATCHES "WithDebInfo")
-    set(RUSTFLASG "${RUSTFLAGS} -g")
+    set(RUSTFLAGS "${RUSTFLAGS} -g")
 endif()
+
+set(RUSTFLAGS "${RUSTFLAGS} -A dead_code -A unused_imports -A internal_features -A redundant_semicolons")
