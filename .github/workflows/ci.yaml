@@ -115,7 +115,7 @@ jobs:
       - name: Prepare (Host)
         run: |
           sudo apt update
-          sudo DEBIAN_FRONTEND=noninteractive apt install -y curl wget tar patch file \
+          sudo DEBIAN_FRONTEND=noninteractive apt install -y wget tar patch file \
                     build-essential pkg-config cmake ninja-build
 
       - name: Cache (ONDK)
