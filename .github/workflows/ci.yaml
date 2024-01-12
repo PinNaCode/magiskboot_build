@@ -97,6 +97,8 @@ jobs:
   build-android:
     name: Build (Android)
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
     needs: [vars, src]
     env:
       api_level: 24
@@ -174,9 +176,16 @@ jobs:
           file build/magiskboot*
           readelf -d build/magiskboot* || true
 
+      # Fail fast
+      - name: Cancel other jobs
+        if: failure()
+        uses: andymckay/cancel-action@0.3
+
   build-linux:
     name: Build (Linux)
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
     needs: [vars, src]
     strategy:
       matrix:
@@ -252,12 +261,19 @@ jobs:
           cd magiskboot_*-src/
           ./scripts/magiskboot_test.sh /magiskboot_workspace/${{ env.progname }}-out/magiskboot*
 
+      # Fail fast
+      - name: Cancel other jobs
+        if: failure()
+        uses: andymckay/cancel-action@0.3
+
   build-macos:
     name: Build (macOS)
     strategy:
       matrix:
         os_release: [11, 12, 13]
     runs-on: macos-${{ matrix.os_release }}
+    permissions:
+      actions: write
     needs: [vars, src]
     env:
       HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
@@ -312,12 +328,19 @@ jobs:
           cd magiskboot_*-src/
           ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/${{ env.progname }}-out/magiskboot*
 
+      # Fail fast
+      - name: Cancel other jobs
+        if: failure()
+        uses: andymckay/cancel-action@0.3
+
   build-macos-cross:
     name: Build (macOS) (Cross)
     strategy:
       matrix:
         os_release: [11, 12, 13]
     runs-on: macos-${{ matrix.os_release }}
+    permissions:
+      actions: write
     needs: [vars, src]
     env:
       HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
@@ -395,9 +418,16 @@ jobs:
           name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-${{ needs.vars.outputs.build_type }}-macos-${{ matrix.os_release }}-${{ env.upload_suffix }}
           path: ${{ github.workspace }}/${{ env.progname }}-out/magiskboot*
 
+      # Fail fast
+      - name: Cancel other jobs
+        if: failure()
+        uses: andymckay/cancel-action@0.3
+
   build-windows:
     name: Build (Windows)
     runs-on: windows-latest
+    permissions:
+      actions: write
     needs: [vars, src]
     strategy:
       matrix:
@@ -469,9 +499,16 @@ jobs:
           cd magiskboot_*-src/
           find $GITHUB_WORKSPACE/${{ env.progname }}-out -name magiskboot\*.exe -exec ./scripts/magiskboot_test.sh {} +
 
+      # Fail fast
+      - name: Cancel other jobs
+        if: failure()
+        uses: andymckay/cancel-action@0.3
+
   build-windows-cross:
     name: Build (Windows) (Cross)
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
     needs: [vars, src]
     strategy:
       matrix:
@@ -607,9 +644,16 @@ jobs:
           name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-${{ needs.vars.outputs.build_type }}-${{ env.upload_prefix }}-${{ matrix.crt }}-${{ matrix.upload_suffix }}
           path: ${{ github.workspace }}/${{ env.progname }}-out/magiskboot*.exe
 
+      # Fail fast
+      - name: Cancel other jobs
+        if: failure()
+        uses: andymckay/cancel-action@0.3
+
   build-wasm:
     name: Build (WebAssembly)
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
     needs: [vars, src]
     env:
       vcpkg_triplet: "wasm32-emscripten"
@@ -700,3 +744,8 @@ jobs:
         run: |
           cd magiskboot_*-src/
           ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/${{ env.progname }}-out/magiskboot*.js
+
+      # Fail fast
+      - name: Cancel other jobs
+        if: failure()
+        uses: andymckay/cancel-action@0.3
