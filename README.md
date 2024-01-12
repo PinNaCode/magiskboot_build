@@ -27,7 +27,46 @@ for build-time dependencies:
 
 please make sure you have installed the above softwares before building
 
-here are some examples for popular operating systems/distributions:
+here are examples for some supported popular operating systems/distributions:
+
+<details><summary>Android</summary>
+
+#### Android
+
+Download [ONDK][ONDK], set environment variable `ANDROID_NDK_HOME` to the extracted directory, and use [vcpkg][vcpkg] to install the dependencies.
+
+Use `/path/to/your/ondk/build/cmake/android.toolchain.cmake` as the toolchain file for vcpkg.
+
+Then, set the CMake variable `ANDROID_PLATFORM` to the desired API level, and `ANDROID_ABI` to the desired archiecture,
+
+for more details about these variables, please refer to the [NDK documentation](https://developer.android.com/ndk/guides/cmake#variables).
+
+Make sure to enable source build for the Rust standard library (STD), then activate the Rust toolchain by append it to your current `PATH`:
+
+````shell
+export PATH=/path/to/your/ondk/toolchains/rust/bin:$PATH
+````
+
+#### Termux
+
+> **Note**
+>
+> Termux build is not actively tested by CI, but it might work without problem.
+>
+> If you find the build is broken, please file a [bug report](../../issues).
+
+````shell
+apt update
+apt upgrade  # upgrade all existing packages (optional)
+apt install build-essential liblzma liblz4 libbz2 zlib pkg-config \
+            clang lld rust cmake ninja
+````
+
+When configuring, pass `-DCMAKE_INSTALL_PREFIX=$PREFIX` to CMake.
+
+To build a static version, also install the `ndk-multilib` package, the result might need to patched using `termux-elf-cleaner` first to run.
+
+</details>
 
 <details><summary>Linux</summary>
 
@@ -79,45 +118,6 @@ brew update
 brew upgrade  # upgrade all existing packages (optional)
 brew install xz lz4 bzip2 zlib pkg-config cmake ninja rust
 ````
-
-</details>
-
-<details><summary>Android</summary>
-
-#### Android
-
-> **Note**
->
-> Android build is not actively tested by CI, but it might work without problem.
->
-> If you find the build is broken, please file a [bug report](../../issues)
-
-Download [NDK][NDK], set environment variable `ANDROID_NDK` to the extracted toolchain, and use [vcpkg][vcpkg] to install the dependencies.
-
-Use `/path/to/your/ndk/build/cmake/android.toolchain.cmake` as the toolchain file for vcpkg.
-
-Then, set `ANDROID_PLATFORM` to the desired API level, and `ANDROID_ABI` to the desired archiecture,
-
-for more details about these variable, please refer to the [NDK documentation](https://developer.android.com/ndk/guides/cmake#variables).
-
-#### Termux
-
-> **Note**
->
-> Termux build is not actively tested by CI, but it might work without problem.
->
-> If you find the build is broken, please file a [bug report](../../issues).
-
-````shell
-apt update
-apt upgrade  # upgrade all existing packages (optional)
-apt install build-essential liblzma liblz4 libbz2 zlib pkg-config \
-            clang lld rust cmake ninja
-````
-
-When configuring, pass `-DCMAKE_INSTALL_PREFIX=$PREFIX` to CMake.
-
-To build a static version, also install the `ndk-multilib` package, the result might need to patched using `termux-elf-cleaner` first to run.
 
 </details>
 
@@ -410,4 +410,4 @@ When syncing upstream `vendor/{android_libbase,Magisk}` changes, here is a few t
 [vcpkg]: https://vcpkg.io/
 [Emscripten]: https://emscripten.org/
 [NodeJS]: https://nodejs.org/
-[NDK]: https://developer.android.com/ndk/downloads
+[ONDK]: https://github.com/topjohnwu/ondk

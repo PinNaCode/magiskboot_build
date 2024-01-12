@@ -73,6 +73,90 @@ jobs:
           if-no-files-found: error
           path: ${{ github.workspace }}/build/magiskboot_*-src.tar.xz
 
+  build-android:
+    name: Build (Android)
+    runs-on: ubuntu-latest
+    needs: [vars, src]
+    env:
+      api_level: 24
+      target_arch: arm64-v8a
+      ondk_url: https://github.com/topjohnwu/ondk/releases/download
+      ondk_ver: 'r26.3'
+      vcpkg_triplet: arm64-android
+      rust_target: aarch64-linux-android
+
+    steps:
+      - name: Prepare (source)
+        uses: actions/download-artifact@v4
+        with:
+          name: srcpkg
+
+      - name: Prepare (Host)
+        run: |
+          sudo apt update
+          sudo DEBIAN_FRONTEND=noninteractive apt install -y curl wget tar patch file \
+                    build-essential pkg-config cmake ninja-build
+
+      - name: Cache (ONDK)
+        id: cache-ondk
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/${{ env.progname }}-ondk
+          key: ondk-${{ env.ondk_ver }}-${{ runner.os }}
+
+      - name: Prepare (ONDK)
+        if: steps.cache-ondk.outputs.cache-hit != 'true'
+        run: |
+          rm -rf ${{ env.progname }}-ondk.tar.xz $GITHUB_WORKSPACE/${{ env.progname }}-ondk
+          wget ${{ env.ondk_url }}/${{ env.ondk_ver }}/ondk-${{ env.ondk_ver }}-linux.tar.xz \
+                -O ${{ env.progname }}-ondk.tar.xz
+          mkdir -p $GITHUB_WORKSPACE/${{ env.progname }}-ondk
+          tar -x -f ${{ env.progname }}-ondk.tar.xz -C $GITHUB_WORKSPACE/${{ env.progname }}-ondk --strip-components=1
+          rm -f ${{ env.progname }}-ondk.tar.xz
+
+      - name: Prepare (Environment)
+        run: |
+          echo "ANDROID_NDK_HOME=$GITHUB_WORKSPACE/${{ env.progname }}-ondk" >> $GITHUB_ENV
+          echo "$GITHUB_WORKSPACE/${{ env.progname }}-ondk/toolchains/rust/bin" >> $GITHUB_PATH
+
+      - name: Prepare (Cross)
+        run: |
+          vcpkg install --host-triplet=${{ env.vcpkg_triplet }} zlib liblzma lz4 bzip2
+
+      - name: Build
+        run: |
+          echo -e "\n### extract source ###\n"
+          tar -xf magiskboot_*-src.tar.xz
+
+          cd magiskboot_*-src/
+
+          echo -e "\n### configure: debug ###\n"
+          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Debug -DRUSTC_TARGET=${{ env.rust_target }} \
+                -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
+                -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
+                -DANDROID_PLATFORM=${{ env.api_level }} -DANDROID_ABI=${{ env.target_arch }} \
+                -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }} -DRUST_BUILD_STD=ON
+
+          echo -e "\n### build debug ###\n"
+          cmake --build build -j $(nproc)
+
+          file build/magiskboot_debug
+          readelf -d build/magiskboot_debug || true
+
+          echo -e "\n### configure: release ###\n"
+          make clean
+          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release -DRUSTC_TARGET=${{ env.rust_target }} \
+                -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
+                -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
+                -DANDROID_PLATFORM=${{ env.api_level }} -DANDROID_ABI=${{ env.target_arch }} \
+                -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }} -DRUST_BUILD_STD=ON
+
+          echo -e "\n### build release ###\n"
+          cmake --build build -j $(nproc)
+
+          file build/magiskboot
+          readelf -d build/magiskboot || true
+
   build-linux:
     name: Build (Linux)
     runs-on: ubuntu-latest
