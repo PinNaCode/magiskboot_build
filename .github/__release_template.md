@@ -4,15 +4,7 @@
 >
 > macOS 14 CI builds is not yet added at the moment (#16), binaries from the previous OS releases might work though.
 
-#### Build types
-
-- `debug`: for getting logs only, don't use unless you know what are you doing
-
-- `release`: if you are a normal user, download package with this tag
-
-#### Link types
-
-- `standalone`: single binary unlike `aio`, works without extra dependency
+For debug builds, please download from [here](../../releases/last-debug-ci) instead.
 
 #### For Windows releases
 

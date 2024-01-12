@@ -2,6 +2,9 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
+      debug_release:
+        type: boolean
+        description: "Whether if we are creating a debug release"
       ci_run_id:
         description: "Run ID of the desired CI run to download artifacts from"
         required: true
@@ -33,7 +36,18 @@ jobs:
           file magiskboot_*-src.tar.xz
           rm -f srcpkg.zip
 
-      - name: Clean up old releases
+      - name: Clean up old releases (Debug)
+        if: github.event.inputs.debug_release == 'true'
+        uses: dev-drprasad/delete-older-releases@v0.3.2
+        with:
+            keep_latest: 0
+            delete_tags: true
+            delete_tag_pattern: last-debug-ci
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Clean up old releases (Release)
+        if: github.event.inputs.debug_release != 'true'
         uses: dev-drprasad/delete-older-releases@v0.3.2
         with:
             keep_latest: 0
@@ -47,7 +61,22 @@ jobs:
           # prevent github to think our release already exists and create us a draft
           sleep 3
 
-      - name: Create release
+      - name: Create release (Debug)
+        if: github.event.inputs.debug_release == 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+            name: Last debug CI build
+            target_commitish: dev
+            tag_name: last-debug-ci
+            draft: false
+            prerelease: true
+            fail_on_unmatched_files: true
+            files: |
+              artifacts/magiskboot_*-src.tar.xz
+              artifacts/*.zip
+
+      - name: Create release (Release)
+        if: github.event.inputs.debug_release != 'true'
         uses: softprops/action-gh-release@v1
         with:
             name: Last CI build

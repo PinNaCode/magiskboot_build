@@ -1,6 +1,10 @@
 name: CI
 on:
   workflow_dispatch:
+    inputs:
+      release-build:
+        type: boolean
+        description: "Build in release mode instead of debug"
 
   push:
     branches-ignore:
@@ -36,12 +40,29 @@ jobs:
       contents: none
     outputs:
       short_sha: ${{ steps.get_short_sha.outputs.SHORT_SHA }}
+      cmake_build_type: ${{ steps.detect_build_type.outputs.CMAKE_BUILD_TYPE }}
+      build_type: ${{ steps.detect_build_type.outputs.BUILD_TYPE }}
 
     steps:
       - name: Determine short Git commit SHA
         id: get_short_sha
         run: |
-          echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c 1-7`" >> $GITHUB_OUTPUT
+          echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c 1-7`" | tee -a $GITHUB_OUTPUT
+
+      - name: Detect build types
+        id: detect_build_type
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            if [[ "${{ github.event.inputs.release-build }}" == "true" ]]; then
+              CMAKE_BUILD_TYPE=Release
+            else
+              CMAKE_BUILD_TYPE=Debug
+            fi
+          else
+            CMAKE_BUILD_TYPE=Debug
+          fi
+          echo "CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}" | tee -a $GITHUB_OUTPUT
+          echo "BUILD_TYPE=${CMAKE_BUILD_TYPE,,}" | tee -a $GITHUB_OUTPUT
 
   src:
     name: Prepare (source)
@@ -130,32 +151,19 @@ jobs:
 
           cd magiskboot_*-src/
 
-          echo -e "\n### configure: debug ###\n"
-          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Debug -DRUSTC_TARGET=${{ env.rust_target }} \
+          echo -e "\n### configure ###\n"
+          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} \
+                -DRUSTC_TARGET=${{ env.rust_target }} -DRUST_BUILD_STD=ON \
                 -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
                 -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
                 -DANDROID_PLATFORM=${{ env.api_level }} -DANDROID_ABI=${{ env.target_arch }} \
-                -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }} -DRUST_BUILD_STD=ON
+                -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }}
 
-          echo -e "\n### build debug ###\n"
+          echo -e "\n### build ###\n"
           cmake --build build -j $(nproc)
 
-          file build/magiskboot_debug
-          readelf -d build/magiskboot_debug || true
-
-          echo -e "\n### configure: release ###\n"
-          make clean
-          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release -DRUSTC_TARGET=${{ env.rust_target }} \
-                -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
-                -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
-                -DANDROID_PLATFORM=${{ env.api_level }} -DANDROID_ABI=${{ env.target_arch }} \
-                -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }} -DRUST_BUILD_STD=ON
-
-          echo -e "\n### build release ###\n"
-          cmake --build build -j $(nproc)
-
-          file build/magiskboot
-          readelf -d build/magiskboot || true
+          file build/magiskboot*
+          readelf -d build/magiskboot* || true
 
   build-linux:
     name: Build (Linux)
@@ -182,38 +190,22 @@ jobs:
 
           cd magiskboot_*-src/
 
-          echo -e "\n### configure: debug ###\n"
-          CC=clang-15 CXX=clang++-15 cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Debug
+          echo -e "\n### configure ###\n"
+          CC=clang-15 CXX=clang++-15 cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }}
 
-          echo -e "\n### build debug ###\n"
+          echo -e "\n### build ###\n"
           cmake --build build -j $(nproc)
 
-          file build/magiskboot_debug
-          ldd build/magiskboot_debug || true
-          ./build/magiskboot_debug || true
-          cp -afv build/magiskboot_debug $GITHUB_WORKSPACE
+          file build/magiskboot*
+          ldd build/magiskboot* || true
+          ./build/magiskboot* || true
+          rm -rf $GITHUB_WORKSPACE/${{ env.progname }}-out && mkdir -p $GITHUB_WORKSPACE/${{ env.progname }}-out
+          cp -afv build/magiskboot* $GITHUB_WORKSPACE/${{ env.progname }}-out
 
-          echo -e "\n### configure: release ###\n"
-          make clean
-          CC=clang-15 CXX=clang++-15 cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
-
-          echo -e "\n### build release ###\n"
-          cmake --build build -j $(nproc)
-
-          file build/magiskboot
-          ldd build/magiskboot || true
-          ./build/magiskboot || true
-          cp -afv build/magiskboot $GITHUB_WORKSPACE
-
-      - name: Check (Debug)
+      - name: Check
         run: |
           cd magiskboot_*-src/
-          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot_debug
-
-      - name: Check (Release)
-        run: |
-          cd magiskboot_*-src/
-          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot
+          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/${{ env.progname }}-out/magiskboot*
 
   build-macos:
     name: Build (macOS)
@@ -250,54 +242,30 @@ jobs:
 
           cd magiskboot_*-src/
 
-          echo -e "\n### configure: debug ###\n"
+          echo -e "\n### configure ###\n"
           CC=clang CXX=clang++ cmake -G Ninja -B build \
-              -DCMAKE_BUILD_TYPE=Debug -DPREFER_STATIC_LINKING=ON
+              -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} -DPREFER_STATIC_LINKING=ON
 
-          echo -e "\n### build debug ###\n"
+          echo -e "\n### build ###\n"
           cmake --build build -j $(nproc)
 
-          file build/magiskboot_debug
-          otool -L build/magiskboot_debug
-          ./build/magiskboot_debug || true
-          cp -afv build/magiskboot_debug $GITHUB_WORKSPACE
+          file build/magiskboot*
+          otool -L build/magiskboot*
+          ./build/magiskboot* || true
+          rm -rf $GITHUB_WORKSPACE/${{ env.progname }}-out && mkdir -p $GITHUB_WORKSPACE/${{ env.progname }}-out
+          cp -afv build/magiskboot* $GITHUB_WORKSPACE/${{ env.progname }}-out
 
-          echo -e "\n### configure: release ###\n"
-          make clean
-          CC=clang CXX=clang++ cmake -G Ninja -B build \
-              -DCMAKE_BUILD_TYPE=Release -DPREFER_STATIC_LINKING=ON
-
-          echo -e "\n### build release ###\n"
-          cmake --build build -j $(nproc)
-
-          file build/magiskboot
-          otool -L build/magiskboot
-          ./build/magiskboot || true
-          cp -afv build/magiskboot $GITHUB_WORKSPACE
-
-      - name: Upload artifacts (Debug)
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-debug-macos-${{ matrix.os_release }}-${{ env.upload_suffix }}
-          path: ${{ github.workspace }}/magiskboot_debug
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-${{ needs.vars.outputs.build_type }}-macos-${{ matrix.os_release }}-${{ env.upload_suffix }}
+          path: ${{ github.workspace }}/${{ env.progname }}-out/magiskboot*
 
-      - name: Upload artifacts (Release)
-        uses: actions/upload-artifact@v4
-        with:
-          if-no-files-found: error
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-macos-${{ matrix.os_release }}-${{ env.upload_suffix }}
-          path: ${{ github.workspace }}/magiskboot
-
-      - name: Check (Debug)
+      - name: Check
         run: |
           cd magiskboot_*-src/
-          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot_debug
-
-      - name: Check (Release)
-        run: |
-          cd magiskboot_*-src/
-          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot
+          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/${{ env.progname }}-out/magiskboot*
 
   build-macos-cross:
     name: Build (macOS) (Cross)
@@ -347,49 +315,29 @@ jobs:
 
           cd magiskboot_*-src/
 
-          echo -e "\n### configure: debug ###\n"
+          echo -e "\n### configure ###\n"
           . "$HOME/.cargo/env"
-          CC=clang CXX=clang++ cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_SYSTEM_PROCESSOR=${{ env.cmake_arch }} \
+          CC=clang CXX=clang++ cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} \
+              -DCMAKE_SYSTEM_PROCESSOR=${{ env.cmake_arch }} -DCMAKE_SYSTEM_NAME=Darwin \
               -DCMAKE_C_COMPILER_TARGET=${{ env.clang_target }} -DCMAKE_CXX_COMPILER_TARGET=${{ env.clang_target }} \
-              -DCMAKE_SYSTEM_NAME=Darwin -DRUSTC_TARGET=${{ env.rust_target }} -DPREFER_STATIC_LINKING=ON \
+              -DRUSTC_TARGET=${{ env.rust_target }} -DPREFER_STATIC_LINKING=ON \
               -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
               -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }}
 
-          echo -e "\n### build debug ###\n"
+          echo -e "\n### build ###\n"
           cmake --build build -j $(nproc)
 
-          file build/magiskboot_debug
-          otool -L build/magiskboot_debug
-          cp -afv build/magiskboot_debug $GITHUB_WORKSPACE
+          file build/magiskboot*
+          otool -L build/magiskboot*
+          rm -rf $GITHUB_WORKSPACE/${{ env.progname }}-out && mkdir -p $GITHUB_WORKSPACE/${{ env.progname }}-out
+          cp -afv build/magiskboot* $GITHUB_WORKSPACE/${{ env.progname }}-out
 
-          echo -e "\n### configure: release ###\n"
-          make clean
-          CC=clang CXX=clang++ cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_PROCESSOR=${{ env.cmake_arch }} \
-              -DCMAKE_C_COMPILER_TARGET=${{ env.clang_target }} -DCMAKE_CXX_COMPILER_TARGET=${{ env.clang_target }} \
-              -DCMAKE_SYSTEM_NAME=Darwin -DRUSTC_TARGET=${{ env.rust_target }} -DPREFER_STATIC_LINKING=ON \
-              -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
-              -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }}
-
-          echo -e "\n### build release ###\n"
-          cmake --build build -j $(nproc)
-
-          file build/magiskboot
-          otool -L build/magiskboot
-          cp -afv build/magiskboot $GITHUB_WORKSPACE
-
-      - name: Upload artifacts (Debug)
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-debug-macos-${{ matrix.os_release }}-${{ env.upload_suffix }}
-          path: ${{ github.workspace }}/magiskboot_debug
-
-      - name: Upload artifacts (Release)
-        uses: actions/upload-artifact@v4
-        with:
-          if-no-files-found: error
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-macos-${{ matrix.os_release }}-${{ env.upload_suffix }}
-          path: ${{ github.workspace }}/magiskboot
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-${{ needs.vars.outputs.build_type }}-macos-${{ matrix.os_release }}-${{ env.upload_suffix }}
+          path: ${{ github.workspace }}/${{ env.progname }}-out/magiskboot*
 
   build-windows:
     name: Build (Windows)
@@ -438,58 +386,32 @@ jobs:
 
           cd magiskboot_*-src/
 
-          echo -e "\n### configure: debug ###\n"
+          echo -e "\n### configure ###\n"
           CC=clang CXX=clang++ cmake -G Ninja -B build \
-              -DCMAKE_BUILD_TYPE=Debug -DPREFER_STATIC_LINKING=ON
+              -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} -DPREFER_STATIC_LINKING=ON
 
-          echo -e "\n### build debug ###\n"
+          echo -e "\n### build ###\n"
           cmake --build build -j $(nproc)
 
-          file build/magiskboot_debug.exe
-          ldd build/magiskboot_debug.exe
-          ./build/magiskboot_debug.exe || true
-          cp -afv build/magiskboot_debug.exe $GITHUB_WORKSPACE
+          file build/magiskboot*.exe
+          ldd build/magiskboot*.exe
+          ./build/magiskboot*.exe || true
+          rm -rf $GITHUB_WORKSPACE/${{ env.progname }}-out && mkdir -p $GITHUB_WORKSPACE/${{ env.progname }}-out
+          cp -afv build/magiskboot*.exe $GITHUB_WORKSPACE/${{ env.progname }}-out
 
-          echo -e "\n### configure: release ###\n"
-          make clean
-          CC=clang CXX=clang++ cmake -G Ninja -B build \
-              -DCMAKE_BUILD_TYPE=Release -DPREFER_STATIC_LINKING=ON
-
-          echo -e "\n### build release ###\n"
-          cmake --build build -j $(nproc)
-
-          file build/magiskboot.exe
-          ldd build/magiskboot.exe
-          ./build/magiskboot.exe || true
-          cp -afv build/magiskboot.exe $GITHUB_WORKSPACE
-
-      - name: Upload artifacts (Debug)
+      - name: Upload artifacts
         if: matrix.upload == 'yes'
         uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-debug-${{ env.upload_prefix }}-${{ matrix.note }}
-          path: ${{ github.workspace }}/magiskboot_debug.exe
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-${{ needs.vars.outputs.build_type }}-${{ env.upload_prefix }}-${{ matrix.note }}
+          path: ${{ github.workspace }}/${{ env.progname }}-out/magiskboot*.exe
 
-      - name: Upload artifacts (Release)
-        if: matrix.upload == 'yes'
-        uses: actions/upload-artifact@v4
-        with:
-          if-no-files-found: error
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-${{ env.upload_prefix }}-${{ matrix.note }}
-          path: ${{ github.workspace }}/magiskboot.exe
-
-      - name: Check (Debug)
+      - name: Check
         shell: msys2 {0}
         run: |
           cd magiskboot_*-src/
-          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot_debug.exe
-
-      - name: Check (Release)
-        shell: msys2 {0}
-        run: |
-          cd magiskboot_*-src/
-          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot.exe
+          find $GITHUB_WORKSPACE/${{ env.progname }}-out -name magiskboot\*.exe -exec ./scripts/magiskboot_test.sh {} +
 
   build-windows-cross:
     name: Build (Windows) (Cross)
@@ -595,45 +517,28 @@ jobs:
 
           cd magiskboot_*-src/
 
-          echo -e "\n### configure: debug ###\n"
+          echo -e "\n### configure ###\n"
           . "$HOME/.cargo/env"
-          CC=${{ matrix.cc }} CXX=${{ matrix.cxx }} cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} \
-                    -DCMAKE_SYSTEM_NAME=Windows -DRUSTC_TARGET=${{ matrix.rust_target }} -DRUST_BUILD_STD=${{ matrix.build_rust_std }} -DPREFER_STATIC_LINKING=ON \
-                    -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} -DMINGW=TRUE
+          CC=${{ matrix.cc }} CXX=${{ matrix.cxx }} cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} \
+                    -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} -DCMAKE_SYSTEM_NAME=Windows \
+                    -DRUSTC_TARGET=${{ matrix.rust_target }} -DRUST_BUILD_STD=${{ matrix.build_rust_std }} -DPREFER_STATIC_LINKING=ON \
+                    -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
+                    -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} -DMINGW=TRUE
 
-          echo -e "\n### build debug ###\n"
+          echo -e "\n### build ###\n"
           cmake --build build -j $(nproc)
 
-          file build/magiskboot_debug.exe
-          strings build/magiskboot_debug.exe | grep -iE '^(\w|[-.])*\.dll$'
-          cp -afv build/magiskboot_debug.exe $GITHUB_WORKSPACE
+          file build/magiskboot*.exe
+          strings build/magiskboot*.exe | grep -iE '^(\w|[-.])*\.dll$'
+          rm -rf $GITHUB_WORKSPACE/${{ env.progname }}-out && mkdir -p $GITHUB_WORKSPACE/${{ env.progname }}-out
+          cp -afv build/magiskboot*.exe $GITHUB_WORKSPACE/${{ env.progname }}-out
 
-          echo -e "\n### configure: release ###\n"
-          make clean
-          CC=${{ matrix.cc }} CXX=${{ matrix.cxx }} cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} -DMINGW=TRUE \
-                    -DCMAKE_SYSTEM_NAME=Windows -DRUSTC_TARGET=${{ matrix.rust_target }} -DRUST_BUILD_STD=${{ matrix.build_rust_std }} -DPREFER_STATIC_LINKING=ON \
-                    -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }}
-
-          echo -e "\n### build release ###\n"
-          cmake --build build -j $(nproc)
-
-          file build/magiskboot.exe
-          strings build/magiskboot.exe | grep -iE '^(\w|[-.])*\.dll$'
-          cp -afv build/magiskboot.exe $GITHUB_WORKSPACE
-
-      - name: Upload artifacts (Debug)
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-debug-${{ env.upload_prefix }}-${{ matrix.crt }}-${{ matrix.upload_suffix }}
-          path: ${{ github.workspace }}/magiskboot_debug.exe
-
-      - name: Upload artifacts (Release)
-        uses: actions/upload-artifact@v4
-        with:
-          if-no-files-found: error
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-${{ env.upload_prefix }}-${{ matrix.crt }}-${{ matrix.upload_suffix }}
-          path: ${{ github.workspace }}/magiskboot.exe
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-${{ needs.vars.outputs.build_type }}-${{ env.upload_prefix }}-${{ matrix.crt }}-${{ matrix.upload_suffix }}
+          path: ${{ github.workspace }}/${{ env.progname }}-out/magiskboot*.exe
 
   build-wasm:
     name: Build (WebAssembly)
@@ -689,58 +594,31 @@ jobs:
 
           cd magiskboot_*-src/
 
-          echo -e "\n### configure: debug ###\n"
+          echo -e "\n### configure ###\n"
           . "$HOME/.cargo/env"
           emcmake cmake -G Ninja -B build -DCMAKE_EXE_LINKER_FLAGS="-sNODERAWFS" \
               -DRUSTC_TARGET=${{ env.rust_target }} -DRUST_BUILD_STD=ON \
-              -DCMAKE_BUILD_TYPE=Debug -DPREFER_STATIC_LINKING=ON \
+              -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} -DPREFER_STATIC_LINKING=ON \
               -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
               -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }} \
               -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE="$(dirname $(which emcc))/cmake/Modules/Platform/Emscripten.cmake"
 
-          echo -e "\n### build debug ###\n"
+          echo -e "\n### build ###\n"
           cmake --build build -j $(nproc)
 
-          file build/magiskboot_debug.*
-          node ./build/magiskboot_debug.js || true
-          cp -afv build/magiskboot_debug.* $GITHUB_WORKSPACE
+          file build/magiskboot*
+          node ./build/magiskboot*.js || true
+          rm -rf $GITHUB_WORKSPACE/${{ env.progname }}-out && mkdir -p $GITHUB_WORKSPACE/${{ env.progname }}-out
+          cp -afv build/magiskboot* $GITHUB_WORKSPACE/${{ env.progname }}-out
 
-          echo -e "\n### configure: release ###\n"
-          make clean
-          emcmake cmake -G Ninja -B build -DCMAKE_EXE_LINKER_FLAGS="-sNODERAWFS" \
-              -DRUSTC_TARGET=${{ env.rust_target }} -DRUST_BUILD_STD=ON \
-              -DCMAKE_BUILD_TYPE=Release -DPREFER_STATIC_LINKING=ON \
-              -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
-              -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }} \
-              -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE="$(dirname $(which emcc))/cmake/Modules/Platform/Emscripten.cmake"
-
-          echo -e "\n### build release ###\n"
-          cmake --build build -j $(nproc)
-
-          file build/magiskboot.*
-          node ./build/magiskboot.js || true
-          cp -afv build/magiskboot.* $GITHUB_WORKSPACE
-
-      - name: Upload artifacts (Debug)
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-debug-${{ env.upload_suffix }}
-          path: ${{ github.workspace }}/magiskboot_debug.*
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-${{ needs.vars.outputs.build_type }}-${{ env.upload_suffix }}
+          path: ${{ github.workspace }}/${{ env.progname }}-out/magiskboot*
 
-      - name: Upload artifacts (Release)
-        uses: actions/upload-artifact@v4
-        with:
-          if-no-files-found: error
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-${{ env.upload_suffix }}
-          path: ${{ github.workspace }}/magiskboot.*
-
-      - name: Check (Debug)
+      - name: Check
         run: |
           cd magiskboot_*-src/
-          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot_debug.js
-
-      - name: Check (Release)
-        run: |
-          cd magiskboot_*-src/
-          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot.js
+          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/${{ env.progname }}-out/magiskboot*.js
