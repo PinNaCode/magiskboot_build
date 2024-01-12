@@ -2,9 +2,9 @@ name: CI
 on:
   workflow_dispatch:
     inputs:
-      release-build:
+      debug-build:
         type: boolean
-        description: "Build in release mode instead of debug"
+        description: "Build in debug mode instead of release"
 
   push:
     branches-ignore:
@@ -53,13 +53,13 @@ jobs:
         id: detect_build_type
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            if [[ "${{ github.event.inputs.release-build }}" == "true" ]]; then
-              CMAKE_BUILD_TYPE=Release
-            else
+            if [[ "${{ github.event.inputs.debug-build }}" == "true" ]]; then
               CMAKE_BUILD_TYPE=Debug
+            else
+              CMAKE_BUILD_TYPE=Release
             fi
           else
-            CMAKE_BUILD_TYPE=Debug
+            CMAKE_BUILD_TYPE=Release
           fi
           echo "CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}" | tee -a $GITHUB_OUTPUT
           echo "BUILD_TYPE=${CMAKE_BUILD_TYPE,,}" | tee -a $GITHUB_OUTPUT
