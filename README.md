@@ -33,6 +33,8 @@ here are examples for some supported popular operating systems/distributions:
 
 #### Android
 
+Please check the instructions for [Cross compiling](#cross-compiling) first.
+
 Download [ONDK][ONDK], set environment variable `ANDROID_NDK_HOME` to the extracted directory, and use [vcpkg][vcpkg] to install the dependencies.
 
 Use `/path/to/your/ondk/build/cmake/android.toolchain.cmake` as the toolchain file for vcpkg.
