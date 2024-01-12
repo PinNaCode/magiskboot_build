@@ -77,45 +77,6 @@ jobs:
     name: Build (Linux)
     runs-on: ubuntu-latest
     needs: [vars, src]
-    strategy:
-      matrix:
-        include:
-          - os: "ubuntu"
-            tag: "jammy"
-            note: "glibc-x86_64-static"
-            cmake_flag: "-DPREFER_STATIC_LINKING=ON"
-            dpkg_arch: "amd64"
-            extra_patches: "patches-contrib/Magisk/0021-workaround-revert-extract_if-to-drain_filter-rename.patch"
-            upload: "yes"
-
-          - os: "ubuntu"
-            tag: "jammy"
-            note: "glibc-i368-static"
-            cmake_flag: "-DPREFER_STATIC_LINKING=ON"
-            dpkg_arch: "i386"
-            extra_patches: "patches-contrib/Magisk/0021-workaround-revert-extract_if-to-drain_filter-rename.patch"
-            upload: "yes"
-
-          - os: "alpine"
-            tag: "edge"
-            note: "musl-x86_64"
-
-          - os: "archlinux"
-            tag: "latest"
-            note: "glibc-x86_64"
-
-    container:
-      image: ${{ matrix.os }}:${{ matrix.tag }}
-      volumes:
-        - ${{ github.workspace }}:/workspace
-
-      # New versions of glibc use the new clone3() syscall which has not
-      # yet been whitelisted in GitHub's secomp profile. To prevent jobs
-      # using these distros from failing (e.g. openSUSE) change the
-      # secomp policy.
-      #
-      # See https://github.com/nmeum/android-tools/pull/48#issuecomment-944893176
-      options: --security-opt seccomp=unconfined
 
     steps:
       - name: Prepare (source)
@@ -123,34 +84,12 @@ jobs:
         with:
           name: srcpkg
 
-      - name: Prepare (Ubuntu)
-        if: matrix.os == 'ubuntu'
+      - name: Prepare
         run: |
-          _arch=${{ matrix.dpkg_arch }}
-          dpkg --add-architecture $_arch
-          apt update
-          DEBIAN_FRONTEND=noninteractive apt install -y curl wget tar patch file xxd python3 \
-              libc6-dev:$_arch binutils:$_arch liblzma-dev:$_arch liblz4-dev:$_arch \
-              libbz2-dev:$_arch zlib1g-dev:$_arch pkg-config:$_arch clang-15:$_arch \
-              libc++-15-dev:$_arch libc++abi-15-dev:$_arch cmake:$_arch \
-              ninja-build:$_arch rustc:$_arch cargo:$_arch
-          unset _arch
-          ln -s $(which clang-15) $(dirname $(which clang-15))/clang
-          ln -s $(which clang++-15) $(dirname $(which clang-15))/clang++
-
-      - name: Prepare (Alpine Linux)
-        if: matrix.os == 'alpine'
-        run: |
-          apk update
-          apk add build-base linux-headers bash curl wget file xxd xz-dev lz4-dev bzip2-dev zlib-dev \
-                  python3 pkgconf clang libc++-dev cmake samurai rust cargo
-
-      - name: Prepare (archlinux)
-        if: matrix.os == 'archlinux'
-        run: |
-          pacman -Syu --noconfirm
-          pacman -S --noconfirm --needed curl wget file xxd base-devel xz lz4 bzip2 python \
-                           zlib pkgconf clang libc++ cmake ninja rust
+          sudo apt update
+          sudo DEBIAN_FRONTEND=noninteractive apt install -y wget tar patch file xxd \
+              build-essential liblzma-dev liblz4-dev libbz2-dev zlib1g-dev pkg-config clang-15 \
+              libc++-15-dev libc++abi-15-dev cmake ninja-build rustc cargo
 
       - name: Build
         run: |
@@ -159,11 +98,8 @@ jobs:
 
           cd magiskboot_*-src/
 
-          echo -e "\n### patch source ###\n"
-          ./scripts/apply_patches.py ${{ matrix.extra_patches }}
-
           echo -e "\n### configure: debug ###\n"
-          CC=clang CXX=clang++ cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Debug ${{ matrix.cmake_flag }}
+          CC=clang-15 CXX=clang++-15 cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Debug
 
           echo -e "\n### build debug ###\n"
           cmake --build build -j $(nproc)
@@ -171,11 +107,11 @@ jobs:
           file build/magiskboot_debug
           ldd build/magiskboot_debug || true
           ./build/magiskboot_debug || true
-          cp -afv build/magiskboot_debug /workspace
+          cp -afv build/magiskboot_debug $GITHUB_WORKSPACE
 
           echo -e "\n### configure: release ###\n"
           make clean
-          CC=clang CXX=clang++ cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_flag }}
+          CC=clang-15 CXX=clang++-15 cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
 
           echo -e "\n### build release ###\n"
           cmake --build build -j $(nproc)
@@ -183,153 +119,17 @@ jobs:
           file build/magiskboot
           ldd build/magiskboot || true
           ./build/magiskboot || true
-          cp -afv build/magiskboot /workspace
-
-      - name: Upload artifacts (Debug)
-        if: matrix.upload == 'yes'
-        uses: actions/upload-artifact@v4
-        with:
-          if-no-files-found: error
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-debug-${{ matrix.os }}-${{ matrix.tag }}-${{ matrix.note }}
-          path: ${{ github.workspace }}/magiskboot_debug
-
-      - name: Upload artifacts (Release)
-        if: matrix.upload == 'yes'
-        uses: actions/upload-artifact@v4
-        with:
-          if-no-files-found: error
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-${{ matrix.os }}-${{ matrix.tag }}-${{ matrix.note }}
-          path: ${{ github.workspace }}/magiskboot
-
-      - name: Check (Debug)
-        run: |
-          cd magiskboot_*-src/
-          ./scripts/magiskboot_test.sh /workspace/magiskboot_debug
-
-      - name: Check (Release)
-        run: |
-          cd magiskboot_*-src/
-          ./scripts/magiskboot_test.sh /workspace/magiskboot
-
-  build-linux-cross:
-    name: Build (Linux) (Cross)
-    strategy:
-      matrix:
-        include:
-          - upload_suffix: "ubuntu-jammy-glibc-arm64-static"
-            cmake_arch: aarch64
-            gcc_target: aarch64-linux-gnu
-            vcpkg_triplet: arm64-linux
-            clang_target: aarch64-linux-gnu
-            rust_target: aarch64-unknown-linux-gnu
-            emulator: qemu-aarch64
-            extra_pkgs: "g++-aarch64-linux-gnu"
-
-          - upload_suffix: "ubuntu-jammy-glibc-armhf-static"
-            cmake_arch: arm
-            gcc_target: arm-linux-gnueabihf
-
-            # XXX: workaround for: __divsi3
-            ldflags: -Wl,--allow-multiple-definition
-
-            vcpkg_triplet: arm-linux
-            clang_target: arm-linux-gnueabihf
-            rust_target: arm-unknown-linux-gnueabihf
-            emulator: qemu-arm
-            extra_pkgs: "g++-arm-linux-gnueabihf"
-
-    runs-on: ubuntu-latest
-    needs: [vars, src]
-    steps:
-      - name: Prepare (source)
-        uses: actions/download-artifact@v4
-        with:
-          name: srcpkg
-
-      - name: Prepare (Host)
-        run: |
-          sudo apt update
-          sudo DEBIAN_FRONTEND=noninteractive apt install -y curl wget tar patch file xxd python3 \
-                    build-essential pkg-config clang-15 cmake ninja-build ${{ matrix.extra_pkgs }}
-          sudo apt install -y --no-install-recommends --no-install-suggests qemu-user
-
-      - name: Prepare (Cross)
-        run: |
-          vcpkg install --host-triplet=${{ matrix.vcpkg_triplet }} zlib liblzma lz4 bzip2
-
-      - name: Prepare (Rust)
-        run: |
-          curl https://sh.rustup.rs -sSf | sh -s -- -y
-          . "$HOME/.cargo/env"
-          rustup target add ${{ matrix.rust_target }}
-
-      - name: Build
-        run: |
-          echo -e "\n### extract source ###\n"
-          tar -xf magiskboot_*-src.tar.xz
-
-          cd magiskboot_*-src/
-
-          echo -e "\n### patch source ###\n"
-          ./scripts/apply_patches.py patches-contrib/Magisk/0029-workaround-support-building-with-libstdcxx.patch
-
-          echo -e "\n### configure: debug ###\n"
-          . "$HOME/.cargo/env"
-          CC=clang-15 CXX=clang++-15 cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} \
-                -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSROOT=${{ matrix.gcc_target }} -DRUSTC_TARGET=${{ matrix.rust_target }} \
-                -DCMAKE_C_COMPILER_TARGET=${{ matrix.clang_target }} -DCMAKE_CXX_COMPILER_TARGET=${{ matrix.clang_target }} \
-                -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
-                -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} -DWITHOUT_LIBCXX=ON -DPREFER_STATIC_LINKING=ON \
-                -DCMAKE_EXE_LINKER_FLAGS="${{ matrix.ldflags }}"
-
-          echo -e "\n### build debug ###\n"
-          cmake --build build -j $(nproc)
-
-          file build/magiskboot_debug
-          readelf -d build/magiskboot_debug || true
-          ${{ matrix.emulator }} ./build/magiskboot_debug || true
-          cp -afv build/magiskboot_debug $GITHUB_WORKSPACE
-
-          echo -e "\n### configure: release ###\n"
-          make clean
-          CC=clang-15 CXX=clang++-15 cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} \
-                -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSROOT=${{ matrix.gcc_target }} -DRUSTC_TARGET=${{ matrix.rust_target }} \
-                -DCMAKE_C_COMPILER_TARGET=${{ matrix.clang_target }} -DCMAKE_CXX_COMPILER_TARGET=${{ matrix.clang_target }} \
-                -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
-                -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} -DWITHOUT_LIBCXX=ON -DPREFER_STATIC_LINKING=ON \
-                -DCMAKE_EXE_LINKER_FLAGS="${{ matrix.ldflags }}"
-
-          echo -e "\n### build release ###\n"
-          cmake --build build -j $(nproc)
-
-          file build/magiskboot
-          readelf -d build/magiskboot || true
-          ${{ matrix.emulator }} ./build/magiskboot || true
           cp -afv build/magiskboot $GITHUB_WORKSPACE
 
-      - name: Upload artifacts (Debug)
-        uses: actions/upload-artifact@v4
-        with:
-          if-no-files-found: error
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-debug-${{ matrix.upload_suffix }}
-          path: ${{ github.workspace }}/magiskboot_debug
-
-      - name: Upload artifacts (Release)
-        uses: actions/upload-artifact@v4
-        with:
-          if-no-files-found: error
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-release-${{ matrix.upload_suffix }}
-          path: ${{ github.workspace }}/magiskboot
-
       - name: Check (Debug)
         run: |
           cd magiskboot_*-src/
-          EMULATOR=${{ matrix.emulator }} ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot_debug
+          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot_debug
 
       - name: Check (Release)
         run: |
           cd magiskboot_*-src/
-          EMULATOR=${{ matrix.emulator }} ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot
+          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/magiskboot
 
   build-macos:
     name: Build (macOS)

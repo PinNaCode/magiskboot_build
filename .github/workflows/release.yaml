@@ -57,7 +57,7 @@ jobs:
             name: Last CI build
             target_commitish: dev
             tag_name: last-ci
-            body_path: ${{ github.workspace }}/.github/__release_template.txt
+            body_path: ${{ github.workspace }}/.github/__release_template.md
             draft: false
             prerelease: false
             fail_on_unmatched_files: true

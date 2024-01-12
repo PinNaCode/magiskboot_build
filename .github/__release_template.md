@@ -1,8 +1,8 @@
-> *Note*
+> [!NOTE]
+>
+> Linux CI builds is not uploaded to Release to save space, please download from [Magisk][Magisk] instead.
 >
 > macOS 14 CI builds is not yet added at the moment (#16), binaries from the previous OS releases might work though.
-
-### Tags
 
 #### Build types
 
@@ -10,20 +10,14 @@
 
 - `release`: if you are a normal user, download package with this tag
 
-#### Linking method
-
-- `aio`: all dependencies are included in the zip package
+#### Link types
 
 - `standalone`: single binary unlike `aio`, works without extra dependency
 
-- `static`: similar to `standalone`, but C runtime library is also bundled within the binary, should theoretically work on all version of the specified OS, for example you can usually use `ubuntu-...-glibc-...-static` on all different Linux distributions, even if the distribution is using a different libc (e.g. Alpine Linux)
-
-#### For Windows release only
+#### For Windows releases
 
 - `msvcrt`: usually works on most Windows versions without extra setup
 
 - `ucrt`: available by default only since Windows 10+, sometimes requires installing or shipping with C runtime library manually to use on older version
 
-#### Miscellaneous
-
-- `src`: source package, download this if you plan to compile magiskboot from source on your end
+[Magisk]: https://github.com/topjohnwu/Magisk/releases
