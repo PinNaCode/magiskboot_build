@@ -26,10 +26,6 @@ jobs:
           path: artifacts
           skip_unpack: true
 
-      - name: Exclude test binaries
-        run: |
-          find artifacts -type f -name magiskboot-\*-wip\*.zip -exec rm -f {} \;
-
       - name: Extract source package
         run: |
           cd artifacts
