@@ -137,8 +137,17 @@ jobs:
 
       - name: Prepare (Environment)
         run: |
-          echo "ANDROID_NDK_HOME=$GITHUB_WORKSPACE/${{ env.progname }}-ondk" >> $GITHUB_ENV
-          echo "$GITHUB_WORKSPACE/${{ env.progname }}-ondk/toolchains/rust/bin" >> $GITHUB_PATH
+          echo "vcpkg_root=$VCPKG_INSTALLATION_ROOT" | tee -a $GITHUB_ENV
+
+          echo "ANDROID_NDK_HOME=$GITHUB_WORKSPACE/${{ env.progname }}-ondk" | tee -a $GITHUB_ENV
+          echo "$GITHUB_WORKSPACE/${{ env.progname }}-ondk/toolchains/rust/bin" | tee -a $GITHUB_PATH
+
+      - name: Cache (Cross)
+        id: cache-cross-vcpkgs
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.vcpkg_root }}/installed
+          key: cross-vcpkgs-${{ env.vcpkg_triplet }}-ondk-${{ env.ondk_ver }}
 
       - name: Prepare (Cross)
         run: |
@@ -292,6 +301,17 @@ jobs:
       - name: Prepare (Host)
         run: |
           brew install --overwrite coreutils file pkg-config cmake ninja
+
+      - name: Prepare (Environment)
+        run: |
+          echo "vcpkg_root=$VCPKG_INSTALLATION_ROOT" | tee -a $GITHUB_ENV
+
+      - name: Cache (Cross)
+        id: cache-cross-vcpkgs
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.vcpkg_root }}/installed
+          key: cross-vcpkgs-${{ env.vcpkg_triplet }}-appleclang-macos-${{ matrix.os_release }}
 
       - name: Prepare (Cross)
         run: |
@@ -482,7 +502,18 @@ jobs:
 
       - name: Prepare (PATH)
         run: |
-          echo "$GITHUB_WORKSPACE/${{ env.progname }}-llvm-mingw/bin" >> $GITHUB_PATH
+          echo "$GITHUB_WORKSPACE/${{ env.progname }}-llvm-mingw/bin" | tee -a $GITHUB_PATH
+
+      - name: Prepare (Environment)
+        run: |
+          echo "vcpkg_root=$VCPKG_INSTALLATION_ROOT" | tee -a $GITHUB_ENV
+
+      - name: Cache (Cross)
+        id: cache-cross-vcpkgs
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.vcpkg_root }}/installed
+          key: cross-vcpkgs-${{ matrix.vcpkg_triplet }}-llvm-mingw-${{ env.toolchain_ver }}-${{ matrix.crt }}
 
       - name: Prepare (Cross)
         run: |
@@ -575,6 +606,17 @@ jobs:
         with:
           version: ${{ env.emsdk_ver }}
           actions-cache-folder: ${{ env.emsdk_cache_dir }}
+
+      - name: Prepare (Environment)
+        run: |
+          echo "vcpkg_root=$VCPKG_INSTALLATION_ROOT" | tee -a $GITHUB_ENV
+
+      - name: Cache (Cross)
+        id: cache-cross-vcpkgs
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.vcpkg_root }}/installed
+          key: cross-vcpkgs-${{ env.vcpkg_triplet }}-emsdk-${{ env.emsdk_ver }}
 
       - name: Prepare (Cross)
         run: |
