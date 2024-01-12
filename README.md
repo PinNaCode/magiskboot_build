@@ -66,8 +66,6 @@ apt install build-essential liblzma liblz4 libbz2 zlib pkg-config \
 
 When configuring, pass `-DCMAKE_INSTALL_PREFIX=$PREFIX` to CMake.
 
-To build a static version, also install the `ndk-multilib` package, the result might need to patched using `termux-elf-cleaner` first to run.
-
 </details>
 
 <details><summary>Linux</summary>
