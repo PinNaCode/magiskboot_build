@@ -74,7 +74,9 @@ set(RUSTFLAGS "${RUSTFLAGS} -Clinker-plugin-lto")
 endif() # USE_LTO_LINKER_PLUGIN
 endif() # NO_TARGETS_OR_DEPS
 
-if (NOT CMAKE_SYSTEM_NAME MATCHES "Android")
+if (CMAKE_SYSTEM_NAME MATCHES "Android")
+add_compile_options(-D_FORTIFY_SOURCE=2)
+else()
 add_compile_options(-U_FORTIFY_SOURCE)
 endif()
 
