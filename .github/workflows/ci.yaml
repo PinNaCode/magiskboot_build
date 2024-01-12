@@ -99,7 +99,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       actions: write
-    needs: [vars, src]
+    needs: [vars]
     env:
       api_level: 24
       target_arch: arm64-v8a
@@ -109,11 +109,6 @@ jobs:
       rust_target: aarch64-linux-android
 
     steps:
-      - name: Prepare (source)
-        uses: actions/download-artifact@v4
-        with:
-          name: srcpkg
-
       - name: Prepare (Host)
         run: |
           sudo apt update
@@ -155,6 +150,16 @@ jobs:
         run: |
           vcpkg install --host-triplet=${{ env.vcpkg_triplet }} zlib liblzma lz4 bzip2
 
+      - name: Synchronize (source)
+        uses: yogeshlonkar/wait-for-jobs@v0.2.1
+        with:
+          jobs: 'Prepare (source)'
+
+      - name: Prepare (source)
+        uses: actions/download-artifact@v4
+        with:
+          name: srcpkg
+
       - name: Build
         run: |
           echo -e "\n### extract source ###\n"
@@ -186,7 +191,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       actions: write
-    needs: [vars, src]
+    needs: [vars]
     strategy:
       matrix:
         include:
@@ -211,11 +216,6 @@ jobs:
       options: --security-opt seccomp=unconfined
 
     steps:
-      - name: Prepare (source)
-        uses: actions/download-artifact@v4
-        with:
-          name: srcpkg
-
       - name: Prepare (Ubuntu)
         if: matrix.os == 'ubuntu'
         run: |
@@ -232,6 +232,16 @@ jobs:
           apk update
           apk add build-base linux-headers bash wget file xxd xz-dev lz4-dev bzip2-dev zlib-dev \
                   python3 pkgconf clang libc++-dev cmake samurai rust cargo
+
+      - name: Synchronize (source)
+        uses: yogeshlonkar/wait-for-jobs@v0.2.1
+        with:
+          jobs: 'Prepare (source)'
+
+      - name: Prepare (source)
+        uses: actions/download-artifact@v4
+        with:
+          name: srcpkg
 
       - name: Build
         run: |
@@ -274,18 +284,13 @@ jobs:
     runs-on: macos-${{ matrix.os_release }}
     permissions:
       actions: write
-    needs: [vars, src]
+    needs: [vars]
     env:
       HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
 
       upload_suffix: "x86_64-standalone"
 
     steps:
-      - name: Prepare (source)
-        uses: actions/download-artifact@v4
-        with:
-          name: srcpkg
-
       - name: Prepare
         run: |
           brew install --overwrite coreutils wget file xz lz4 \
@@ -295,6 +300,16 @@ jobs:
         if: matrix.os_release == 13
         run: |
           rm -rf ~/.cargo/registry/index
+
+      - name: Synchronize (source)
+        uses: yogeshlonkar/wait-for-jobs@v0.2.1
+        with:
+          jobs: 'Prepare (source)'
+
+      - name: Prepare (source)
+        uses: actions/download-artifact@v4
+        with:
+          name: srcpkg
 
       - name: Build
         run: |
@@ -341,7 +356,7 @@ jobs:
     runs-on: macos-${{ matrix.os_release }}
     permissions:
       actions: write
-    needs: [vars, src]
+    needs: [vars]
     env:
       HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
 
@@ -352,11 +367,6 @@ jobs:
       rust_target: "aarch64-apple-darwin"
 
     steps:
-      - name: Prepare (source)
-        uses: actions/download-artifact@v4
-        with:
-          name: srcpkg
-
       - name: Prepare (Host)
         run: |
           brew install --overwrite coreutils file pkg-config cmake ninja
@@ -386,6 +396,16 @@ jobs:
         if: matrix.os_release == 13
         run: |
           rm -rf ~/.cargo/registry/index
+
+      - name: Synchronize (source)
+        uses: yogeshlonkar/wait-for-jobs@v0.2.1
+        with:
+          jobs: 'Prepare (source)'
+
+      - name: Prepare (source)
+        uses: actions/download-artifact@v4
+        with:
+          name: srcpkg
 
       - name: Build
         run: |
@@ -428,7 +448,7 @@ jobs:
     runs-on: windows-latest
     permissions:
       actions: write
-    needs: [vars, src]
+    needs: [vars]
     strategy:
       matrix:
         include:
@@ -447,11 +467,6 @@ jobs:
       upload_prefix: "windows-mingw-w64"
 
     steps:
-      - name: Prepare (source)
-        uses: actions/download-artifact@v4
-        with:
-          name: srcpkg
-
       - name: Prepare
         uses: msys2/setup-msys2@v2
         with:
@@ -463,6 +478,16 @@ jobs:
           pacboy: >-
             xz:p lz4:p bzip2:p zlib:p pkgconf:p clang:p
             lld:p cmake:p libc++:p ninja:p rust:p
+
+      - name: Synchronize (source)
+        uses: yogeshlonkar/wait-for-jobs@v0.2.1
+        with:
+          jobs: 'Prepare (source)'
+
+      - name: Prepare (source)
+        uses: actions/download-artifact@v4
+        with:
+          name: srcpkg
 
       - name: Build
         shell: msys2 {0}
@@ -509,7 +534,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       actions: write
-    needs: [vars, src]
+    needs: [vars]
     strategy:
       matrix:
         include:
@@ -545,11 +570,6 @@ jobs:
       upload_prefix: "windows-mingw-w64"
 
     steps:
-      - name: Prepare (source)
-        uses: actions/download-artifact@v4
-        with:
-          name: srcpkg
-
       - name: Prepare (Host)
         run: |
           sudo apt update
@@ -614,6 +634,16 @@ jobs:
           . "$HOME/.cargo/env"
           rustup component add rust-src
 
+      - name: Synchronize (source)
+        uses: yogeshlonkar/wait-for-jobs@v0.2.1
+        with:
+          jobs: 'Prepare (source)'
+
+      - name: Prepare (source)
+        uses: actions/download-artifact@v4
+        with:
+          name: srcpkg
+
       - name: Build
         run: |
           echo -e "\n### extract source ###\n"
@@ -654,7 +684,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       actions: write
-    needs: [vars, src]
+    needs: [vars]
     env:
       vcpkg_triplet: "wasm32-emscripten"
       emsdk_ver: 3.1.51
@@ -663,11 +693,6 @@ jobs:
       upload_suffix: "emscripten-wasm32-noderawfs-static"
 
     steps:
-      - name: Prepare (source)
-        uses: actions/download-artifact@v4
-        with:
-          name: srcpkg
-
       - name: Prepare (Host)
         run: |
           sudo apt update
@@ -708,6 +733,16 @@ jobs:
           curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
           . "$HOME/.cargo/env"
           rustup component add rust-src
+
+      - name: Synchronize (source)
+        uses: yogeshlonkar/wait-for-jobs@v0.2.1
+        with:
+          jobs: 'Prepare (source)'
+
+      - name: Prepare (source)
+        uses: actions/download-artifact@v4
+        with:
+          name: srcpkg
 
       - name: Build
         run: |
