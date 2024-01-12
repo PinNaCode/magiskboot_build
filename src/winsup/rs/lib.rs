@@ -1,3 +1,4 @@
+#![allow(internal_features)]
 #![feature(rustc_attrs, io_error_uncategorized)]
 
 mod cvt_compat;

@@ -60,4 +60,4 @@ if (CMAKE_BUILD_TYPE MATCHES "WithDebInfo")
     set(RUSTFLAGS "${RUSTFLAGS} -g")
 endif()
 
-set(RUSTFLAGS "${RUSTFLAGS} -A dead_code -A unused_imports -A internal_features -A redundant_semicolons")
+set(RUSTFLAGS "${RUSTFLAGS} -A dead_code -A unused_imports -A redundant_semicolons")
