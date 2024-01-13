@@ -1,17 +1,17 @@
 # mostly copied from Magisk's build.py
 
-if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/Cargo.toml)
-    if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/boot/lib.rs)
+if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src/Magisk/native/src/Cargo.toml)
+    if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src/Magisk/native/src/boot/lib.rs)
         add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/libmagiskboot-rs.a
-				  ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/base/base-rs.hpp
-				  ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/boot/boot-rs.hpp
-				  ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/base/base-rs.cpp
-				  ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/boot/boot-rs.cpp
-                           COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/.cargo/config.toml
+				  ${CMAKE_CURRENT_SOURCE_DIR}/src/Magisk/native/src/base/base-rs.hpp
+				  ${CMAKE_CURRENT_SOURCE_DIR}/src/Magisk/native/src/boot/boot-rs.hpp
+				  ${CMAKE_CURRENT_SOURCE_DIR}/src/Magisk/native/src/base/base-rs.cpp
+				  ${CMAKE_CURRENT_SOURCE_DIR}/src/Magisk/native/src/boot/boot-rs.cpp
+                           COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_CURRENT_SOURCE_DIR}/src/Magisk/native/src/.cargo/config.toml
                            COMMAND ${CMAKE_COMMAND} -E env CXXBRIDGE_GEN_TARGET_OS=${CXXBRIDGE_GEN_TARGET_OS} RUSTFLAGS=${RUSTFLAGS} CARGO_TARGET_DIR="${CMAKE_CURRENT_BINARY_DIR}/libmagiskboot_target" RUSTC_BOOTSTRAP=winsup,base,magiskboot ${CARGO_EXECUTABLE} build --target ${RUSTC_TARGET} -p magiskboot ${CARGO_FLAGS}
                            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/libmagiskboot_target/${RUSTC_TARGET}/${CARGO_OUT}/libmagiskboot.a ${CMAKE_CURRENT_BINARY_DIR}/libmagiskboot-rs.a
                            COMMENT "Building Rust static library libmagiskboot-rs.a"
-                           WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src
+                           WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/Magisk/native/src
                            USES_TERMINAL)
         add_custom_target(libmagiskboot_output
                           DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/libmagiskboot-rs.a)
@@ -28,5 +28,5 @@ endif()
 
 add_dependencies(libbase prepare_generated_directory)
 target_include_directories(libbase PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/generated)
-target_include_directories(libbase PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/external/cxx-rs/include)
+target_include_directories(libbase PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/Magisk/native/src/external/cxx-rs/include)
 target_link_libraries(${MAGISKBOOT_TARGET} libmagiskboot-rs)

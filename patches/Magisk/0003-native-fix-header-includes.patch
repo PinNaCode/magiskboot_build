@@ -19,7 +19,7 @@ index 6829de2..8aef651 100644
 +++ b/native/src/base/files.cpp
 @@ -1,10 +1,39 @@
 +#ifdef _WIN32
-+#include <mman.h>
++#  include <mman.h>
 +#else
  #include <sys/mman.h>
 +#endif
@@ -27,32 +27,32 @@ index 6829de2..8aef651 100644
  #include <sys/sendfile.h>
  #include <sys/sysmacros.h>
  #include <linux/fs.h>
-+#elif defined(__APPLE__)
-+#include <sys/disk.h>
-+#endif
-+#if defined(__APPLE__) || defined(__CYGWIN__) || defined(_WIN32)
-+#include <sys/types.h>
++#else
++#  include <sys/types.h>
++#  if defined(__APPLE__)
++#    include <sys/disk.h>
++#  endif
 +#endif
 +#ifndef _WIN32
-+#include <sys/ioctl.h>
++#  include <sys/ioctl.h>
 +#endif
  #include <fcntl.h>
  #include <unistd.h>
  #include <libgen.h>
 +#ifdef _WIN32
-+#define O_CLOEXEC O_NOINHERIT
++#  define O_CLOEXEC O_NOINHERIT
 +
-+#include <getline.h>
-+#include <winsup/acl_compat.h>
-+#include <winsup/at_compat.h>
-+#include <winsup/dirent_compat.h>
-+#include <winsup/mknod_compat.h>
-+#include <winsup/stat_compat.h>
++#  include <getline.h>
++#  include <winsup/acl_compat.h>
++#  include <winsup/at_compat.h>
++#  include <winsup/dirent_compat.h>
++#  include <winsup/mknod_compat.h>
++#  include <winsup/stat_compat.h>
 +
-+#define dirent _dirent_stub
-+#define getline msvc_getline
++#  define dirent _dirent_stub
++#  define getline msvc_getline
 +#elif defined(__EMSCRIPTEN__)
-+#include <emsup/mkdev_stubs.h>
++#  include <emsup/mkdev_stubs.h>
 +#endif
  
  #include <base.hpp>
@@ -68,17 +68,17 @@ index 0d8d11c..c4bb952 100644
 +#ifdef __linux__
  #include <linux/fs.h>
 +#elif defined(__APPLE__)
-+#include <sys/disk.h>
++#  include <sys/disk.h>
 +#elif defined(__CYGWIN__)
-+#include <cygwin/fs.h>
++#  include <cygwin/fs.h>
 +#elif defined(_WIN32)
-+#include <winsup/dirent_compat.h>
-+#include <winsup/file_compat.h>
++#  include <winsup/dirent_compat.h>
++#  include <winsup/file_compat.h>
 +
-+#define closedir _closedir_stub
-+#define DIR _DIR_stub
-+#define opendir _opendir_stub
-+#define fopen _fopen_stub
++#  define closedir _closedir_stub
++#  define DIR _DIR_stub
++#  define opendir _opendir_stub
++#  define fopen _fopen_stub
 +#endif
  #include "misc.hpp"
  
@@ -99,7 +99,7 @@ diff --git a/native/src/base/misc.cpp b/native/src/base/misc.cpp
 index 313d136..f0188b5 100644
 --- a/native/src/base/misc.cpp
 +++ b/native/src/base/misc.cpp
-@@ -1,13 +1,39 @@
+@@ -1,13 +1,40 @@
  #include <sys/types.h>
 +#ifndef _WIN32
  #include <sys/wait.h>
@@ -107,8 +107,8 @@ index 313d136..f0188b5 100644
 +#ifdef __linux__
  #include <sys/prctl.h>
  #include <sys/sysmacros.h>
-+#elif defined(__APPLE__) || defined(__CYGWIN__) || defined(_WIN32)
-+#include <sys/types.h>
++#else
++#  include <sys/types.h>
 +#endif
  #include <fcntl.h>
 +#ifndef _WIN32
@@ -116,39 +116,30 @@ index 313d136..f0188b5 100644
 +#endif
  #include <unistd.h>
 +#ifdef __APPLE__
-+#define environ (*_NSGetEnviron())
++#  define environ (*_NSGetEnviron())
 +
-+#include <crt_externs.h>
-+#include <sys/syscall.h>
++#  include <crt_externs.h>
++#  include <sys/syscall.h>
 +#endif
-+#if !defined(__CYGWIN__) && !defined(__APPLE__) && !defined(_WIN32)
++#ifdef __linux__
  #include <syscall.h>
-+#endif
-+#if defined(__APPLE__) || defined(__CYGWIN__) || defined(_WIN32)
-+#include <pthread.h>
-+#include <signal.h>
++#else
++#  include <pthread.h>
++#  ifndef _WIN32
++#    include <signal.h>
++#  endif
 +#endif
  #include <random>
  #include <string>
-+#if !defined(__ANDROID__) && !defined(__APPLE__)
-+#include <libbsd_compat.h>
-+#endif
 +#ifdef _WIN32
-+#include <winsup/str_compat.h>
++#  include <winsup/str_compat.h>
++#endif
++#ifndef HAVE_STRLCPY
++#  include <libbsd/str_compat.h>
 +#endif
  
  #include <base.hpp>
  
-@@ -321,5 +321,8 @@ int ssprintf(char *dest, size_t size, const char *fmt, ...) {
- 
- #undef strlcpy
- size_t strscpy(char *dest, const char *src, size_t size) {
-+#if !defined(__ANDROID__) && !defined(__APPLE__)
-+#define strlcpy _strlcpy_stub
-+#endif
-     return std::min(strlcpy(dest, src, size), size - 1);
- }
-
 diff --git a/native/src/base/include/stream.hpp b/native/src/base/include/stream.hpp
 index 4742085..b461534 100644
 --- a/native/src/base/include/stream.hpp
@@ -157,7 +148,7 @@ index 4742085..b461534 100644
  #pragma once
 
 +#ifdef _WIN32
-+#include <winsup/uio_compat.h>
++#  include <winsup/uio_compat.h>
 +#else
  #include <sys/uio.h>
 +#endif
@@ -168,29 +159,26 @@ diff --git a/native/src/base/xwrap.hpp b/native/src/base/xwrap.hpp
 index ce7a6dd..b4ba2c0 100644
 --- a/native/src/base/xwrap.hpp
 +++ b/native/src/base/xwrap.hpp
-@@ -2,8 +2,26 @@
+@@ -2,8 +2,23 @@
  
  #include <dirent.h>
  #include <stdio.h>
++#include <sys/types.h>  // bionic quirks?
 +#ifdef _WIN32
 +typedef int socklen_t;
 +struct msghdr;
 +typedef unsigned long int nfds_t;
 +struct pollfd;
 +#else
++#include <sys/socket.h>  // same as above
  #include <poll.h>
 +#endif
  #include <fcntl.h>
-+#include <unistd.h>
-+#ifndef _WIN32
-+#include <sys/socket.h>
-+#endif
-+#include <sys/types.h>
 +#ifdef _WIN32
-+#include <winsup/dirent_compat.h>
++#  include <winsup/dirent_compat.h>
 +
-+#define dirent _dirent_stub
-+#define DIR _DIR_stub
++#  define dirent _dirent_stub
++#  define DIR _DIR_stub
 +#endif
  
  extern "C" {
@@ -204,12 +192,12 @@ index a80a746..857eff2 100644
  #include <memory>
 
 +#ifdef _WIN32
-+#define O_CLOEXEC O_NOINHERIT
++#  define O_CLOEXEC O_NOINHERIT
 +
-+#include <winsup/str_compat.h>
-+#include <winsup/file_compat.h>
++#  include <winsup/str_compat.h>
++#  include <winsup/file_compat.h>
 +
-+#define creat _creat_stub
++#  define creat _creat_stub
 +#endif
  #include <base.hpp>
 

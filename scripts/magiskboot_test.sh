@@ -16,11 +16,11 @@ if [ "$#" -ne 1 -o ! -f "$1" ]; then
 fi
 
 if [[ "$1" == *.js ]]; then
-    magiskboot=node\ $1
+    magiskboot="node $(realpath $1)"
 elif [[ ! -z "${EMULATOR}" ]]; then
-    magiskboot=$EMULATOR\ $1
+    magiskboot="$EMULATOR $(realpath $1)"
 else
-    magiskboot=$1
+    magiskboot="$(realpath $1)"
 fi
 echo -e "\n### magiskboot binary: $1 ###\n"
 file $1

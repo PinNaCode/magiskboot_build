@@ -1,43 +1,10 @@
-if (NOT APPLE)
-    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -fdata-sections -ffunction-sections")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fdata-sections -ffunction-sections")
-    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -fdata-sections -ffunction-sections")
-    set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -fdata-sections -ffunction-sections")
-    set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -fdata-sections -ffunction-sections")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -fdata-sections -ffunction-sections")
-    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -Wl,--gc-sections -s")
-    set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} -Wl,--gc-sections -s")
-    set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} -Wl,--gc-sections -s")
-endif()
+string(TOLOWER "${CMAKE_SYSTEM_NAME}" CXXBRIDGE_GEN_TARGET_OS)
 
-if (NOT CYGWIN)
-    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -flto")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -flto")
-    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -flto")
-    set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -flto")
-    set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -flto")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -flto")
-endif()
-
-set(SHOULD_DEFINE_STUBS 0)
-
-if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    set(CXXBRIDGE_GEN_TARGET_OS "linux")
-    include(CheckCSourceCompiles)
-    check_c_source_compiles("
-        #define _GNU_SOURCE
-        #include <features.h>
-        #ifndef __USE_GNU
-            #error System is not using Glibc
-        #endif
-        int main() { return 0; }" LINUX_IS_USING_GLIBC)
-    if (NOT LINUX_IS_USING_GLIBC)
-        set(SHOULD_DEFINE_STUBS 1)
-    endif()
-elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Android")
-    set(CXXBRIDGE_GEN_TARGET_OS "android")
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # no-op
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Android")
+    # no-op
 elseif (APPLE)
-    set(SHOULD_DEFINE_STUBS 1)
     if (CMAKE_CROSSCOMPILING)
         message(STATUS "Homebrew is disabled due to cross-compiling")
     else()
@@ -61,7 +28,7 @@ elseif (APPLE)
             set(HOMEBREW_VERSION "unknown")
         endif()
         if (EXISTS ${HOMEBREW_PREFIX})
-            message(STATUS "Found Homebrew: ${HOMEBREW_EXECUTABLE} (version ${HOMEBREW_VERSION})")
+            message(STATUS "Found Homebrew: ${HOMEBREW_EXECUTABLE} (found version ${HOMEBREW_VERSION})")
         else()
             message(FATAL_ERROR "Cannot find Homebrew")
         endif()
@@ -71,31 +38,39 @@ elseif (APPLE)
 
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_DARWIN_C_SOURCE -D__DARWIN_C_LEVEL=__DARWIN_C_FULL")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_DARWIN_C_SOURCE -D__DARWIN_C_LEVEL=__DARWIN_C_FULL")
-
-    set(CXXBRIDGE_GEN_TARGET_OS "darwin")
 elseif (WIN32)
-    set(CXXBRIDGE_GEN_TARGET_OS "windows")
     include(CheckSymbolExists)
     check_symbol_exists(_UCRT "_mingw.h" USE_UCRT)
 elseif (CYGWIN)
-    set(SHOULD_DEFINE_STUBS 1)
     add_compile_definitions(__USE_LINUX_IOCTL_DEFS)
-    set(CXXBRIDGE_GEN_TARGET_OS "cygwin")
 elseif (EMSCRIPTEN)
     if (NOT (CMAKE_BUILD_TYPE MATCHES "Debug") AND NOT (CMAKE_BUILD_TYPE MATCHES "MinSize"))
         # FIXME: why this is needed to pass linking
         set(RUSTFLAGS "${RUSTFLAGS} -Copt-level=z")
     endif()
 
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -sALLOW_MEMORY_GROWTH -Wl,-u,ntohs -Wl,-u,htons")
-
-    set(CXXBRIDGE_GEN_TARGET_OS "emscripten")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -sALLOW_MEMORY_GROWTH -Wl,-u,ntohs -Wl,-u,htons -Wl,-u,htonl")
 else()
-    message(WARNING "Unsupported platform: ${CMAKE_SYSTEM_NAME}")
+    message(WARNING "
+        New platform: ${CMAKE_SYSTEM_NAME}
+
+        You can file an Issue about this platform at https://github.com/ookiineko/magiskboot_build/issues if the build fails")
 endif()
 
-if(SHOULD_DEFINE_STUBS)
+include(CheckSymbolExists)
+check_symbol_exists(lseek64 "unistd.h" LSEEK64_EXISTS)
+if(NOT LSEEK64_EXISTS)
     add_compile_definitions(off64_t=off_t)
     add_compile_definitions(lseek64=lseek)
     add_compile_definitions(ftruncate64=ftruncate)
+endif()
+
+if (CMAKE_SYSTEM_NAME MATCHES "Android")
+    message(STATUS "Fortify enabled")
+    add_compile_options(-D_FORTIFY_SOURCE=2)
+else()
+    message(STATUS "Fortify disabled")
+    # Couldn't bypass fortify, so disable it
+    # see also: include-android/fortify_stub.h
+    add_compile_options(-U_FORTIFY_SOURCE)
 endif()

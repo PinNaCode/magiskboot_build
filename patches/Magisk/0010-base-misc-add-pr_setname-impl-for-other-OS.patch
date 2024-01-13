@@ -25,7 +25,7 @@ index cf16b3b..c5bcfd7 100644
 +#elif defined(__EMSCRIPTEN__)
 +    // no-op
 +#else
-+#error unknown PR_SET_NAME impl on this platform
++#   error unknown PR_SET_NAME impl on this platform
 +#endif
  }
  

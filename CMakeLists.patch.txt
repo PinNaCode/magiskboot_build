@@ -1,5 +1,5 @@
 # XXX: Consider using https://cmake.org/cmake/help/v3.0/module/ExternalProject.html
-if(PATCH_VENDOR_PROJECTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/patches")
+if(PATCH_VENDORED_PROJECTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/patches")
     find_program(PATCH_EXECUTABLE patch REQUIRED)
     message(STATUS "Found patch: ${PATCH_EXECUTABLE}")
 
@@ -51,17 +51,17 @@ if(PATCH_VENDOR_PROJECTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/patches")
         execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --force --recursive)
     endif()
 
-    foreach(vendor_dir ${vendored_dirs})
-        file(GLOB patches ${CMAKE_CURRENT_SOURCE_DIR}/patches/${vendor_dir}/*.patch)
+    foreach(vendored_dir ${vendored_dirs})
+        file(GLOB patches ${CMAKE_CURRENT_SOURCE_DIR}/patches/${vendored_dir}/*.patch)
         if(patches)
             foreach(patch_filename ${patches})
-                message(STATUS "Applying ${patch_filename} for: ${vendor_dir}")
+                message(STATUS "Applying ${patch_filename} for: ${vendored_dir}")
                 execute_process(COMMAND ${PATCH_EXECUTABLE} -p1 -i ${patch_filename} --no-backup-if-mismatch
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/vendor/${vendor_dir}
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/${vendored_dir}
                                 RESULT_VARIABLE ret)
 
-                if(NOT "${ret}" STREQUAL "0")
-                    message(FATAL_ERROR "Couldn't apply ${patch_filename} for ${vendor_dir}")
+                if(NOT ret STREQUAL "0")
+                    message(FATAL_ERROR "Couldn't apply ${patch_filename} for ${vendored_dir}")
                 endif()
             endforeach()
         endif()

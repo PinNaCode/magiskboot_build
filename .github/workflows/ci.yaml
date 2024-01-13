@@ -5,6 +5,9 @@ on:
       debug-build:
         type: boolean
         description: "Build in debug mode instead of release"
+      full-lto:
+        type: boolean
+        description: "Whether to enable full LTO"
 
   push:
     branches-ignore:
@@ -42,6 +45,7 @@ jobs:
       short_sha: ${{ steps.get_short_sha.outputs.SHORT_SHA }}
       cmake_build_type: ${{ steps.detect_build_type.outputs.CMAKE_BUILD_TYPE }}
       build_type: ${{ steps.detect_build_type.outputs.BUILD_TYPE }}
+      full_lto: ${{ steps.determine_lto_type.outputs.FULL_LTO }}
 
     steps:
       - name: Determine short Git commit SHA
@@ -52,17 +56,25 @@ jobs:
       - name: Detect build types
         id: detect_build_type
         run: |
+          CMAKE_BUILD_TYPE=Release
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             if [[ "${{ github.event.inputs.debug-build }}" == "true" ]]; then
               CMAKE_BUILD_TYPE=Debug
-            else
-              CMAKE_BUILD_TYPE=Release
             fi
-          else
-            CMAKE_BUILD_TYPE=Release
           fi
           echo "CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}" | tee -a $GITHUB_OUTPUT
           echo "BUILD_TYPE=${CMAKE_BUILD_TYPE,,}" | tee -a $GITHUB_OUTPUT
+
+      - name: Determine LTO type
+        id: determine_lto_type
+        run: |
+          FULL_LTO=OFF
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            if [[ "${{ github.event.inputs.full-lto }}" == "true" ]]; then
+              FULL_LTO=ON
+            fi
+          fi
+          echo "FULL_LTO=${FULL_LTO}" | tee -a $GITHUB_OUTPUT
 
   src:
     name: Prepare (source)
@@ -173,7 +185,8 @@ jobs:
                 -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
                 -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
                 -DANDROID_PLATFORM=${{ env.api_level }} -DANDROID_ABI=${{ env.target_arch }} \
-                -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }}
+                -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }} \
+                -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }}
 
           echo -e "\n### build ###\n"
           cmake --build build -j $(nproc)
@@ -198,9 +211,12 @@ jobs:
           - os: "ubuntu"
             tag: "jammy"
             extra_patches: "patches-contrib/Magisk/0021-workaround-revert-extract_if-to-drain_filter-rename.patch"
+            # XXX: llvm ver is older than rust
+            full_lto: "OFF"
 
           - os: "alpine"
             tag: "edge"
+            full_lto: ${{ needs.vars.outputs.full_lto }}
 
     container:
       image: ${{ matrix.os }}:${{ matrix.tag }}
@@ -220,9 +236,9 @@ jobs:
         if: matrix.os == 'ubuntu'
         run: |
           apt update
-          DEBIAN_FRONTEND=noninteractive apt install -y wget tar patch file xxd python3 \
+          DEBIAN_FRONTEND=noninteractive apt install -y wget tar patch file xxd \
               build-essential liblzma-dev liblz4-dev libbz2-dev zlib1g-dev pkg-config clang-15 \
-              libc++-15-dev libc++abi-15-dev cmake ninja-build rustc cargo
+              lld-15 libc++-15-dev libc++abi-15-dev cmake ninja-build rustc cargo
           ln -s $(which clang-15) $(dirname $(which clang-15))/clang
           ln -s $(which clang++-15) $(dirname $(which clang-15))/clang++
 
@@ -231,7 +247,7 @@ jobs:
         run: |
           apk update
           apk add build-base linux-headers bash wget file xxd xz-dev lz4-dev bzip2-dev zlib-dev \
-                  python3 pkgconf clang libc++-dev cmake samurai rust cargo
+                  pkgconf clang lld libc++-dev cmake samurai rust cargo
 
       - name: Synchronize (source)
         uses: yogeshlonkar/wait-for-jobs@v0.2.1
@@ -251,10 +267,11 @@ jobs:
           cd magiskboot_*-src/
 
           echo -e "\n### patch source ###\n"
-          ./scripts/apply_patches.py ${{ matrix.extra_patches }}
+          ./.github/__apply_patches.sh ${{ matrix.extra_patches }}
 
           echo -e "\n### configure ###\n"
-          CC=clang CXX=clang++ cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }}
+          CC=clang CXX=clang++ cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} \
+                  -DUSE_LTO_LINKER_PLUGIN=${{ matrix.full_lto }}
 
           echo -e "\n### build ###\n"
           cmake --build build -j $(nproc)
@@ -294,7 +311,8 @@ jobs:
       - name: Prepare
         run: |
           brew install --overwrite coreutils wget file xz lz4 \
-              bzip2 zlib pkg-config cmake ninja rust
+              bzip2 zlib pkg-config cmake ninja llvm rust
+          echo "$(brew --prefix)/opt/llvm/bin" | tee -a $GITHUB_PATH
 
       - name: Fix up Rust
         if: matrix.os_release == 13
@@ -319,8 +337,8 @@ jobs:
           cd magiskboot_*-src/
 
           echo -e "\n### configure ###\n"
-          CC=clang CXX=clang++ cmake -G Ninja -B build \
-              -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} -DPREFER_STATIC_LINKING=ON
+          CC=clang CXX=clang++ cmake -G Ninja -B build -DCMAKE_AR=llvm-ar -DCMAKE_RANLIB=llvm-ranlib \
+              -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} -DPREFER_STATIC_LINKING=ON -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }}
 
           echo -e "\n### build ###\n"
           cmake --build build -j $(nproc)
@@ -369,7 +387,7 @@ jobs:
     steps:
       - name: Prepare (Host)
         run: |
-          brew install --overwrite coreutils file pkg-config cmake ninja
+          brew install --overwrite coreutils file pkg-config cmake ninja llvm
 
       - name: Prepare (Environment)
         run: |
@@ -385,6 +403,10 @@ jobs:
       - name: Prepare (Cross)
         run: |
           vcpkg install --host-triplet=${{ env.vcpkg_triplet }} zlib liblzma lz4 bzip2
+
+      - name: Prepare (PATH)
+        run: |
+          echo "$(brew --prefix)/opt/llvm/bin" | tee -a $GITHUB_PATH
 
       - name: Prepare (Rust)
         run: |
@@ -419,9 +441,11 @@ jobs:
           CC=clang CXX=clang++ cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} \
               -DCMAKE_SYSTEM_PROCESSOR=${{ env.cmake_arch }} -DCMAKE_SYSTEM_NAME=Darwin \
               -DCMAKE_C_COMPILER_TARGET=${{ env.clang_target }} -DCMAKE_CXX_COMPILER_TARGET=${{ env.clang_target }} \
+              -DCMAKE_AR=llvm-ar -DCMAKE_RANLIB=llvm-ranlib \
               -DRUSTC_TARGET=${{ env.rust_target }} -DPREFER_STATIC_LINKING=ON \
               -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
-              -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }}
+              -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }} \
+              -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }}
 
           echo -e "\n### build ###\n"
           cmake --build build -j $(nproc)
@@ -499,7 +523,7 @@ jobs:
 
           echo -e "\n### configure ###\n"
           CC=clang CXX=clang++ cmake -G Ninja -B build \
-              -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} -DPREFER_STATIC_LINKING=ON
+              -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} -DPREFER_STATIC_LINKING=ON -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }}
 
           echo -e "\n### build ###\n"
           cmake --build build -j $(nproc)
@@ -657,7 +681,8 @@ jobs:
                     -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} -DCMAKE_SYSTEM_NAME=Windows \
                     -DRUSTC_TARGET=${{ matrix.rust_target }} -DRUST_BUILD_STD=${{ matrix.build_rust_std }} -DPREFER_STATIC_LINKING=ON \
                     -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
-                    -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} -DMINGW=TRUE
+                    -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} -DMINGW=TRUE \
+                    -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }}
 
           echo -e "\n### build ###\n"
           cmake --build build -j $(nproc)
@@ -755,6 +780,7 @@ jobs:
           . "$HOME/.cargo/env"
           emcmake cmake -G Ninja -B build -DCMAKE_EXE_LINKER_FLAGS="-sNODERAWFS" \
               -DRUSTC_TARGET=${{ env.rust_target }} -DRUST_BUILD_STD=ON \
+              -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }} \
               -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} -DPREFER_STATIC_LINKING=ON \
               -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
               -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }} \

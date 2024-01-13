@@ -1,51 +1,60 @@
 # the followings are copied from Magisk
 
 add_library(libbase STATIC
-    vendor/Magisk/native/src/base/files.cpp
-    vendor/Magisk/native/src/base/misc.cpp
-    vendor/Magisk/native/src/base/logging.cpp
-    vendor/Magisk/native/src/base/stream.cpp
-    vendor/Magisk/native/src/base/base-rs.cpp
-    vendor/Magisk/native/src/external/cxx-rs/src/cxx.cc)
+    src/Magisk/native/src/base/files.cpp
+    src/Magisk/native/src/base/misc.cpp
+    src/Magisk/native/src/base/logging.cpp
+    src/Magisk/native/src/base/stream.cpp
+    src/Magisk/native/src/base/base-rs.cpp
+    src/Magisk/native/src/external/cxx-rs/src/cxx.cc)
 target_compile_definitions(libbase PRIVATE -DRUST_CXX_NO_EXCEPTIONS)
 target_include_directories(libbase PRIVATE
-    vendor/Magisk/native/src/base)
+    src/Magisk/native/src/base)
 target_include_directories(libbase PUBLIC
-    vendor/Magisk/native/src/include
-    vendor/Magisk/native/src/base/include)
+    src/Magisk/native/src/include
+    src/Magisk/native/src/base/include)
 if (CMAKE_SYSTEM_NAME MATCHES "Android")
-target_link_libraries(libbase log)
+    message(STATUS "Native liblog enabled")
+    target_link_libraries(libbase log)
 else()
-target_compile_options(libbase PUBLIC -include ${CMAKE_CURRENT_SOURCE_DIR}/include/android_macro.h)
-target_link_libraries(libbase android_liblog)
+    target_compile_options(libbase PUBLIC --include=${CMAKE_CURRENT_SOURCE_DIR}/include-android/fortify_stub.h)
+
+    include(CheckSymbolExists)
+    check_symbol_exists("__printflike" "sys/cdefs.h" HAVE_PRINTFLIKE)
+    if (NOT HAVE_PRINTFLIKE)
+        target_compile_options(libbase PUBLIC --include=${CMAKE_CURRENT_SOURCE_DIR}/include-android/libbsd_stub.h)
+    endif()
+
+    message(STATUS "Using bundled liblog")
+    target_link_libraries(libbase android_liblog)
 endif()
 
 add_library(libzopfli STATIC
-    vendor/Magisk/native/src/external/zopfli/src/zopfli/blocksplitter.c
-    vendor/Magisk/native/src/external/zopfli/src/zopfli/cache.c
-    vendor/Magisk/native/src/external/zopfli/src/zopfli/deflate.c
-    vendor/Magisk/native/src/external/zopfli/src/zopfli/gzip_container.c
-    vendor/Magisk/native/src/external/zopfli/src/zopfli/hash.c
-    vendor/Magisk/native/src/external/zopfli/src/zopfli/katajainen.c
-    vendor/Magisk/native/src/external/zopfli/src/zopfli/lz77.c
-    vendor/Magisk/native/src/external/zopfli/src/zopfli/squeeze.c
-    vendor/Magisk/native/src/external/zopfli/src/zopfli/tree.c
-    vendor/Magisk/native/src/external/zopfli/src/zopfli/util.c
-    vendor/Magisk/native/src/external/zopfli/src/zopfli/zlib_container.c
-    vendor/Magisk/native/src/external/zopfli/src/zopfli/zopfli_lib.c)
+    src/Magisk/native/src/external/zopfli/src/zopfli/blocksplitter.c
+    src/Magisk/native/src/external/zopfli/src/zopfli/cache.c
+    src/Magisk/native/src/external/zopfli/src/zopfli/deflate.c
+    src/Magisk/native/src/external/zopfli/src/zopfli/gzip_container.c
+    src/Magisk/native/src/external/zopfli/src/zopfli/hash.c
+    src/Magisk/native/src/external/zopfli/src/zopfli/katajainen.c
+    src/Magisk/native/src/external/zopfli/src/zopfli/lz77.c
+    src/Magisk/native/src/external/zopfli/src/zopfli/squeeze.c
+    src/Magisk/native/src/external/zopfli/src/zopfli/tree.c
+    src/Magisk/native/src/external/zopfli/src/zopfli/util.c
+    src/Magisk/native/src/external/zopfli/src/zopfli/zlib_container.c
+    src/Magisk/native/src/external/zopfli/src/zopfli/zopfli_lib.c)
 target_include_directories(libzopfli PUBLIC
-    vendor/Magisk/native/src/external/zopfli/src)
+    src/Magisk/native/src/external/zopfli/src)
 target_compile_options(libzopfli PRIVATE
     -Werror -Wno-unused -Wno-unused-parameter)
 
 add_executable(${MAGISKBOOT_TARGET}
-    vendor/Magisk/native/src/boot/main.cpp
-    vendor/Magisk/native/src/boot/bootimg.cpp
-    vendor/Magisk/native/src/boot/compress.cpp
-    vendor/Magisk/native/src/boot/format.cpp
-    vendor/Magisk/native/src/boot/boot-rs.cpp)
+    src/Magisk/native/src/boot/main.cpp
+    src/Magisk/native/src/boot/bootimg.cpp
+    src/Magisk/native/src/boot/compress.cpp
+    src/Magisk/native/src/boot/format.cpp
+    src/Magisk/native/src/boot/boot-rs.cpp)
 target_include_directories(${MAGISKBOOT_TARGET} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/native/src/external/cxx-rs/include)
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Magisk/native/src/external/cxx-rs/include)
 target_link_libraries(${MAGISKBOOT_TARGET}
     libbase
     LibLZMA::LibLZMA

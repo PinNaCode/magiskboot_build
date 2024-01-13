@@ -11,7 +11,7 @@ a simple portable CMake-based build system for magiskboot
 magiskboot itself depends on the following libraries:
 
 1. [LZMA][LZMA]
-2. [lz4][lz4]
+2. [LZ4][LZ4]
 3. [bzip2][bzip]
 4. [zlib][zlib]
 
@@ -19,11 +19,10 @@ for build-time dependencies:
 
 1. [pkg-config][pkg-config]
 2. [Clang][Clang]
-3. [LLD][LLD] (optional)
-4. [Rust][Rust]
-5. [Cargo][Cargo]
-6. [CMake][CMake]
-7. [Libc++][Libcxx] (optional, see [this part](#help-my-build-has-failed))
+3. [Rust][Rust]
+4. [Cargo][Cargo]
+5. [CMake][CMake]
+6. [Libc++][Libcxx] (optional, see [this part](#help-my-build-has-failed))
 
 please make sure you have installed the above softwares before building
 
@@ -61,7 +60,7 @@ export PATH=/path/to/your/ondk/toolchains/rust/bin:$PATH
 apt update
 apt upgrade  # upgrade all existing packages (optional)
 apt install build-essential liblzma liblz4 libbz2 zlib pkg-config \
-            clang lld rust cmake ninja
+            clang rust cmake ninja
 ````
 
 When configuring, pass `-DCMAKE_INSTALL_PREFIX=$PREFIX` to CMake.
@@ -80,10 +79,9 @@ sudo apt upgrade  # upgrade all existing packages (optional)
 
 # replace clang-15, libc++-15-dev, libc++abi-15-dev with
 # appropriate version according to your Ubuntu release
-# do the same for lld if you want to use it
 sudo apt install build-essential lzma-dev liblzma-dev liblz4-dev libbz2-dev \
                  zlib1g-dev pkg-config clang-15 libc++-15-dev libc++abi-15-dev cmake \
-                 ninja-build rustc cargo  # optional: lld-15
+                 ninja-build rustc cargo
 ````
 
 When configuring, set `CC` and `CXX` with correct values, for example: `clang-15` and `clang++-15`.
@@ -95,14 +93,14 @@ sudo apk update
 sudo apk upgrade  # upgrade all existing packages (recommended)
 sudo apk add build-base linux-headers xz-dev lz4-dev bzip2-dev \
              zlib-dev pkgconf clang libc++-dev cmake \
-             samurai rust cargo  # optional: lld
+             samurai rust cargo
 ````
 
 #### archlinux
 
 ````shell
 sudo pacman -S --needed base-devel xz lz4 bzip2 zlib pkgconf \
-                        clang libc++ cmake ninja rust  # optional: lld
+                        clang libc++ cmake ninja rust
 ````
 
 </details>
@@ -119,6 +117,16 @@ brew upgrade  # upgrade all existing packages (optional)
 brew install xz lz4 bzip2 zlib pkg-config cmake ninja rust
 ````
 
+#### LTO configuration
+
+To use [LTO](#lto) (optional), also install the `llvm` package, and add it to your current `PATH`:
+
+````shell
+export PATH="$(brew --prefix)/opt/llvm/bin:$PATH" CC=clang CXX=clang++
+````
+
+and pass `-DCMAKE_AR=llvm-ar -DCMAKE_RANLIB=llvm-ranlib` to CMake when configuring.
+
 </details>
 
 <details><summary>Windows</summary>
@@ -127,7 +135,7 @@ brew install xz lz4 bzip2 zlib pkg-config cmake ninja rust
 
 > **Note**
 >
-> A minor amount of POSIX functions in `src/winsup/*_compat.c` are currently stubbed and no-op (e.g. chmod, chown, mknod), but it shouldn't cause too much trouble for magiskboot to work.
+> A minor amount of POSIX functions in `libc-compat/winsup/*_compat.c` are currently stubbed and no-op (e.g. chmod, chown, mknod), but it shouldn't cause too much trouble for magiskboot to work.
 >
 > However, if you know a better way to do this, please feel free to open a Pull Request to change it :)
 
@@ -138,7 +146,7 @@ don't forget to set this environtment variable to allow symlinks to work properl
 ````shell
 pacman -Syu  # upgrade all existing packages (optional, you may need to do this for multiple times)
 pacman -S --needed base-devel pactoys
-pacboy -S --needed {xz,lz4,bzip2,zlib,pkgconf,clang,lld,cmake,libc++,ninja,rust}:p
+pacboy -S --needed {xz,lz4,bzip2,zlib,pkgconf,clang,cmake,libc++,ninja,rust}:p
 ````
 
 If you are cross-compiling and using vcpkg to manage the dependencies, please make sure CMake variable `MINGW` is set to `TRUE` during configuring.
@@ -171,7 +179,7 @@ To use the patched Clang with Fedora Cygwin, set both `CMAKE_C_COMPILER_TARGET` 
 
 Another issue is `cygwin64-cmake` overrides C and C++ compilers to GCC which is not supported by Magisk, and somehow ignoring the `CC` and `CXX` variables set by us. To workaround this, set `CMAKE_C_COMPILER` and `CMAKE_CXX_COMPILER` manually with the path to the previous Cygwin cross Clang and Clang++.
 
-Cygwin's Libc++ is buggy, if you can't pass linking with Libc++, see [this part](#help-my-build-has-failed) to apply patches for building without Libc++. (You will also need to apply patches to compile with old Rust toolchain.)
+Cygwin's Libc++ is buggy, if you can't pass linking with Libc++, see [this part](#help-my-build-has-failed) to apply patches for building without Libc++. (You will also need to apply patches to compile with old Clang and Rust toolchain.)
 
 Finally, you should be able to pass the build and get it working now :D
 
@@ -251,13 +259,13 @@ vcpkg install --host-triplet=arm64-linux bzip2 lz4 zlib liblzma
 
 Set variable `RUSTC_TARGET` to the Rust target you wanted to cross compile for, e.g. `aarch64-unknown-linux-gnu`.
 
-To use your toolchain file with `vcpkg`, first pass `-DCMAKE_TOOLCHAIN_FILE=/path/to/your/vcpkg/scripts/buildsystems/vcpkg.cmake` to CMake, and set the variable `VCPKG_CHAINLOAD_TOOLCHAIN_FILE` to the path of your actual toolchain file.
+To integrate vcpkg with CMake, pass `-DCMAKE_TOOLCHAIN_FILE=/path/to/your/vcpkg/scripts/buildsystems/vcpkg.cmake` to CMake, to use your toolchain file with vcpkg, set the variable `VCPKG_CHAINLOAD_TOOLCHAIN_FILE` to the path of your actual toolchain file.
 
 #### LTO
 
 If you want to perform LTO at the final link time, pass `-DUSE_LTO_LINKER_PLUGIN=ON` to CMake during configuring.
 
-And you will need to install LLD.
+And you will need to install [LLD][LLD].
 
 Note: you may need to make sure your LLVM and LLD are sharing the same LLVM version with Rust.
 
@@ -347,12 +355,12 @@ Feel free to add an [Issue](../../issues) about support on your new platform.
 
 #### Clean builds
 
-To quickly discard the current `build` directory and dirty `vendor/` submodule changes, please run `make clean`.
+To quickly discard the current `build` directory and dirty vendored submodule (`src/`) changes, please run `make clean`.
 
 #### Tweaking patches
 
-To temporarily disable `vendor/` projects patching, re-configure with `-DPATCH_VENDOR_PROJECTS=OFF` (useful if you are patching them manually).
-To enable it again, use `-DPATCH_VENDOR_PROJECTS=ON` (Note this will clean up changes in `vendor/` modules and re-apply all the patches).
+To temporarily disable vendored projects patching, re-configure with `-DPATCH_VENDORED_PROJECTS=OFF` (useful if you are patching them manually).
+To enable it again, use `-DPATCH_VENDORED_PROJECTS=ON` (Note this will clean up changes in vendored modules and re-apply all the patches).
 
 #### Rust stuffs
 
@@ -366,9 +374,9 @@ The result `magiskboot` executable will have a `_debug` suffix.
 
 #### Updating sources
 
-For `vendor/` submodules with their name starting with `android_`, most patches are imported from [android-tools][android-tools], and don't always require updating.
+For vendored submodules (`src/`) with their name starting with `android_`, most patches are imported from [android-tools][android-tools], and don't always require updating.
 
-When syncing upstream `vendor/{android_libbase,Magisk}` changes, here is a few things to check:
+When syncing upstream `{android_libbase,Magisk}` changes, here is a few things to check:
   * `build.py` changes
   * `{,{base,boot}/}Android.mk` updates
   * if `external` projects were added, deleted, or moved, update the list of excluded directories at the bottom of `CMakeLists.txt` accordingly
@@ -390,7 +398,7 @@ When syncing upstream `vendor/{android_libbase,Magisk}` changes, here is a few t
 
 [pkg-config]: https://www.freedesktop.org/wiki/Software/pkg-config/
 [LZMA]: https://tukaani.org/lzma/
-[lz4]: https://lz4.github.io/lz4/
+[LZ4]: https://lz4.github.io/lz4/
 [bzip]: http://www.bzip.org/
 [zlib]: https://zlib.net/
 [Clang]: https://clang.llvm.org/

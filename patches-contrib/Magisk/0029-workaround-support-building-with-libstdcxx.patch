@@ -49,15 +49,15 @@ index 249b698..4e3c342 100644
 --- a/native/src/base/misc.cpp
 +++ b/native/src/base/misc.cpp
 @@ -28,6 +28,9 @@
+ #ifdef _WIN32
+ #include <winsup/str_compat.h>
  #endif
- #include <random>
- #include <string>
 +#ifndef _LIBCPP_VERSION
 +#include <cstring>
 +#endif
- #if !defined(__ANDROID__) && !defined(__APPLE__)
- #include <libbsd_compat.h>
- #endif
+ 
+ #include <base.hpp>
+ 
 diff --git a/native/src/base/misc.hpp b/native/src/base/misc.hpp
 index 7ced155..3e9869f 100644
 --- a/native/src/base/misc.hpp

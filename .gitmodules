@@ -1,29 +1,29 @@
 [submodule "Magisk"]
-	path = vendor/Magisk
+	path = src/Magisk
 	url = https://github.com/topjohnwu/Magisk.git
 	branch = master
 	shallow = true
 [submodule "android_logging"]
-	path = vendor/android_logging
+	path = src/android_logging
 	url = https://android.googlesource.com/platform/system/logging.git
 	shallow = true
 [submodule "android_libbase"]
-	path = vendor/android_libbase
+	path = src/android_libbase
 	url = https://android.googlesource.com/platform/system/libbase.git
 	shallow = true
 [submodule "android_fmtlib"]
-	path = vendor/android_fmtlib
+	path = src/android_fmtlib
 	url = https://android.googlesource.com/platform/external/fmtlib.git
 	shallow = true
 [submodule "android_core"]
-	path = vendor/android_core
+	path = src/android_core
 	url = https://android.googlesource.com/platform/system/core.git
 	shallow = true
 [submodule "mman-win32"]
-	path = vendor/mman-win32
+	path = src/mman-win32
 	url = https://github.com/alitrack/mman-win32.git
 	shallow = true
 [submodule "msvc_getline"]
-	path = vendor/msvc_getline
+	path = src/msvc_getline
 	url = https://github.com/CostantinoGrana/msvc_getline.git
 	shallow = true

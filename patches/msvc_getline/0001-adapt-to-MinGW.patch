@@ -19,13 +19,13 @@ index 6c3f699..5d7f4b6 100644
  
 -// MSVC specific implementation
 +#ifdef _UCRT
-+#ifndef WIN32_LEAN_AND_MEAN
-+#define WIN32_LEAN_AND_MEAN
++#  ifndef WIN32_LEAN_AND_MEAN
++#  define WIN32_LEAN_AND_MEAN
 +#endif
 +#include <windows.h>
 +
 +#ifndef _IOERROR
-+#define _IOERROR	(0x0010)
++#  define _IOERROR	(0x0010)
 +#endif
 +
 +struct __crt_stdio_stream_data
@@ -54,11 +54,11 @@ index 6c3f699..5d7f4b6 100644
 +    _lock_file(fp);
 +    _InterlockedOr(&(((struct __crt_stdio_stream_data *)fp)->_flags), _IOERROR);
 +    _unlock_file(fp);
-+#else /* _UCRT */
-+#ifdef __MINGW32__
++#else
++#  ifdef __MINGW32__
 +    // MinGW specific implementation
 +    ((struct _iobuf *)fp)->_flag |= _IOERR;
-+#else /* __MINGW32__ */
++#  else
 +    // MSVC specific implementation
      struct file { // Undocumented implementation detail
          unsigned char *_ptr;
@@ -67,8 +67,8 @@ index 6c3f699..5d7f4b6 100644
      #define _IOERR 0x10
  
      ((struct file *)fp)->_flag |= _IOERR;
-+#endif /* __MINGW32__ */
-+#endif /* _UCRT */
++#  endif
++#endif
  }
  
  ssize_t getdelim(char **restrict lineptr, size_t *restrict n, int delim, FILE *restrict stream)

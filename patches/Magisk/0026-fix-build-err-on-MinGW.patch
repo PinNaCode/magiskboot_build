@@ -26,7 +26,7 @@ index 114b55c..0b6e3c0 100644
  cxx = { path = "external/cxx-rs" }
  cxx-gen = { path = "external/cxx-rs/gen/lib" }
 -libc = "0.2"
-+libc = { path = "../../../../src/libc-compat-rs" }
++libc = { path = "../../../../libc-compat/rs" }
  cfg-if = "1.0"
  num-traits = "0.2"
  num-derive = "0.3"
@@ -38,7 +38,7 @@ index f89abca..42baccf 100644
  
  [target.'cfg(windows)'.dependencies]
  filepath = "0.1.2"
-+winsup = { path = "../../../../../src/winsup/rs" }
++winsup = { path = "../../../../../libc-compat/winsup/rs" }
 diff --git a/native/src/base/cxx_extern.rs b/native/src/base/cxx_extern.rs
 index 86f56a8..a83b1df 100644
 --- a/native/src/base/cxx_extern.rs
@@ -52,7 +52,7 @@ index 86f56a8..a83b1df 100644
  use std::os::fd::{BorrowedFd, OwnedFd, RawFd};
  
 +#[cfg(target_os = "windows")]
-+use winsup::fd_compat::{BorrowedFd, OwnedFd, RawFd};
++use winsup::fd::{BorrowedFd, OwnedFd, RawFd};
 +
  use cfg_if::cfg_if;
  use cxx::private::c_char;
@@ -91,10 +91,10 @@ index bb1a1f7..0b4929b 100644
  use std::os::unix::fs::FileTypeExt;
  use std::os::unix::io::{AsRawFd, FromRawFd, OwnedFd, RawFd};
 +} else {
-+use winsup::fd_compat::{AsFd, BorrowedFd, IntoRawFd};
++use winsup::fd::{AsFd, BorrowedFd, IntoRawFd};
 +use std::os::windows::fs::FileTypeExt;
-+use winsup::fs_compat::{IsBlockDevice, StatSize};
-+use winsup::fd_compat::{AsRawFd, FromRawFd, OwnedFd, RawFd};
++use winsup::fs::{IsBlockDevice, StatSize};
++use winsup::fd::{AsRawFd, FromRawFd, OwnedFd, RawFd};
 +}
 +}
  use std::{io, mem, ptr, slice};
@@ -181,7 +181,7 @@ index 7e7a894..04fb1f9 100644
  use std::os::unix::io::RawFd;
 +
 +#[cfg(target_os = "windows")]
-+use winsup::fd_compat::RawFd;
++use winsup::fd::RawFd;
 +
  use std::ptr;
  
@@ -194,7 +194,7 @@ index 7e7a894..04fb1f9 100644
      use std::os::unix::io::RawFd;
  
 +    #[cfg(target_os = "windows")]
-+    use winsup::fd_compat::RawFd;
++    use winsup::fd::RawFd;
 +
      use crate::{slice_from_ptr, slice_from_ptr_mut};
  
@@ -251,7 +251,7 @@ index bcf3b25..c0aa236 100644
  num-traits = { workspace = true }
 +
 +[target.'cfg(windows)'.dependencies]
-+winsup = { path = "../../../../../src/winsup/rs" }
++winsup = { path = "../../../../../libc-compat/winsup/rs" }
 diff --git a/native/src/boot/cpio.rs b/native/src/boot/cpio.rs
 index 0e36b4d..0c353e2 100644
 --- a/native/src/boot/cpio.rs
@@ -268,13 +268,13 @@ index 0e36b4d..0c353e2 100644
 +use std::fs::metadata;
 +
 +#[cfg(target_os = "windows")]
-+use winsup::fs_compat::metadata;
++use winsup::fs::metadata;
 +
 +#[cfg(not(target_os = "windows"))]
 +use std::fs::DirBuilder;
 +
 +#[cfg(target_os = "windows")]
-+use winsup::fs_compat::DirBuilder;
++use winsup::fs::DirBuilder;
 +
  use std::io::Write;
  use std::mem::size_of;
@@ -283,7 +283,7 @@ index 0e36b4d..0c353e2 100644
  use std::os::unix::fs::{symlink, DirBuilderExt, FileTypeExt, MetadataExt};
 +
 +#[cfg(target_os = "windows")]
-+use winsup::fs_compat::{symlink, DirBuilderExt, FileTypeExt, MetadataExt};
++use winsup::fs::{symlink, DirBuilderExt, FileTypeExt, MetadataExt};
 +
  use std::path::Path;
  use std::process::exit;
@@ -300,7 +300,7 @@ index dab86d8..c0aca63 100644
  use std::os::fd::{AsRawFd, FromRawFd};
  
 +#[cfg(target_os = "windows")]
-+use winsup::fd_compat::{AsRawFd, FromRawFd};
++use winsup::fd::{AsRawFd, FromRawFd};
 +
  use byteorder::{BigEndian, ReadBytesExt};
  use quick_protobuf::{BytesReader, MessageRead};
@@ -314,7 +314,7 @@ index b7a775c..9a77dde 100644
  using namespace std;
  
 +#ifdef _WIN32
-+#define byte std::byte
++#  define byte std::byte
 +#endif
 +
  #if 0
@@ -347,7 +347,7 @@ index 79dac8f..e0634ba 100644
      DHTB,
 +#ifdef _WIN32
 +    FORMAT_BLOB,
-+#define BLOB FORMAT_BLOB
++#   define BLOB FORMAT_BLOB
 +#else
      BLOB,
 +#endif

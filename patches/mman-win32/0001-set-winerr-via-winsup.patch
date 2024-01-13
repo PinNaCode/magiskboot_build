@@ -17,7 +17,7 @@ index e71666c..97b0408 100644
  #endif /* FILE_MAP_EXECUTE */
  
 +#ifdef WITH_WINSUP
-+// this function is defined in src/winsup/internal/errno.c
++// this function is defined in libc-compat/winsup/internal/errno.c
 +extern void __set_errno_via_winerr(DWORD winerr);
 +#else
  static int __map_mman_error(const DWORD err, const int deferr)

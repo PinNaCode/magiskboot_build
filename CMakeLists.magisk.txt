@@ -1,9 +1,9 @@
 if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/flags.h)
     find_package(Git REQUIRED)
-    if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/.git)
+    if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src/Magisk/.git)
         execute_process(
             COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
-            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk"
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/Magisk"
             OUTPUT_VARIABLE "MAGISK_VERSION"
             COMMAND_ERROR_IS_FATAL ANY
             OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -15,11 +15,11 @@ if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/flags.h)
     # fallback version
     set(MAGISK_VER_CODE 1000000)
 
-    if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/gradle.properties)
-        file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/vendor/Magisk/gradle.properties MAGISK_CONFIG_CONTENTS)
+    if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src/Magisk/gradle.properties)
+        file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/src/Magisk/gradle.properties MAGISK_CONFIG_CONTENTS)
         foreach (MAGISK_CONFIG_LINE ${MAGISK_CONFIG_CONTENTS})
             string(REGEX REPLACE "^[ ]+" "" MAGISK_CONFIG_LINE ${MAGISK_CONFIG_LINE})
-            if ("${MAGISK_CONFIG_LINE}" STREQUAL "" OR MAGISK_CONFIG_LINE MATCHES "^#")
+            if (MAGISK_CONFIG_LINE STREQUAL "" OR MAGISK_CONFIG_LINE MATCHES "^#")
                 continue()
             else()
                 string(REGEX MATCH "^[^=]+=[^=#]+" MAGISK_CONFIG_KV ${MAGISK_CONFIG_LINE})
@@ -30,7 +30,7 @@ if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/flags.h)
                         string(REGEX REPLACE "^magisk\\." "" MAGISK_CONFIG_KV ${MAGISK_CONFIG_KV})
                         string(REGEX MATCH "^[^=]+" MAGISK_CONFIG_KEY ${MAGISK_CONFIG_KV})
                         string(REGEX REPLACE "^${MAGISK_CONFIG_KEY}=" "" MAGISK_CONFIG_VALUE ${MAGISK_CONFIG_KV})
-                        if ("${MAGISK_CONFIG_KEY}" STREQUAL "versionCode")
+                        if (MAGISK_CONFIG_KEY STREQUAL "versionCode")
                             set(MAGISK_VER_CODE "${MAGISK_CONFIG_VALUE}")
                         else()
                             continue()
@@ -42,7 +42,7 @@ if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/flags.h)
             endif()
         endforeach()
     endif()
-    message(STATUS "Found Magisk, version ${MAGISK_VERSION} (version code \"${MAGISK_VER_CODE}\")")
+    message(STATUS "Magisk version: ${MAGISK_VERSION} (version code \"${MAGISK_VER_CODE}\")")
     if (CMAKE_BUILD_TYPE MATCHES "Debug")
         set(MAGISK_DEBUG "1")
     else()

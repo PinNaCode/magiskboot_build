@@ -1,44 +1,67 @@
+include(CheckSymbolExists)
+check_symbol_exists(
+    "strlcpy"
+    "string.h"
+    HAVE_STRLCPY)
+if (HAVE_STRLCPY)
+    target_compile_definitions(libbase PRIVATE
+        -DHAVE_STRLCPY)
+endif()
+
 add_library(platform_stubs STATIC
-    src/libbsd_compat.c
-    src/sendfile_compat.c)
-target_include_directories(platform_stubs PUBLIC include)
+    libc-compat/placeholder.c)
+target_include_directories(platform_stubs PUBLIC libc-compat/include)
+
+if ((NOT CMAKE_SYSTEM_NAME STREQUAL "Linux") AND (NOT CMAKE_SYSTEM_NAME STREQUAL "Android"))
+    message(STATUS "Using generic sendfile replacement")
+    target_sources(platform_stubs PRIVATE
+        libc-compat/non-linux/sendfile_fallback.c)
+endif()
+
+if (NOT HAVE_STRLCPY)
+    message(STATUS "Using bundled libbsd strlcpy implementation")
+    target_sources(platform_stubs PRIVATE
+        libc-compat/libbsd/str.c)
+endif()
 
 if (WIN32)
-target_sources(platform_stubs PRIVATE
-    src/winsup/acl_compat.c
-    src/winsup/at_compat.c
-    src/winsup/dirent_compat.c
-    src/winsup/file_compat.c
-    src/winsup/io_compat.c
-    src/winsup/link_compat.c
-    src/winsup/mkdir_compat.c
-    src/winsup/mknod_compat.c
-    src/winsup/open_compat.c
-    src/winsup/stat_compat.c
-    src/winsup/str_compat.c
-    src/winsup/uio_compat.c
-    src/winsup/internal/acl.c
-    src/winsup/internal/assert.c
-    src/winsup/internal/errno.c
-    src/winsup/internal/fd.c
-    src/winsup/internal/fs.c)
-target_link_libraries(platform_stubs INTERFACE shlwapi)
+    message(STATUS "Using win32 libc-compat")
 
-add_library(libmman STATIC
-    vendor/mman-win32/mman.c)
-target_compile_definitions(libmman PRIVATE -DWITH_WINSUP)
-target_include_directories(libmman PUBLIC vendor/mman-win32)
-target_link_libraries(platform_stubs INTERFACE libmman)
+    target_sources(platform_stubs PRIVATE
+        libc-compat/winsup/acl.c
+        libc-compat/winsup/at.c
+        libc-compat/winsup/dirent.c
+        libc-compat/winsup/file.c
+        libc-compat/winsup/io.c
+        libc-compat/winsup/link.c
+        libc-compat/winsup/mkdir.c
+        libc-compat/winsup/mknod_stub.c
+        libc-compat/winsup/open.c
+        libc-compat/winsup/stat.c
+        libc-compat/winsup/str.c
+        libc-compat/winsup/uio.c
+        libc-compat/winsup/internal/acl.c
+        libc-compat/winsup/internal/assert.c
+        libc-compat/winsup/internal/errno.c
+        libc-compat/winsup/internal/fd.c
+        libc-compat/winsup/internal/fs.c)
+    target_link_libraries(platform_stubs INTERFACE shlwapi)
 
-add_library(libgetline STATIC
-    vendor/msvc_getline/getline.c)
-target_include_directories(libgetline PUBLIC vendor/msvc_getline)
-target_link_libraries(platform_stubs INTERFACE libgetline)
+    add_library(libmman STATIC
+        src/mman-win32/mman.c)
+    target_compile_definitions(libmman PRIVATE -DWITH_WINSUP)
+    target_include_directories(libmman PUBLIC src/mman-win32)
+    target_link_libraries(platform_stubs INTERFACE libmman)
 
-# needed by some random Rust stuffs
-target_link_libraries(${MAGISKBOOT_TARGET} ws2_32 userenv ntdll bcrypt)
+    add_library(libgetline STATIC
+        src/msvc_getline/getline.c)
+    target_include_directories(libgetline PUBLIC src/msvc_getline)
+    target_link_libraries(platform_stubs INTERFACE libgetline)
 
-target_include_directories(android_libbase PRIVATE include)
+    # needed by some random Rust stuffs
+    target_link_libraries(${MAGISKBOOT_TARGET} ws2_32 userenv ntdll bcrypt)
+
+    target_include_directories(android_libbase PRIVATE libc-compat/include)
 endif()
 
 target_link_libraries(libbase platform_stubs)

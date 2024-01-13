@@ -1,43 +1,40 @@
 # the followings are copied from android-tools
 
-add_subdirectory(vendor/android_fmtlib EXCLUDE_FROM_ALL)
+add_subdirectory(src/android_fmtlib EXCLUDE_FROM_ALL)
 
 add_library(android_liblog STATIC
-    vendor/android_logging/liblog/log_event_list.cpp
-    vendor/android_logging/liblog/log_event_write.cpp
-    vendor/android_logging/liblog/logger_name.cpp
-    vendor/android_logging/liblog/logger_read.cpp
-    vendor/android_logging/liblog/logger_write.cpp
-    vendor/android_logging/liblog/properties.cpp
-    vendor/android_logging/liblog/logprint.cpp)
+    src/android_logging/liblog/log_event_list.cpp
+    src/android_logging/liblog/log_event_write.cpp
+    src/android_logging/liblog/logger_name.cpp
+    src/android_logging/liblog/logger_read.cpp
+    src/android_logging/liblog/logger_write.cpp
+    src/android_logging/liblog/properties.cpp
+    src/android_logging/liblog/logprint.cpp)
 target_compile_definitions(android_liblog PRIVATE
     -DLIBLOG_LOG_TAG=1006 -D_XOPEN_SOURCE=700 -DFAKE_LOG_DEVICE=1)
 target_include_directories(android_liblog PUBLIC
-    vendor/android_core/include
-    vendor/android_logging/liblog/include
-    vendor/android_core/libcutils/include
-    vendor/android_libbase/include)
+    src/android_core/include
+    src/android_logging/liblog/include
+    src/android_core/libcutils/include
+    src/android_libbase/include)
 
 add_library(android_libbase STATIC
-    vendor/android_libbase/abi_compatibility.cpp
-    vendor/android_libbase/chrono_utils.cpp
-    vendor/android_libbase/file.cpp
-    vendor/android_libbase/hex.cpp
-    vendor/android_libbase/logging.cpp
-    vendor/android_libbase/mapped_file.cpp
-    vendor/android_libbase/parsebool.cpp
-    vendor/android_libbase/parsenetaddress.cpp
-    vendor/android_libbase/posix_strerror_r.cpp
-    vendor/android_libbase/properties.cpp
-    vendor/android_libbase/stringprintf.cpp
-    vendor/android_libbase/strings.cpp
-    vendor/android_libbase/threads.cpp
-    vendor/android_libbase/test_utils.cpp
-    vendor/android_libbase/errors_unix.cpp)
-if (NOT WIN32)
-target_sources(android_libbase PRIVATE
-    vendor/android_libbase/cmsg.cpp)
-endif()
+    src/android_libbase/abi_compatibility.cpp
+    src/android_libbase/chrono_utils.cpp
+    src/android_libbase/file.cpp
+    src/android_libbase/hex.cpp
+    src/android_libbase/logging.cpp
+    src/android_libbase/mapped_file.cpp
+    src/android_libbase/parsebool.cpp
+    src/android_libbase/parsenetaddress.cpp
+    src/android_libbase/posix_strerror_r.cpp
+    src/android_libbase/properties.cpp
+    src/android_libbase/stringprintf.cpp
+    src/android_libbase/strings.cpp
+    src/android_libbase/threads.cpp
+    src/android_libbase/test_utils.cpp
+    src/android_libbase/errors_unix.cpp)
 target_include_directories(android_libbase PUBLIC
-    vendor/android_libbase/include vendor/android_core/include)
+    src/android_libbase/include src/android_core/include)
 target_link_libraries(android_libbase PUBLIC fmt::fmt android_liblog)
+

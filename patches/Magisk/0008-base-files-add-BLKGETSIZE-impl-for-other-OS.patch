@@ -86,7 +86,7 @@ index 0d8d11c..3fda87d 100644
 +#elif defined(__CYGWIN__)
 +    static_assert(BLKGETSIZE64 == 0x00041268);
 +#elif !defined(_WIN32) && !defined(__EMSCRIPTEN__)
-+#error "Unknown BLKGETSIZE impl on this platform"
++#   error "Unknown BLKGETSIZE impl on this platform"
 +#endif
      ALLOW_MOVE_ONLY(mmap_data)
  
