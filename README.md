@@ -20,9 +20,8 @@ for build-time dependencies:
 1. [pkg-config][pkg-config]
 2. [Clang][Clang]
 3. [Rust][Rust]
-4. [Cargo][Cargo]
-5. [CMake][CMake]
-6. [Libc++][Libcxx] (optional, see [this part](#help-my-build-has-failed))
+4. [CMake][CMake]
+5. [Libc++][Libcxx] (optional, see [this part](#help-my-build-has-failed))
 
 please make sure you have installed the above softwares before building
 
@@ -396,7 +395,6 @@ When syncing upstream `{android_libbase,Magisk}` changes, here is a few things t
 [Clang]: https://clang.llvm.org/
 [LLD]: https://lld.llvm.org/
 [Rust]: https://www.rust-lang.org/
-[Cargo]: https://doc.rust-lang.org/cargo/
 [CMake]: https://cmake.org/
 [Magisk]: https://github.com/topjohnwu/Magisk.git
 [android-tools]: https://github.com/nmeum/android-tools
