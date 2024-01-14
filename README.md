@@ -151,15 +151,11 @@ pacboy -S --needed {xz,lz4,bzip2,zlib,pkgconf,clang,cmake,libc++,ninja,rust}:p
 
 If you are cross-compiling and using vcpkg to manage the dependencies, please make sure CMake variable `MINGW` is set to `TRUE` during configuring.
 
-#### Cygwin (test)
+#### Cygwin (WIP)
 
-> **Note**
+> **Warning**
 >
-> Cygwin build is not actively tested by CI, but it might work without problem.
->
-> If you find the build is broken, please file a [bug report](../../issues).
-
-An experimental build is available [here](../../releases/cygwin-test).
+> Cygwin support is work-in-progress, you may run into problems.
 
 To build for Cygwin, you need to compile a Rust toolchain from source, for more info: [Cygwin Rust porting](https://gist.github.com/ookiineko/057eb3a91825313caeaf6d793a33b0b2)
 
@@ -180,10 +176,6 @@ To use the patched Clang with Fedora Cygwin, set both `CMAKE_C_COMPILER_TARGET` 
 Another issue is `cygwin64-cmake` overrides C and C++ compilers to GCC which is not supported by Magisk, and somehow ignoring the `CC` and `CXX` variables set by us. To workaround this, set `CMAKE_C_COMPILER` and `CMAKE_CXX_COMPILER` manually with the path to the previous Cygwin cross Clang and Clang++.
 
 Cygwin's Libc++ is buggy, if you can't pass linking with Libc++, see [this part](#help-my-build-has-failed) to apply patches for building without Libc++. (You will also need to apply patches to compile with old Clang and Rust toolchain.)
-
-Finally, you should be able to pass the build and get it working now :D
-
-Feel free to ask questions about Cygwin support in [Issues](../../issues).
 
 </details>
 
