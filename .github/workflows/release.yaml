@@ -68,6 +68,7 @@ jobs:
             name: Last debug CI build
             target_commitish: dev
             tag_name: last-debug-ci
+            body_path: ${{ github.workspace }}/.github/__debug_release_template.md
             draft: false
             prerelease: true
             fail_on_unmatched_files: true

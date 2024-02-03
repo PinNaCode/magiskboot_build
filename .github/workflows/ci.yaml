@@ -15,18 +15,18 @@ on:
     paths-ignore:
       - '.github/workflows/release.yaml'
       - '.github/ISSUE_TEMPLATE/**'
-      - '.github/__release_template.txt'
       - 'patches-contrib/**'
       - 'LICENSE'
+      - '**/*.md'
       - 'README.md'
 
   pull_request:
     paths-ignore:
       - '.github/workflows/release.yaml'
-      - '.github/ISSUE_TEMPLATE/**'
       - '.github/__release_template.txt'
       - 'patches-contrib/**'
       - 'LICENSE'
+      - '**/*.md'
       - 'README.md'
 
 env:
