@@ -371,7 +371,29 @@ jobs:
     name: Build (macOS) (Cross)
     strategy:
       matrix:
-        os_release: [11, 12, 13]
+        include:
+          - os_release: 12
+            arch: "arm64"
+            cmake_arch: "aarch64"
+            clang_target: "aarch64-apple-darwin"
+            vcpkg_triplet: "arm64-osx"
+            rust_target: "aarch64-apple-darwin"
+
+          - os_release: 13
+            arch: "arm64"
+            cmake_arch: "aarch64"
+            clang_target: "aarch64-apple-darwin"
+            vcpkg_triplet: "arm64-osx"
+            rust_target: "aarch64-apple-darwin"
+
+          - os_release: 14
+            # yeah crossing x86_64 from arm64 host now...
+            arch: "x86_64"
+            cmake_arch: "x86_64"
+            clang_target: "x86_64-apple-darwin"
+            vcpkg_triplet: "x64-osx"
+            rust_target: "x86_64-apple-darwin"
+
     runs-on: macos-${{ matrix.os_release }}
     permissions:
       actions: write
@@ -379,16 +401,59 @@ jobs:
     env:
       HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
 
-      upload_suffix: "arm64-standalone"
-      cmake_arch: "aarch64"
-      clang_target: "aarch64-apple-darwin"
-      vcpkg_triplet: "arm64-osx"
-      rust_target: "aarch64-apple-darwin"
+      # only used on ARM64 runners,
+      # since there is no preinstalled Vcpkg on them
+      vcpkg_ver: 2024.01.12
+
+      upload_suffix: "standalone"
 
     steps:
       - name: Prepare (Host)
         run: |
           brew install --overwrite coreutils file pkg-config cmake ninja llvm
+
+      - name: Prepare (Detect)
+        id: detect-runner
+        run: |
+          if [[ -z "${VCPKG_INSTALLATION_ROOT}" ]]; then
+            echo "has_vcpkg=false" | tee -a $GITHUB_OUTPUT
+          else
+            echo "has_vcpkg=true" | tee -a $GITHUB_OUTPUT
+          fi
+
+      - name: Cache (Vcpkg Bootstrap)
+        id: cache-vcpkg-boot
+        if: steps.detect-runner.outputs.has_vcpkg != 'true'
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/${{ env.progname }}-vcpkg-strap
+          key: vcpkg-${{ env.vcpkg_ver }}-${{ runner.os }}-${{ matrix.os_release }}-${{ runner.arch }}
+
+      - name: Prepare (Vcpkg source)
+        if: steps.detect-runner.outputs.has_vcpkg != 'true' && steps.cache-vcpkg-boot.outputs.cache-hit != 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: microsoft/vcpkg
+          ref: ${{ env.vcpkg_ver }}
+          path: ${{ env.progname }}-vcpkg-strap
+
+      - name: Prepare (Vcpkg Bootstrap)
+        if: steps.detect-runner.outputs.has_vcpkg != 'true' && steps.cache-vcpkg-boot.outputs.cache-hit != 'true'
+        run: |
+          cd ${{ env.progname }}-vcpkg-strap
+          ./bootstrap-vcpkg.sh
+
+      - name: Prepare (Vcpkg)
+        if: steps.detect-runner.outputs.has_vcpkg != 'true'
+        run: |
+          rm -rf $GITHUB_WORKSPACE/${{ env.progname }}-vcpkg/
+          cp -af $GITHUB_WORKSPACE/${{ env.progname }}-vcpkg-strap/ \
+                 $GITHUB_WORKSPACE/${{ env.progname }}-vcpkg/
+
+          VCPKG_INSTALLATION_ROOT="${GITHUB_WORKSPACE}/${{ env.progname }}-vcpkg"
+
+          echo "${VCPKG_INSTALLATION_ROOT}" | tee -a $GITHUB_PATH
+          echo "VCPKG_INSTALLATION_ROOT=${VCPKG_INSTALLATION_ROOT}" | tee -a $GITHUB_ENV
 
       - name: Prepare (Environment)
         run: |
@@ -399,11 +464,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.vcpkg_root }}/installed
-          key: cross-vcpkgs-${{ env.vcpkg_triplet }}-appleclang-macos-${{ matrix.os_release }}
+          key: cross-vcpkgs-${{ matrix.vcpkg_triplet }}-appleclang-macos-${{ matrix.os_release }}
 
       - name: Prepare (Cross)
         run: |
-          vcpkg install --host-triplet=${{ env.vcpkg_triplet }} zlib liblzma lz4 bzip2
+          vcpkg install --host-triplet=${{ matrix.vcpkg_triplet }} zlib liblzma lz4 bzip2
 
       - name: Prepare (PATH)
         run: |
@@ -413,7 +478,7 @@ jobs:
         run: |
           curl https://sh.rustup.rs -sSf | sh -s -- -y
           . "$HOME/.cargo/env"
-          rustup target add ${{ env.rust_target }}
+          rustup target add ${{ matrix.rust_target }}
 
       - name: Fix up Rust
         if: matrix.os_release == 13
@@ -440,12 +505,12 @@ jobs:
           echo -e "\n### configure ###\n"
           . "$HOME/.cargo/env"
           CC=clang CXX=clang++ cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} \
-              -DCMAKE_SYSTEM_PROCESSOR=${{ env.cmake_arch }} -DCMAKE_SYSTEM_NAME=Darwin \
-              -DCMAKE_C_COMPILER_TARGET=${{ env.clang_target }} -DCMAKE_CXX_COMPILER_TARGET=${{ env.clang_target }} \
+              -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} -DCMAKE_SYSTEM_NAME=Darwin \
+              -DCMAKE_C_COMPILER_TARGET=${{ matrix.clang_target }} -DCMAKE_CXX_COMPILER_TARGET=${{ matrix.clang_target }} \
               -DCMAKE_AR=llvm-ar -DCMAKE_RANLIB=llvm-ranlib \
-              -DRUSTC_TARGET=${{ env.rust_target }} -DPREFER_STATIC_LINKING=ON \
+              -DRUSTC_TARGET=${{ matrix.rust_target }} -DPREFER_STATIC_LINKING=ON \
               -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
-              -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }} \
+              -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
               -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }}
 
           echo -e "\n### build ###\n"
@@ -460,7 +525,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-${{ needs.vars.outputs.build_type }}-macos-${{ matrix.os_release }}-${{ env.upload_suffix }}
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-${{ needs.vars.outputs.build_type }}-macos-${{ matrix.os_release }}-${{ matrix.arch }}-${{ env.upload_suffix }}
           path: ${{ github.workspace }}/${{ env.progname }}-out/magiskboot*
 
       # Fail fast

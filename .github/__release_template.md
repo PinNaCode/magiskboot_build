@@ -1,8 +1,6 @@
 > [!NOTE]
 >
 > Android and Linux CI builds are not / no longer uploaded to Release to save space, please use `libmagiskboot.so` extracted from the official [Magisk][Magisk] APKs instead.
->
-> x86_64 macOS 14 CI builds are not yet added at the moment (#16), binaries from the previous OS releases might work though.
 
 For debug builds, please download from [here](../../releases/last-debug-ci) instead.
 
