@@ -297,7 +297,7 @@ jobs:
     name: Build (macOS)
     strategy:
       matrix:
-        os_release: [11, 12, 13]
+        os_release: [12, 13, 14]
     runs-on: macos-${{ matrix.os_release }}
     permissions:
       actions: write
@@ -305,7 +305,7 @@ jobs:
     env:
       HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
 
-      upload_suffix: "x86_64-standalone"
+      upload_suffix: "standalone"
 
     steps:
       - name: Prepare
@@ -313,6 +313,11 @@ jobs:
           brew install --overwrite coreutils wget file xz lz4 \
               bzip2 zlib pkg-config cmake ninja llvm rust
           echo "$(brew --prefix)/opt/llvm/bin" | tee -a $GITHUB_PATH
+
+      - name: Prepare (Detect)
+        id: detect-runner
+        run: |
+          echo "uname_mach=$(uname -m)" | tee -a $GITHUB_OUTPUT
 
       - name: Fix up Rust
         if: matrix.os_release == 13
@@ -353,7 +358,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-${{ needs.vars.outputs.build_type }}-macos-${{ matrix.os_release }}-${{ env.upload_suffix }}
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-${{ needs.vars.outputs.build_type }}-macos-${{ matrix.os_release }}-${{ steps.detect-runner.outputs.uname_mach }}-${{ env.upload_suffix }}
           path: ${{ github.workspace }}/${{ env.progname }}-out/magiskboot*
 
       - name: Check
