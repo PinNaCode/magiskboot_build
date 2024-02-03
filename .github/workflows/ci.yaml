@@ -129,7 +129,7 @@ jobs:
 
       - name: Cache (ONDK)
         id: cache-ondk
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/${{ env.progname }}-ondk
           key: ondk-${{ env.ondk_ver }}-${{ runner.os }}
@@ -153,7 +153,7 @@ jobs:
 
       - name: Cache (Cross)
         id: cache-cross-vcpkgs
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.vcpkg_root }}/installed
           key: cross-vcpkgs-${{ env.vcpkg_triplet }}-ondk-${{ env.ondk_ver }}
@@ -395,7 +395,7 @@ jobs:
 
       - name: Cache (Cross)
         id: cache-cross-vcpkgs
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.vcpkg_root }}/installed
           key: cross-vcpkgs-${{ env.vcpkg_triplet }}-appleclang-macos-${{ matrix.os_release }}
@@ -602,7 +602,7 @@ jobs:
 
       - name: Cache (LLVM MinGW)
         id: cache-llvm-mingw
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/${{ env.progname }}-llvm-mingw
           key: llvm-mingw-${{ env.toolchain_ver }}-${{ matrix.crt }}-${{ runner.os }}
@@ -627,7 +627,7 @@ jobs:
 
       - name: Cache (Cross)
         id: cache-cross-vcpkgs
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.vcpkg_root }}/installed
           key: cross-vcpkgs-${{ matrix.vcpkg_triplet }}-llvm-mingw-${{ env.toolchain_ver }}-${{ matrix.crt }}
@@ -726,7 +726,7 @@ jobs:
 
       - name: Cache (Emscripten)
         id: cache-emsdk-system-libs
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.emsdk_cache_dir }}
           key: emsdk-${{ env.emsdk_ver }}-${{ runner.os }}
@@ -743,7 +743,7 @@ jobs:
 
       - name: Cache (Cross)
         id: cache-cross-vcpkgs
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.vcpkg_root }}/installed
           key: cross-vcpkgs-${{ env.vcpkg_triplet }}-emsdk-${{ env.emsdk_ver }}
