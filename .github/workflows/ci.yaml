@@ -124,7 +124,7 @@ jobs:
       - name: Prepare (Host)
         run: |
           sudo apt update
-          sudo DEBIAN_FRONTEND=noninteractive apt install -y wget tar patch file \
+          sudo DEBIAN_FRONTEND=noninteractive apt install -y wget tar file \
                     build-essential pkg-config cmake ninja-build
 
       - name: Cache (ONDK)
@@ -602,7 +602,7 @@ jobs:
       - name: Prepare (Host)
         run: |
           sudo apt update
-          sudo DEBIAN_FRONTEND=noninteractive apt install -y curl wget tar patch file \
+          sudo DEBIAN_FRONTEND=noninteractive apt install -y curl wget tar file \
                                         build-essential pkg-config cmake ninja-build
 
       - name: Cache (LLVM MinGW)
@@ -726,7 +726,7 @@ jobs:
       - name: Prepare (Host)
         run: |
           sudo apt update
-          sudo DEBIAN_FRONTEND=noninteractive apt install -y curl tar patch file \
+          sudo DEBIAN_FRONTEND=noninteractive apt install -y curl tar file \
                         build-essential pkg-config cmake ninja-build nodejs
 
       - name: Cache (Emscripten)
