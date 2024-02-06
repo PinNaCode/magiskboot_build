@@ -372,20 +372,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - os_release: 12
-            arch: "arm64"
-            cmake_arch: "aarch64"
-            clang_target: "aarch64-apple-darwin"
-            vcpkg_triplet: "arm64-osx"
-            rust_target: "aarch64-apple-darwin"
-
-          - os_release: 13
-            arch: "arm64"
-            cmake_arch: "aarch64"
-            clang_target: "aarch64-apple-darwin"
-            vcpkg_triplet: "arm64-osx"
-            rust_target: "aarch64-apple-darwin"
-
           - os_release: 14
             # yeah crossing x86_64 from arm64 host now...
             arch: "x86_64"
