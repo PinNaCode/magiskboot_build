@@ -525,26 +525,19 @@ jobs:
     permissions:
       actions: write
     needs: [vars]
-    strategy:
-      matrix:
-        include:
-          - msystem: CLANG64
-            note: "ucrt-x86_64-standalone"
-            upload: "yes"
-          - msystem: MINGW64
-            note: "msvcrt-x86_64-standalone"
-            upload: "yes"
     env:
       MSYS: "winsymlinks:native"
       MAGISKBOOT_WINSUP_NOCASE: 1
 
+      msystem: MINGW64
+      note: "msvcrt-x86_64-standalone"
       upload_prefix: "windows-mingw-w64"
 
     steps:
       - name: Prepare
         uses: msys2/setup-msys2@v2
         with:
-          msystem: ${{ matrix.msystem }}
+          msystem: ${{ env.msystem }}
           update: true
           # installing vim for xxd
           install: >-
@@ -585,11 +578,10 @@ jobs:
           cp -afv build/magiskboot*.exe $GITHUB_WORKSPACE/${{ env.progname }}-out
 
       - name: Upload artifacts
-        if: matrix.upload == 'yes'
         uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
-          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-${{ needs.vars.outputs.build_type }}-${{ env.upload_prefix }}-${{ matrix.note }}
+          name: ${{ env.progname }}-${{ needs.vars.outputs.short_sha }}-${{ needs.vars.outputs.build_type }}-${{ env.upload_prefix }}-${{ env.note }}
           path: ${{ github.workspace }}/${{ env.progname }}-out/magiskboot*.exe
 
       - name: Check
@@ -620,15 +612,6 @@ jobs:
             vcpkg_triplet: x86-mingw-static
             rust_target: i686-pc-windows-gnu
             build_rust_std: "OFF"
-
-          - crt: ucrt
-            upload_suffix: "i686-standalone"
-            cmake_arch: x86
-            cc: i686-w64-mingw32-clang
-            cxx: i686-w64-mingw32-clang++
-            vcpkg_triplet: x86-mingw-static
-            rust_target: i686-pc-windows-gnullvm
-            build_rust_std: "ON"
 
           - crt: ucrt
             upload_suffix: "arm64-standalone"
