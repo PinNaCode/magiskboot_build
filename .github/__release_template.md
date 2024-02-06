@@ -10,4 +10,8 @@ For debug builds, please download from [here](../../releases/last-debug-ci) inst
 
 - `ucrt`: available by default only since Windows 10+, sometimes requires installing or shipping with C runtime library manually to use on older version
 
+#### For macOS users
+
+OS release number is minimal required version to run the binary, binaries from the previous OS release(s) should work.
+
 [Magisk]: https://github.com/topjohnwu/Magisk/releases
