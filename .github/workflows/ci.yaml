@@ -210,7 +210,6 @@ jobs:
         include:
           - os: "ubuntu"
             tag: "jammy"
-            extra_patches: "patches-contrib/Magisk/0021-workaround-revert-extract_if-to-drain_filter-rename.patch"
             # XXX: llvm ver is older than rust
             full_lto: "OFF"
 
@@ -236,7 +235,7 @@ jobs:
         if: matrix.os == 'ubuntu'
         run: |
           apt update
-          DEBIAN_FRONTEND=noninteractive apt install -y wget tar patch file xxd \
+          DEBIAN_FRONTEND=noninteractive apt install -y wget tar file xxd \
               build-essential liblzma-dev liblz4-dev libbz2-dev zlib1g-dev pkg-config clang-15 \
               lld-15 libc++-15-dev libc++abi-15-dev cmake ninja-build rustc cargo
           ln -s $(which clang-15) $(dirname $(which clang-15))/clang
@@ -265,9 +264,6 @@ jobs:
           tar -xf magiskboot_*-src.tar.xz
 
           cd magiskboot_*-src/
-
-          echo -e "\n### patch source ###\n"
-          ./.github/__apply_patches.sh ${{ matrix.extra_patches }}
 
           echo -e "\n### configure ###\n"
           CC=clang CXX=clang++ cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} \
