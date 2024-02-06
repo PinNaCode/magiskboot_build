@@ -548,8 +548,6 @@ jobs:
           - msystem: MINGW64
             note: "msvcrt-x86_64-standalone"
             upload: "yes"
-          - msystem: UCRT64
-            note: "ucrt-x86_64-standalone"
     env:
       MSYS: "winsymlinks:native"
       MAGISKBOOT_WINSUP_NOCASE: 1
