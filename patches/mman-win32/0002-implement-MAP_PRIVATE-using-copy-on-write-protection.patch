@@ -91,7 +91,7 @@ index 97b0408..6e7f5d6 100644
  }
  
 -int _mprotect(void *addr, size_t len, int prot)
-+// TODO: not portable, use hash table with addr to flags mapping instead
++// TODO: not portable, use VirtualQuery to get old protection instead
 +int _mprotect_np(void *addr, size_t len, int prot, int map_flags)
  {
 -    DWORD newProtect = __map_mmap_prot_page(prot);
