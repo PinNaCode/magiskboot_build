@@ -64,6 +64,13 @@ if (WIN32)
     target_include_directories(android_libbase PRIVATE libc-compat/include)
 endif()
 
+if (EMSCRIPTEN)
+    message(STATUS "Using Emscripten mmap stubs")
+
+    target_sources(platform_stubs PRIVATE
+        libc-compat/emsup/mmap_hack.c)
+endif()
+
 target_link_libraries(libbase platform_stubs)
 target_link_libraries(libmagiskboot-rs INTERFACE platform_stubs)
 target_link_libraries(${MAGISKBOOT_TARGET} platform_stubs)

@@ -195,21 +195,17 @@ bc461ed94a3d1298d4d6ad310904d1b2e8ba705c2f3ad751d76454109cc7c69f951d33a72eff7f4f
 EOF
 
 # test: hexpatch
-if [[ "$1" == *.js ]]; then
-    echo -e "\n### FIXME: skipping hexpatch test for wasm ###\n"
-else
-    echo -e "\n### testing hexpatch ###\n"
-    set -x; echo -ne '\xb0\x00\xba\xca\xfe\xd0\x0d' > test.bin; set +x
-    file test.bin
-    xxd test.bin
-    set -x; $magiskboot hexpatch test.bin cafe badd; set +x
-    file test.bin
-    xxd test.bin
-    set -x
-    echo -ne '\xb0\x00\xba\xba\xdd\xd0\x0d' > expected.bin
-    diff test.bin expected.bin
-    set +x
-fi
+echo -e "\n### testing hexpatch ###\n"
+set -x; echo -ne '\xb0\x00\xba\xca\xfe\xd0\x0d' > test.bin; set +x
+file test.bin
+xxd test.bin
+set -x; $magiskboot hexpatch test.bin cafe badd; set +x
+file test.bin
+xxd test.bin
+set -x
+echo -ne '\xb0\x00\xba\xba\xdd\xd0\x0d' > expected.bin
+diff test.bin expected.bin
+set +x
 
 # TODO: add test for payload.bin extraction
 
