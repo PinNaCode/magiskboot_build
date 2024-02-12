@@ -5,7 +5,6 @@ Subject: [PATCH] fix build err on MinGW
 
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
- native/src/Cargo.toml         |  1 +
  native/src/base/Cargo.toml    |  7 ++++++-
  native/src/base/cxx_extern.rs | 19 ++++++++++++++++---
  native/src/base/files.rs      | 15 +++++++++++++++
@@ -15,21 +14,8 @@ Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
  native/src/boot/Cargo.toml    |  1 +
  native/src/boot/cpio.rs       | 22 +++++++++++++++++++++-
  native/src/boot/payload.rs    |  5 +++++
- 10 files changed, 90 insertions(+), 5 deletions(-)
+ 9 files changed, 89 insertions(+), 5 deletions(-)
 
-diff --git a/native/src/Cargo.toml b/native/src/Cargo.toml
-index 114b55c..0b6e3c0 100644
---- a/native/src/Cargo.toml
-+++ b/native/src/Cargo.toml
-@@ -6,7 +6,7 @@ resolver = "2"
- [workspace.dependencies]
- cxx = { path = "external/cxx-rs" }
- cxx-gen = { path = "external/cxx-rs/gen/lib" }
--libc = "0.2"
-+libc = { path = "../../../../libc-compat/rs" }
- cfg-if = "1.0"
- num-traits = "0.2"
- num-derive = "0.3"
 diff --git a/native/src/base/Cargo.toml b/native/src/base/Cargo.toml
 index f89abca..42baccf 100644
 --- a/native/src/base/Cargo.toml

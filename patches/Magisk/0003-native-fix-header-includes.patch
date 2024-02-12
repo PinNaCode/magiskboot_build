@@ -5,13 +5,28 @@ Subject: [PATCH] native: fix header includes
 
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
+ native/src/Cargo.toml       |  1 +
  native/src/base/files.cpp   |  8 ++++++++
  native/src/base/files.hpp   |  6 ++++++
  native/src/base/logging.hpp |  4 ++++
  native/src/base/misc.cpp    | 17 +++++++++++++++++
  native/src/base/stream.cpp  |  3 +++
  native/src/base/xwrap.hpp   |  5 +++++
- 6 files changed, 43 insertions(+)
+ 7 files changed, 44 insertions(+)
+
+diff --git a/native/src/Cargo.toml b/native/src/Cargo.toml
+index 114b55c..0b6e3c0 100644
+--- a/native/src/Cargo.toml
++++ b/native/src/Cargo.toml
+@@ -6,7 +6,7 @@ resolver = "2"
+ [workspace.dependencies]
+ cxx = { path = "external/cxx-rs" }
+ cxx-gen = { path = "external/cxx-rs/gen/lib" }
+-libc = "0.2"
++libc = { path = "../../../../libc-compat/rs" }
+ cfg-if = "1.0"
+ num-traits = "0.2"
+ num-derive = "0.3"
 
 diff --git a/native/src/base/files.cpp b/native/src/base/files.cpp
 index 6829de2..8aef651 100644
