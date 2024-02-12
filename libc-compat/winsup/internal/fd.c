@@ -38,6 +38,8 @@ struct fd_cache_entry {
     int oflag;
 };
 
+// TODO: not thread-safe, add a lock if needed
+// (currently magiskboot is a sinelg-threaded program)
 static struct fd_cache_entry fd_cache[OPEN_MAX];
 
 static size_t fd_cache_max_size = 0;

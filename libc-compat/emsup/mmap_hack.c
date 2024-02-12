@@ -24,6 +24,8 @@ struct map_entry {
     struct map_entry *next;
 };
 
+// TODO: not thread-safe, add a lock if needed
+// (currently magiskboot is a single-threaded program)
 static struct map_entry *maps = NULL;
 
 #define filter_map_by_key_or(_maps, _name,  \
