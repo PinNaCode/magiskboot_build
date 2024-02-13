@@ -1,7 +1,6 @@
 // android (bionic libc) errno
 
-#[cfg(any(target_os = "linux", target_os = "cygwin",
-          target_os = "emscripten"))]
+#[cfg(any(target_os = "linux", target_os = "emscripten"))]
 extern "C" {
     #[link_name = "__errno_location"]
     pub fn __errno() -> *mut crate::c_int;

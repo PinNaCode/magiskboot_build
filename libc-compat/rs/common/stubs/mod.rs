@@ -1,7 +1,7 @@
-#[cfg(not(target_os = "android"))]
+#[cfg(not(any(target_os = "android", target_os = "cygwin")))]
 mod errno;
 
-#[cfg(not(target_os = "android"))]
+#[cfg(not(any(target_os = "android", target_os = "cygwin")))]
 pub use errno::*;
 
 #[cfg(any(target_vendor = "apple", target_os = "windows"))]
