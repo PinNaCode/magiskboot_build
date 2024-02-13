@@ -230,6 +230,8 @@ If you prefer a statically linked binary (optional), pass `-DPREFER_STATIC_LINKI
 
 You can specify extra arguments passed to Cargo by setting CMake variable `CARGO_FLAGS` while configuring, you can also provide an initial value of environment `RUSTFLAGS` by setting the corresponding CMake variable.
 
+Note: unlike `RUSTFLAGS`, `CARGO_FLAGS` is using list syntax, not string. that is, replace all your spaces with `;`, e.g. `-DCARGO_FLAGS="-Z;no-index-update"` instead of `-DCARGO_FLAGS="-Z no-index-update"`
+
 #### Cross compiling
 
 First get a cross-compiler with Libc++ and Clang by either installing from source or downloading it from somewhere (usually your distribution's package manager).
