@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -19,8 +20,6 @@
 #include "internal/fd.h"
 
 #include "../include/winsup/link_compat.h"
-
-#define lc_min(a, b)  (((a) < (b)) ? (a) : (b))
 
 ssize_t readlink (const char *__restrict path,
                           char *__restrict buf, size_t len) {
@@ -90,7 +89,7 @@ ssize_t readlink (const char *__restrict path,
     }
 
     size_t chars;
-    errno_t err = wcstombs_s(&chars, buf, len, ws_ptr, lc_min(len - 1, ws_len / sizeof(WCHAR)));
+    errno_t err = wcstombs_s(&chars, buf, len, ws_ptr, MIN(len - 1, ws_len / sizeof(WCHAR)));
 
     if (err) {
         errno = err;

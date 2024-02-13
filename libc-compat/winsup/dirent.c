@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/param.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -24,8 +25,6 @@
 #ifndef O_PATH
 #  define O_PATH      0
 #endif
-
-#define dirent_min(a, b)  (((a) < (b)) ? (a) : (b))
 
 _DIR_stub *_opendir_stub (const char *path) {
     _DIR_stub *res = NULL;
@@ -130,7 +129,7 @@ struct _dirent_stub* _readdir_stub (_DIR_stub* dirp) {
     // clone data
     res.d_ino = d->d_ino;
     res.d_reclen = d->d_reclen;
-    res.d_namlen = strlcpy(res.d_name, d->d_name, dirent_min(sizeof(res.d_name), d->d_namlen));
+    res.d_namlen = strlcpy(res.d_name, d->d_name, MIN(sizeof(res.d_name), d->d_namlen));
     res.d_type = type;
 
     // Windows doesn't care this

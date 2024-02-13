@@ -1,13 +1,12 @@
 #include <assert.h>
 #include <errno.h>
+#include <sys/param.h>
 #include <sys/types.h>
 #include <unistd.h>
 
 #ifndef NDEBUG
 #  include <stdio.h>
 #endif
-
-#define sf_min(a, b)  (((a) < (b)) ? (a) : (b))
 
 #define sf_buf_size     8192
 
@@ -17,7 +16,7 @@ void __sendfile_stub(int out_fd, int in_fd, size_t count) {
     off_t n_left = count;
 
     while (n_left) {
-        n_read = read(in_fd, &sf_buf, sf_min(n_left, sf_buf_size));
+        n_read = read(in_fd, &sf_buf, MIN(n_left, sf_buf_size));
         if (n_read == 0)
             break;
         if (n_read < 0) {

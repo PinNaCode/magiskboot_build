@@ -20,8 +20,6 @@
 
 _Static_assert(__FileCaseSensitiveInfo == 0x17, "FileCaseSensitiveInfo is set to a wrong value");
 
-#define fs_min(a, b)  (((a) < (b)) ? (a) : (b))
-
 #define LOG_TAG                     "fs_internal"
 #define LOG_ERR(...)                log_err(LOG_TAG, __VA_ARGS__);
 
