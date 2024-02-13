@@ -13,11 +13,12 @@ diff --git a/native/src/base/files.rs b/native/src/base/files.rs
 index 892d375..25ed2e7 100644
 --- a/native/src/base/files.rs
 +++ b/native/src/base/files.rs
-@@ -45,12 +45,57 @@ pub fn readlink(path: &Utf8CStr, data: &mut [u8]) -> io::Result<usize> {
+@@ -45,12 +45,58 @@ pub fn readlink(path: &Utf8CStr, data: &mut [u8]) -> io::Result<usize> {
      };
  }
  
-+#[cfg(not(any(target_vendor = "apple", target_os = "windows")))]
++#[cfg(any(target_os = "android", target_os = "linux",
++          target_os = "cygwin", target_os = "emscripten"))]
  pub fn fd_path(fd: RawFd, buf: &mut dyn Utf8CStrBuf) -> io::Result<()> {
      let mut arr = Utf8CStrBufArr::<40>::new();
      let path = FsPathBuf::new(&mut arr).join("/proc/self/fd").join_fmt(fd);
