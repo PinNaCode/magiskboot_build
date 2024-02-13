@@ -26,6 +26,10 @@
 #  define O_PATH      0
 #endif
 
+#ifndef MIN
+#  define MIN(a, b)   (((a) < (b)) ? (a) : (b))
+#endif
+
 _DIR_stub *_opendir_stub (const char *path) {
     _DIR_stub *res = NULL;
     DIR *real_dirp;

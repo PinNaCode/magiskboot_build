@@ -21,6 +21,10 @@
 
 #include "../include/winsup/link_compat.h"
 
+#ifndef MIN
+#  define MIN(a, b)   (((a) < (b)) ? (a) : (b))
+#endif
+
 ssize_t readlink (const char *__restrict path,
                           char *__restrict buf, size_t len) {
     if (!(len > 0)) {

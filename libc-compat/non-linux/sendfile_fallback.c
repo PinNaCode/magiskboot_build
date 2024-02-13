@@ -8,6 +8,10 @@
 #  include <stdio.h>
 #endif
 
+#ifndef MIN
+#  define MIN(a, b)   (((a) < (b)) ? (a) : (b))
+#endif
+
 #define sf_buf_size     8192
 
 void __sendfile_stub(int out_fd, int in_fd, size_t count) {
