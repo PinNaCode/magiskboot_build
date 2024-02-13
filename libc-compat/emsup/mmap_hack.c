@@ -28,13 +28,12 @@ struct map_entry {
 // (currently magiskboot is a single-threaded program)
 static struct map_entry *maps = NULL;
 
-#define filter_map_by_key_or(_maps, _name,  \
-                        _key, _handler, _else)  \
+#define filter_map_by_key_or(_name, _key, _handler, _else)  \
     {   \
         __attribute__((unused)) struct map_entry *i; \
         __attribute__((unused)) struct map_entry *prev = NULL; \
         bool flag = false;  \
-        for (i = _maps; i; i = i->next) {    \
+        for (i = maps; i; i = i->next) {    \
             if (i->_name == _key) {     \
                 flag = true;    \
                 _handler;   \
@@ -82,7 +81,7 @@ int __wrap_close(int fildes) {
     if (fcntl(fildes, F_GETFD) < 0)
         return -1;  // invalid fd
 
-    filter_map_by_key_or(maps, fd, fildes, {
+    filter_map_by_key_or(fd, fildes, {
         // mark all matches as todo for munmap
         i->want_close = true;
     }, {
@@ -93,13 +92,14 @@ int __wrap_close(int fildes) {
     return 0;
 }
 
-static inline void munmap_hook(struct map_entry *map, size_t len) {
+static inline void post_munmap_hook(struct map_entry *map, size_t len) {
     // we dont support partial munmapping
     assert(map->len == len);
 
-    filter_map_by_key_or(map->next, fd, map->fd, {
+    filter_map_by_key_or(fd, map->fd, {
         // delay the close until the last file mapping
         // associcated with this fd is munmapped
+        assert(i->want_close);
 
         break;
     }, {
@@ -114,7 +114,7 @@ int _munmap_stub_impl(void *addr, size_t len) {
     if (res < 0)
         return res;
 
-    filter_map_by_key_or(maps, ptr, addr, {
+    filter_map_by_key_or(ptr, addr, {
         // remove from linked list
         if (prev)
             prev->next = i->next;
@@ -122,7 +122,7 @@ int _munmap_stub_impl(void *addr, size_t len) {
             maps = i->next;
 
         if (i->want_close)
-            munmap_hook(i, len);
+            post_munmap_hook(i, len);
 
         free(i);
 
