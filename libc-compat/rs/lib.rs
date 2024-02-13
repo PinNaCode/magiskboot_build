@@ -6,22 +6,27 @@
 mod macros;
 
 cfg_if::cfg_if! {
-    if #[cfg(target_os = "linux")] {
-        mod linux;
-        pub use linux::*;
-    } else if #[cfg(target_vendor = "apple")] {
+    if #[cfg(target_vendor = "apple")] {
+        // on macos, we need to shadow some stuffs
+
         mod darwin;
         pub use darwin::*;
-    } else if #[cfg(target_os = "cygwin")] {
-        mod cygwin;
-        pub use cygwin::*;
     } else if #[cfg(target_os = "windows")] {
+        // windows has some missing defs,
+        // we also need to shadow add some extra stuffs
+
         mod windows;
         pub use windows::*;
     } else if #[cfg(target_os = "emscripten")] {
+        // emscripten has some missing defs
+        // and we want to shadow some mman funcs
+
         mod emscripten;
         pub use emscripten::*;
     } else {
         pub use libc::*;
     }
 }
+
+mod common;
+pub use common::*;

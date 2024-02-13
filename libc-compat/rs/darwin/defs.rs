@@ -1,6 +1,7 @@
 pub use libc::*;
 
 // shadowing sendfile to use our stub
+// note: keep synced with common/stubs/sendfile.rs
 
 extern "C" {
     #[link_name = "__sendfile_stub"]

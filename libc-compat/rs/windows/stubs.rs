@@ -51,7 +51,6 @@ extern "C" {
 // fcntl
 
 pub const O_CLOEXEC: crate::c_int = crate::O_NOINHERIT;
-pub const O_PATH: crate::c_int = 0;  // no-op
 
 // link
 
@@ -183,13 +182,6 @@ pub const S_IXGRP: crate::mode_t = 8;
 pub const S_IXOTH: crate::mode_t = 1;
 pub const S_IXUSR: crate::mode_t = 64;
 
-// android (bionic libc) errno
-
-extern "cdecl" {
-    #[link_name = "_errno"]
-    pub fn __errno() -> *mut crate::c_int;
-}
-
 // poll
 
 pub type nfds_t = crate::c_ulong;
@@ -206,41 +198,10 @@ impl Clone for pollfd {
 
 pub type socklen_t = crate::c_int;
 
-// syscall
-
-pub const SYS_dup3: crate::c_int = 0;
-
 // acl
 
 extern "C" {
     pub fn lchown(path: *const crate::c_char, uid: crate::uid_t, gid: crate::gid_t) -> crate::c_int;
     pub fn fchmod(fd: crate::c_int, mode: crate::mode_t) -> crate::c_int;
     pub fn fchown(fd: crate::c_int, owner: crate::uid_t, group: crate::gid_t) -> crate::c_int;
-}
-
-// sendfile
-
-extern "C" {
-    #[link_name = "__sendfile_stub"]
-    fn real_sendfile(
-        out_fd: crate::c_int,
-        in_fd: crate::c_int,
-        count: crate::size_t
-    );
-}
-
-f! {
-    pub fn sendfile(
-        out_fd: crate::c_int,
-        in_fd: crate::c_int,
-        offset: *mut crate::off_t,
-        count: crate::size_t
-    ) -> crate::ssize_t {
-        if offset.is_null() {
-            real_sendfile(out_fd, in_fd, count);
-            0
-        } else {
-            panic!("unreadable code")
-        }
-    }
 }
