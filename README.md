@@ -363,10 +363,6 @@ To quickly discard the current `build` directory and dirty vendored submodule (`
 To temporarily disable vendored projects patching, re-configure with `-DPATCH_VENDORED_PROJECTS=OFF` (useful if you are patching them manually).
 To enable it again, use `-DPATCH_VENDORED_PROJECTS=ON` (Note this will clean up changes in vendored modules and re-apply all the patches).
 
-#### Rust stuffs
-
-If you modify something in the Rust part, you will have to perform `rm build/libmagiskboot-rs.a` manually before rebuilding. (TODO: let CMake detect source changes)
-
 #### Debug builds
 
 Pass `-DCMAKE_BUILD_TYPE=Debug` to CMake instead of `Release` during configuring to make some error log more verbose.
