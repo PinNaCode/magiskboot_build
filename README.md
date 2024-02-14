@@ -306,11 +306,13 @@ A very basic shell script is provided under the [`scripts`](scripts/magiskboot_t
 ### Generating source tarball
 
 ````shell
-cmake -G Ninja -B build -DNO_TARGETS_OR_DEPS=ON  # configure
+# configure for only packaging source
+CC=true cmake -G Ninja -B build \
+    -DNO_TARGETS_OR_DEPS=ON -DCMAKE_C_COMPILER_WORKS=YES
 cmake --build build -t package_source  # make a source package
 ````
 
-Make sure you passed `-DNO_TARGETS_OR_DEPS=ON` to CMake while configuring, which will allow creating source tarball without installing the [build dependencies](#requirements).
+Make sure to pass the above flags to CMake while configuring, which will allow creating source tarball without installing the [build dependencies](#requirements).
 
 you should be able to find your source package under the `build` folder
 
