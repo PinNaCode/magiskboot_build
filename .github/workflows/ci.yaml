@@ -205,7 +205,7 @@ jobs:
       # Fail fast
       - name: Cancel other jobs
         if: failure()
-        uses: andymckay/cancel-action@0.3
+        uses: andymckay/cancel-action@0.4
 
   build-linux:
     name: Build (Linux)
@@ -295,7 +295,7 @@ jobs:
       # Fail fast
       - name: Cancel other jobs
         if: failure()
-        uses: andymckay/cancel-action@0.3
+        uses: andymckay/cancel-action@0.4
 
   build-macos:
     name: Build (macOS)
@@ -373,7 +373,7 @@ jobs:
       # Fail fast
       - name: Cancel other jobs
         if: failure()
-        uses: andymckay/cancel-action@0.3
+        uses: andymckay/cancel-action@0.4
 
   build-macos-cross:
     name: Build (macOS) (Cross)
@@ -525,7 +525,7 @@ jobs:
       # Fail fast
       - name: Cancel other jobs
         if: failure()
-        uses: andymckay/cancel-action@0.3
+        uses: andymckay/cancel-action@0.4
 
   build-windows:
     name: Build (Windows)
@@ -601,7 +601,7 @@ jobs:
       # Fail fast
       - name: Cancel other jobs
         if: failure()
-        uses: andymckay/cancel-action@0.3
+        uses: andymckay/cancel-action@0.4
 
   build-windows-cross:
     name: Build (Windows) (Cross)
@@ -743,7 +743,7 @@ jobs:
       # Fail fast
       - name: Cancel other jobs
         if: failure()
-        uses: andymckay/cancel-action@0.3
+        uses: andymckay/cancel-action@0.4
 
   build-wasm:
     name: Build (WebAssembly)
@@ -850,4 +850,4 @@ jobs:
       # Fail fast
       - name: Cancel other jobs
         if: failure()
-        uses: andymckay/cancel-action@0.3
+        uses: andymckay/cancel-action@0.4
