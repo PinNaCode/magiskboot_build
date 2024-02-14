@@ -794,9 +794,10 @@ jobs:
           vcpkg install --host-triplet=${{ env.vcpkg_triplet }} \
                         zlib liblzma lz4 bzip2
 
+      # rust from ubuntu is quite old so use rustup
       - name: Prepare (Rust)
         run: |
-          curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
+          curl https://sh.rustup.rs -sSf | sh -s -- -y
           . "$HOME/.cargo/env"
           rustup component add rust-src
 
@@ -820,7 +821,7 @@ jobs:
           echo -e "\n### configure ###\n"
           . "$HOME/.cargo/env"
           emcmake cmake -G Ninja -B build -DCMAKE_EXE_LINKER_FLAGS="-sNODERAWFS" \
-              -DRUSTC_TARGET=${{ env.rust_target }} -DRUST_BUILD_STD=ON \
+              -DRUSTC_TARGET=${{ env.rust_target }} -DRUST_BUILD_STD=ON -DRUSTC_BOOTSTRAP=1 \
               -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }} \
               -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} -DPREFER_STATIC_LINKING=ON \
               -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \

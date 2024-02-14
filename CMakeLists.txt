@@ -49,6 +49,7 @@ option(WITHOUT_LIBCXX "Don't link libcxx instead of libstdc++" OFF)
 # Rust related options
 set(RUSTFLAGS "" CACHE STRING "extra flags passed to rustc")
 set(CARGO_FLAGS "" CACHE STRING "extra flags passed to cargo")
+set(RUSTC_BOOTSTRAP "winsup,base,magiskboot" CACHE STRING "HACK: enable nightly features on stable channel for crates")
 
 # useful for cross-compiling
 option(RUST_BUILD_STD "Build Rust standard library" OFF)
