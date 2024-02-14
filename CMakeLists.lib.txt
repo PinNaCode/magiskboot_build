@@ -26,7 +26,7 @@ else()
     message(FATAL_ERROR "Cannot find native component config")
 endif()
 
-add_dependencies(libbase prepare_generated_directory)
+add_dependencies(libbase prepared_generated_directory)
 target_include_directories(libbase PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/generated)
 target_include_directories(libbase PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/Magisk/native/src/external/cxx-rs/include)
 target_link_libraries(${MAGISKBOOT_TARGET} libmagiskboot-rs)
