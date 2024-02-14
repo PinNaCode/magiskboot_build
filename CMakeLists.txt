@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.22)
-project(magiskboot_build)
+project(magiskboot_build LANGUAGES C)
 
 if (NOT NO_TARGETS_OR_DEPS)
-    enable_language(C CXX)
+    enable_language(CXX)
 
     set(CMAKE_C_STANDARD 11)
     set(CMAKE_C_EXTENSIONS ON)
@@ -168,17 +168,9 @@ include(CMakeLists.patch.txt)
 # patched versions of the vendored dependencies.
 set(CPACK_SOURCE_GENERATOR "TXZ")
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "magiskboot_${MAGISK_VERSION}_${MAGISK_VER_CODE}-src")
-set(CPACK_SOURCE_IGNORE_FILES "/patches/" "/build/" "/.git/"
-    "/src/Magisk/app/" "/src/Magisk/buildSrc/" "/src/Magisk/docs/"
-    "/src/Magisk/gradle/" "/src/Magisk/scripts/" "/src/Magisk/stub/"
-    "/src/Magisk/tools/ndk-bins" "/src/Magisk/tools/termux-elf-cleaner"
-    "/src/Magisk/native/src/external/busybox/" "/src/Magisk/native/src/external/bzip2/"
-    "/src/Magisk/native/src/external/libcxx/" "/src/Magisk/native/src/external/lsplt/"
-    "/src/Magisk/native/src/external/lz4/" "/src/Magisk/native/src/external/pcre/"
-    "/src/Magisk/native/src/external/selinux/" "/src/Magisk/native/src/external/systemproperties/"
-    "/src/Magisk/native/src/external/xz/" "/src/Magisk/native/src/external/xz-embedded/"
-    "/src/Magisk/native/src/external/xz_config/" "/src/Magisk/native/src/external/zlib/"
-    "/src/Magisk/native/src/resetprop/" "/src/Magisk/native/src/su/"
-    "/src/Magisk/native/src/zygisk/" "\\\\.so$" "\\\\.zip$" "\\\\.orig" "\\\\.rej"
-    "\\\\.tar$" "\\\\.tar\\\\..*$" "\\\\.tgz$" "\\\\.data$" "aes_128_gcm.txt" "aes_256_gcm.txt")
+set(CPACK_SOURCE_IGNORE_FILES "/patches/" "/build/" "/.git/" "/src/Magisk/app/"
+    "/src/Magisk/buildSrc/" "/src/Magisk/docs/" "/src/Magisk/gradle/"
+    "/src/Magisk/scripts/" "/src/Magisk/stub/" "/src/Magisk/tools/ndk-bins"
+    "\\\\.so$" "\\\\.dll$" "\\\\.zip$" "\\\\.orig" "\\\\.rej" "\\\\.tar$"
+    "\\\\.tar\\\\..*$" "\\\\.tgz$" "\\\\.data$" "aes_128_gcm.txt" "aes_256_gcm.txt")
 include(CPack)

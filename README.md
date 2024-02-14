@@ -214,7 +214,7 @@ For prebuilt binaries, go check [GitHub Releases](../../releases/latest) for sel
 
 First get and extract the latest source tarball (called `magiskboot_<COMMIT_ID>_<VERCODE>-src.tar.xz`) from [Github Releases](../../releases/latest).
 
-Or clone this repository using Git with this option: `--recurse-submodules`. (If you already have a cloned repository without using that option, run: `git submodule update --init --recursive` instead)
+Or clone this repository using Git, note that cloning with `--recurse-submodules` is not recommended, and you should run `scripts/clone_submodules.sh` after clone because it skips the submodules that is not necessary for building magiskboot.
 
 ````shell
 CC=clang CXX=clang++ cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release  # configure
@@ -372,7 +372,6 @@ For vendored submodules (`src/`) with their name starting with `android_`, most 
 When syncing upstream `{android_libbase,Magisk}` changes, here is a few things to check:
   * `build.py` changes
   * `{,{base,boot}/}Android.mk` updates
-  * if `external` projects were added, deleted, or moved, update the list of excluded directories at the bottom of `CMakeLists.txt` accordingly
   * switch to `winsup` stub for MinGW for if any new file or spot reference to any of the following standard libc identifiers:
     * struct DIR
     * struct dirent

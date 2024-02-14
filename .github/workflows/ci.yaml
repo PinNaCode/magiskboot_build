@@ -80,23 +80,31 @@ jobs:
     name: Prepare (source)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
-
       - name: Prepare
         run: |
           sudo apt-get update
-          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential cmake ninja-build
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --no-install-suggests patch cmake ninja-build
 
       - name: Prepare (Git)
         run: |
           git config --global user.email "user@example.com"
           git config --global user.name "Example user"
 
+      - name: Prepare (checkout)
+        uses: actions/checkout@v4
+
+      - name: Prepare (submodule)
+        run: |
+          ./scripts/clone_submodules.sh
+
+          for _repo in $(git submodule foreach --recursive --quiet 'env'); do
+            git config --global --add safe.directory "$_repo"
+          done
+          unset _repo
+
       - name: Package source
         run: |
-          cmake -B build -G Ninja -DNO_TARGETS_OR_DEPS=ON
+          CC=true cmake -B build -G Ninja -DNO_TARGETS_OR_DEPS=ON -DCMAKE_C_COMPILER_WORKS=YES
           cmake --build build -t package_source
 
       - name: Upload artifacts
