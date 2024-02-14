@@ -386,6 +386,16 @@ When syncing upstream `{android_libbase,Magisk}` changes, here is a few things t
     * fopen
     * fstat
 
+### License
+
+Patches and stub codes created by this project (not borrowed from other places) are licensed under Apache 2.0 or GNU General Public License (GPL) v3 at your option,
+
+All parts of the code borrowed from other projects are licensed under their corresponding license.
+
+However, please note that when combining them are a whole and to distribute the magiskboot binary, all sources have to be licensed under GPL v3.
+
+For more details about these licenses, please see [LICENSE](LICENSE) and [LICENSE.magiskboot](LICENSE.magiskboot).
+
 ### Special thanks to
 
 - [android-tools][android-tools] developers for many code and inspiration of this repository
