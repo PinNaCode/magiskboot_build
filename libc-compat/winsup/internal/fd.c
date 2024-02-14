@@ -21,7 +21,6 @@
 #  include "assert.h"
 
 #  define LOG_TAG             "fd_internal"
-#  define LOG_ERR(...)        log_err(LOG_TAG, __VA_ARGS__);
 #endif
 
 #ifndef OPEN_MAX
@@ -59,7 +58,7 @@ char *__fd_get_path(int fd) {
 
     if (!GetFinalPathNameByHandle(h, buf, PATH_MAX, 0)) {
 #ifndef NDEBUG
-        LOG_ERR("GetFinalPathNameByHandle failed: %s", win_strerror(GetLastError()))
+        LOG_ERR("GetFinalPathNameByHandle failed: %s", win_strerror(GetLastError()));
 #endif
         free(buf);
 
@@ -91,7 +90,7 @@ int __open_dir_fd(const char *path, DWORD access, DWORD share_mode, int flags) {
 
     if ((fd = _open_osfhandle((intptr_t) h, flags)) < 0) {
 #ifndef NDEBUG
-        LOG_ERR("_open_osfhandle failed")
+        LOG_ERR("_open_osfhandle failed");
 #endif
         SetLastError(ERROR_INVALID_PARAMETER);  // EINVAL
 
@@ -115,7 +114,7 @@ int __open_symlink_fd(const char *path, DWORD access, DWORD share_mode, int flag
 
     if ((fd = _open_osfhandle((intptr_t) h, flags)) < 0) {
 #ifndef NDEBUG
-        LOG_ERR("_open_osfhandle failed")
+        LOG_ERR("_open_osfhandle failed");
 #endif
         SetLastError(ERROR_INVALID_PARAMETER);  // EINVAL
 
@@ -184,7 +183,7 @@ static int __get_osfhandle_oflag_fallback(HANDLE h) {
 
     if (!NT_SUCCESS(status)) {
 #ifndef NDEBUG
-        LOG_ERR("NtQueryObject failed: %s", win_strerror(RtlNtStatusToDosError(status)))
+        LOG_ERR("NtQueryObject failed: %s", win_strerror(RtlNtStatusToDosError(status)));
 #endif
 
         return 0;

@@ -19,7 +19,6 @@
 #  include "internal/assert.h"
 
 #  define LOG_TAG             "open_compat"
-#  define LOG_ERR(...)        log_err(LOG_TAG, __VA_ARGS__);
 #endif
 
 static int open_impl(const char *path, int oflag, va_list ap) {

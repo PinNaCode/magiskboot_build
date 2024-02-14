@@ -11,7 +11,6 @@
 #include "acl.h"
 
 #define LOG_TAG                     "acl_internal"
-#define LOG_ERR(...)                log_err(LOG_TAG, __VA_ARGS__);
 
 static char userBuff[UNLEN + 1];
 
@@ -46,7 +45,7 @@ int __ensure_path_access(const char *path, DWORD access) {
         SetLastError(winerr);
 
 #ifndef NDEBUG
-        LOG_ERR("GetNamedSecurityInfo failed: %s", win_strerror(winerr))
+        LOG_ERR("GetNamedSecurityInfo failed: %s", win_strerror(winerr));
 #endif
 
         goto exit;
@@ -64,7 +63,7 @@ int __ensure_path_access(const char *path, DWORD access) {
 
     if (!AccessCheck(sd, hToken, access, &_mapping, &_privs, &_priv_size, &_granted, &status)) {
 #ifndef NDEBUG
-        LOG_ERR("AccessCheck failed: %s", win_strerror(GetLastError()))
+        LOG_ERR("AccessCheck failed: %s", win_strerror(GetLastError()));
 #endif
         goto exit;
     }
@@ -82,7 +81,7 @@ int __ensure_path_access(const char *path, DWORD access) {
         SetLastError(winerr);
 
 #ifndef NDEBUG
-        LOG_ERR("SetEntriedInAcl failed: %s", win_strerror(winerr))
+        LOG_ERR("SetEntriedInAcl failed: %s", win_strerror(winerr));
 #endif
 
         goto exit;
@@ -92,7 +91,7 @@ int __ensure_path_access(const char *path, DWORD access) {
         SetLastError(winerr);
 
 #ifndef NDEBUG
-        LOG_ERR("SetNamedSecurityInfo failed: %s", win_strerror(winerr))
+        LOG_ERR("SetNamedSecurityInfo failed: %s", win_strerror(winerr));
 #endif
 
         goto exit;
@@ -118,7 +117,7 @@ __attribute__((constructor)) static void __init_creds(void) {
     DWORD dw = sizeof(userBuff);
 
     if (!GetUserName(userBuff, &dw)) {
-        LOG_ERR("GetUserName failed: %s", win_strerror(GetLastError()))
+        LOG_ERR("GetUserName failed: %s", win_strerror(GetLastError()));
 
         assert(0);
     }
@@ -128,7 +127,7 @@ __attribute__((constructor)) static void __init_creds(void) {
     HANDLE hProcessToken = INVALID_HANDLE_VALUE;
 
     if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY | TOKEN_DUPLICATE | TOKEN_IMPERSONATE | STANDARD_RIGHTS_READ, &hProcessToken)) {
-        LOG_ERR("OpenProcessToken failed: %s", win_strerror(GetLastError()))
+        LOG_ERR("OpenProcessToken failed: %s", win_strerror(GetLastError()));
 
         assert(0);
     }
@@ -138,7 +137,7 @@ __attribute__((constructor)) static void __init_creds(void) {
     CloseHandle(hProcessToken);
 
     if (!succeed) {
-        LOG_ERR("DuplicateToken failed: %s", win_strerror(GetLastError()))
+        LOG_ERR("DuplicateToken failed: %s", win_strerror(GetLastError()));
 
         assert(0);
     }

@@ -9,7 +9,6 @@
 #  include "assert.h"
 
 #  define LOG_TAG             "errno_internal"
-#  define LOG_ERR(...)        log_err(LOG_TAG, __VA_ARGS__);
 #endif
 
 void __set_errno_via_winerr(DWORD winerr) {
@@ -25,7 +24,7 @@ void __set_errno_via_winerr(DWORD winerr) {
     } else {
 unk_err:
 #ifndef NDEBUG
-        LOG_ERR("Unmapped winerr: %s (%ld)", win_strerror(winerr), winerr)
+        LOG_ERR("Unmapped winerr: %s (%ld)", win_strerror(winerr), winerr);
 #endif
 
         errno = -1;

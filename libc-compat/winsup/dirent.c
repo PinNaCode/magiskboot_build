@@ -17,7 +17,6 @@
 #include "../include/winsup/dirent_compat.h"
 #include "../include/winsup/open_compat.h"
 #include "../include/winsup/stat_compat.h"
-#include "../include/winsup/str_compat.h"
 
 #include "internal/errno.h"
 #include "internal/fd.h"

@@ -21,7 +21,6 @@
 _Static_assert(__FileCaseSensitiveInfo == 0x17, "FileCaseSensitiveInfo is set to a wrong value");
 
 #define LOG_TAG                     "fs_internal"
-#define LOG_ERR(...)                log_err(LOG_TAG, __VA_ARGS__);
 
 static bool enforce_case;
 
@@ -63,7 +62,7 @@ void __ensure_case_sensitive(const char *path, bool file) {
     if ((fd = __open_dir_fd(path, GENERIC_READ, FILE_SHARE_VALID_FLAGS, 0)) < 0) {
 open_dir_fd_failed:
 #ifndef NDEBUG
-        LOG_ERR("__open_dir_fd failed: %s", win_strerror(GetLastError()))
+        LOG_ERR("__open_dir_fd failed: %s", win_strerror(GetLastError()));
 #endif
 
         goto quit;
@@ -72,7 +71,7 @@ open_dir_fd_failed:
     if ((h = (HANDLE) _get_osfhandle(fd)) == INVALID_HANDLE_VALUE) {
 get_handle_failed:
 #ifndef NDEBUG
-        LOG_ERR("_get_osfhandle failed")
+        LOG_ERR("_get_osfhandle failed");
 #endif
 
         goto quit;
@@ -87,7 +86,7 @@ get_handle_failed:
         winerr = GetLastError();
 
 #ifndef NDEBUG
-        LOG_ERR("GetFileInformationByHandleEx failed: %s", win_strerror(winerr))
+        LOG_ERR("GetFileInformationByHandleEx failed: %s", win_strerror(winerr));
 #endif
 
 diag_and_quit:
@@ -98,21 +97,21 @@ diag_and_quit:
 
         switch (winerr) {
             case ERROR_INVALID_PARAMETER:
-                LOG_ERR("Detected: You may be on an OS version that doesn't support case sensitivity settings.")
+                LOG_ERR("Detected: You may be on an OS version that doesn't support case sensitivity settings.");
                 break;
             case ERROR_NOT_SUPPORTED:
-                LOG_ERR("Detected: Windows Subsystem for Linux may not be enabled on this machine.")
+                LOG_ERR("Detected: Windows Subsystem for Linux may not be enabled on this machine.");
                 break;
             case ERROR_ACCESS_DENIED:
-                LOG_ERR("Detected: You may not have enough rights to have this directory case sensitive with current user.")
+                LOG_ERR("Detected: You may not have enough rights to have this directory case sensitive with current user.");
                 break;
             case ERROR_DIR_NOT_EMPTY:
                 LOG_ERR("Detected: The directory is not empty, due to Windows limitation, please place magiskboot binary and image files outside of your working directory.\n"
-                            "Or, use fsutil to set the case sensitivity before filling this directory with files.")
+                            "Or, use fsutil to set the case sensitivity before filling this directory with files.");
                 break;
             default:
                 // unknown error !?
-                LOG_ERR("Note: Unable to determine reason, try using fsutil to set the case sensitivity manually and see.")
+                LOG_ERR("Note: Unable to determine reason, try using fsutil to set the case sensitivity manually and see.");
                 break;
         }
 
@@ -142,7 +141,7 @@ diag_and_quit:
         winerr = GetLastError();
 
 #ifndef NDEBUG
-        LOG_ERR("SetFileInformationByHandle failed: %s", win_strerror(winerr))
+        LOG_ERR("SetFileInformationByHandle failed: %s", win_strerror(winerr));
 #endif
 
         goto diag_and_quit;
@@ -165,7 +164,7 @@ quit:
                     "You may want to make sure Windows Subsystem for Linux is enabled on this machine.\n"
                     "On OS version older than Windows 10 1803, reactOS and wine, this feature may not be available.\n"
                     "To disable this check, set the environment variable MAGISKBOOT_WINSUP_NOCASE to 1 before running this program.\n"
-                    "Make sure you understand what are you doing before disabling the check.", path)
+                    "Make sure you understand what are you doing before disabling the check.", path);
 
         abort();
     }
