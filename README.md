@@ -305,6 +305,10 @@ A very basic shell script is provided under the [`scripts`](scripts/magiskboot_t
 
 ### Generating source tarball
 
+> [!NOTE]
+>
+> You may not be able to generate source tarball on Windows/Cygwin due to issues with symlinks.
+
 ````shell
 # configure for only packaging source
 CC=true cmake -G Ninja -B build \
