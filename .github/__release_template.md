@@ -1,3 +1,13 @@
+> [!IMPORTANT]
+>
+> The official magiskboot only supports running on Android and Linux,
+>
+> If you find something that works on the officially supported platforms,
+> but not on the extra platforms supported by magiskboot_build, then that
+> is a magiskboot_build-specific bug.
+>
+> Please, do ***NOT*** report magiskboot_build bugs to the upstream Magisk!
+
 > [!NOTE]
 >
 > Android and Linux CI builds are not / no longer uploaded to Release to save space, please use `libmagiskboot.so` extracted from the official [Magisk][Magisk] APKs instead.

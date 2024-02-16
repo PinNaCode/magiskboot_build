@@ -214,6 +214,16 @@ Please refer to [Magisk documentation](https://topjohnwu.github.io/Magisk/tools.
 
 ### Download
 
+> [!IMPORTANT]
+>
+> The official magiskboot only supports running on Android and Linux,
+>
+> If you find something that works on the officially supported platforms,
+> but not on the extra platforms supported by magiskboot_build, then that
+> is a magiskboot_build-specific bug.
+>
+> Please, do ***NOT*** report magiskboot_build bugs to the upstream Magisk!
+
 For prebuilt binaries, go check [GitHub Releases](../../releases/latest) for selected CI builds.
 
 ### Build & Install
