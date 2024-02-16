@@ -208,6 +208,10 @@ finally, you can run the result with [NodeJS][NodeJS] using: `node magiskboot.js
 
 </details>
 
+### Usage
+
+Please refer to [Magisk documentation](https://topjohnwu.github.io/Magisk/tools.html#magiskboot).
+
 ### Download
 
 For prebuilt binaries, go check [GitHub Releases](../../releases/latest) for selected CI builds.
