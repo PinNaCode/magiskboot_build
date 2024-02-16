@@ -20,7 +20,7 @@ Bad title examples:
 Good title examples:
 - ls doesn't show anything
 - unpacked results lack of ... file
-- command `magiskboot compress=xz` says "write failed with 9: Bad file description"
+- command `magiskboot compress=xz` says "write failed with 9: Bad file descriptior"
 - repack says "sendfile: no error" on macOS
 
 
