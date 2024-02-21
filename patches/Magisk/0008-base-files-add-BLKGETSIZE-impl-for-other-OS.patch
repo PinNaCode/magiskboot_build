@@ -17,21 +17,16 @@ index f107c34..465d63a 100644
  
  // We mark the returned slice static because it is valid until explicitly unmapped
  pub(crate) fn map_file(path: &Utf8CStr, rw: bool) -> io::Result<&'static mut [u8]> {
--    #[cfg(target_pointer_width = "64")]
--    const BLKGETSIZE64: u32 = 0x80081272;
--
--    #[cfg(target_pointer_width = "32")]
--    const BLKGETSIZE64: u32 = 0x80041272;
 +    cfg_if::cfg_if! {
 +        if #[cfg(target_vendor = "apple")] {
 +            const DKIOCGETBLOCKSIZE: u32 = 0x40046418;
 +            const DKIOCGETBLOCKCOUNT: u32 = 0x40086419;
 +        } else if #[cfg(any(target_os = "linux", target_os = "android"))] {
-+            #[cfg(target_pointer_width = "64")]
-+            const BLKGETSIZE64: u32 = 0x80081272;
-+
-+            #[cfg(target_pointer_width = "32")]
-+            const BLKGETSIZE64: u32 = 0x80041272;
+     #[cfg(target_pointer_width = "64")]
+     const BLKGETSIZE64: u32 = 0x80081272;
+ 
+     #[cfg(target_pointer_width = "32")]
+     const BLKGETSIZE64: u32 = 0x80041272;
 +        } else if #[cfg(target_os = "cygwin")] {
 +            const BLKGETSIZE64: u32 = 0x00041268;
 +        } else if #[cfg(any(target_os = "windows", target_os = "emscripten"))] {
@@ -46,20 +41,17 @@ index f107c34..465d63a 100644
  
      let st = f.metadata()?;
      let sz = if st.file_type().is_block_device() {
--        let mut sz = 0_u64;
--        unsafe { ioctl(f.as_raw_fd(), BLKGETSIZE64, &mut sz) }.as_os_err()?;
--        sz
 +        cfg_if::cfg_if! {
 +            if #[cfg(target_vendor = "apple")] {
 +                let mut sz = 0_u32;
 +                let mut cnt = 0_u64;
-+                unsafe { ioctl(f.as_raw_fd(), DKIOCGETBLOCKSIZE, &mut sz) }.check_os_err()?;
-+                unsafe { ioctl(f.as_raw_fd(), DKIOCGETBLOCKCOUNT, &mut cnt) }.check_os_err()?;
++                unsafe { ioctl(f.as_raw_fd(), DKIOCGETBLOCKSIZE, &mut sz) }.as_os_err()?;
++                unsafe { ioctl(f.as_raw_fd(), DKIOCGETBLOCKCOUNT, &mut cnt) }.as_os_err()?;
 +                (sz as u64) * cnt
 +            } else if #[cfg(any(target_os = "linux", target_os = "android", target_os = "cygwin"))] {
-+                let mut sz = 0_u64;
-+                unsafe { ioctl(f.as_raw_fd(), BLKGETSIZE64, &mut sz) }.check_os_err()?;
-+                sz
+         let mut sz = 0_u64;
+         unsafe { ioctl(f.as_raw_fd(), BLKGETSIZE64, &mut sz) }.as_os_err()?;
+         sz
 +            } else if #[cfg(any(target_os = "windows", target_os = "emscripten"))] {
 +                panic!("Unreachable code");
 +            } else {

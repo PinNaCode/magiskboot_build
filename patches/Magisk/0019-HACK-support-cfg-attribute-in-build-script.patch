@@ -24,8 +24,6 @@ index da589085..fd3d2542 100644
      fn eval(&self, name: &str, value: Option<&str>) -> CfgResult {
 -        let _ = name;
 -        let _ = value;
--        let msg = "cfg attribute is not supported".to_owned();
--        CfgResult::Undetermined { msg }
 +        if name == "target_os" {
 +            if let Ok(target_os_value) = env::var("CXXBRIDGE_GEN_TARGET_OS") {
 +                if let Some(value) = value {
@@ -43,8 +41,8 @@ index da589085..fd3d2542 100644
 +                CfgResult::Undetermined { msg: msg.to_owned() }
 +            }
 +        } else {
-+            let msg = format!("cfg attribute '{}' is not supported", name);
-+            CfgResult::Undetermined { msg }
+         let msg = "cfg attribute is not supported".to_owned();
+         CfgResult::Undetermined { msg }
 +        }
      }
  }

@@ -47,14 +47,11 @@ index 86f56a8..a83b1df 100644
  
  pub(crate) fn map_fd_for_cxx(fd: RawFd, sz: usize, rw: bool) -> &'static mut [u8] {
      unsafe {
--        map_fd(BorrowedFd::borrow_raw(fd), sz, rw)
--            .log_cxx()
--            .unwrap_or(&mut [])
 +        cfg_if::cfg_if! {
 +            if #[cfg(not(target_os = "windows"))] {
-+                map_fd(BorrowedFd::borrow_raw(fd), sz, rw)
-+                    .log_cxx()
-+                    .unwrap_or(&mut [])
+         map_fd(BorrowedFd::borrow_raw(fd), sz, rw)
+             .log_cxx()
+             .unwrap_or(&mut [])
 +            } else {
 +                map_fd(BorrowedFd::borrow_raw(libc::get_osfhandle(fd) as *mut libc::c_void), sz, rw)
 +                    .log_cxx()
