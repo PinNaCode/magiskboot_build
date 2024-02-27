@@ -18,7 +18,13 @@ diff --git a/native/src/Cargo.toml b/native/src/Cargo.toml
 index 114b55c..0b6e3c0 100644
 --- a/native/src/Cargo.toml
 +++ b/native/src/Cargo.toml
-@@ -6,7 +6,7 @@ resolver = "2"
+@@ -1,12 +1,12 @@
+ [workspace]
+ exclude = ["external"]
+-members = ["base", "boot", "core", "init", "sepolicy"]
++members = ["base", "boot"]
+ resolver = "2"
+ 
  [workspace.dependencies]
  cxx = { path = "external/cxx-rs" }
  cxx-gen = { path = "external/cxx-rs/gen/lib" }
@@ -26,7 +32,29 @@ index 114b55c..0b6e3c0 100644
 +libc = { path = "../../../../libc-compat/rs" }
  cfg-if = "1.0"
  num-traits = "0.2"
- num-derive = "0.3"
+ num-derive = "0.4"
+@@ -23,7 +23,6 @@ x509-cert = "0.2"
+ der = "0.7"
+ bytemuck = "1.14"
+ fdt = "0.1"
+-procfs = { version = "0.16", default-features = false }
+ 
+ [workspace.dependencies.argh]
+ git = "https://github.com/google/argh.git"
+@@ -38,13 +38,5 @@ git = "https://github.com/tafia/quick-protobuf.git"
+ rev = "2f37d5a65504de7d716b5b28fd82219501a901a9"
+ 
+-[profile.dev]
+-opt-level = "z"
+-lto = true
+-codegen-units = 1
+-panic = "abort"
+ 
+ [profile.release]
+-opt-level = "z"
+-lto = true
+ codegen-units = 1
+-panic = "abort"
 
 diff --git a/native/src/base/files.cpp b/native/src/base/files.cpp
 index 6829de2..8aef651 100644
@@ -155,6 +183,24 @@ index 313d136..f0188b5 100644
  
  #include <base.hpp>
  
+@@ -175,7 +175,17 @@ void init_argv0(int argc, char **argv) {
+ void set_nice_name(const char *name) {
+     memset(argv0, 0, name_len);
+     strscpy(argv0, name, name_len);
++#ifdef __linux__
+     prctl(PR_SET_NAME, name);
++#elif defined(__APPLE__)
++    pthread_setname_np(name);
++#elif defined(__CYGWIN__) || defined(_WIN32)
++    pthread_setname_np(pthread_self(), name);
++#elif defined(__EMSCRIPTEN__)
++    // no-op
++#else
++#   error unknown PR_SET_NAME impl on this platform
++#endif
+ }
+ 
+ /*
 diff --git a/native/src/base/include/stream.hpp b/native/src/base/include/stream.hpp
 index 4742085..b461534 100644
 --- a/native/src/base/include/stream.hpp
@@ -217,6 +263,34 @@ index a80a746..857eff2 100644
  #include <base.hpp>
 
  #include "boot-rs.hpp"
+--- a/native/src/base/files.rs
++++ b/native/src/base/files.rs
+@@ -4,7 +4,25 @@ use std::ffi::CStr;
+ use std::fs::File;
+ use std::io::{BufRead, Read, Seek, SeekFrom, Write};
+ use std::ops::Deref;
++
++#[cfg(target_os = "android")]
+ use std::os::android::fs::MetadataExt;
++
++#[cfg(target_os = "linux")]
++use std::os::linux::fs::MetadataExt;
++
++#[cfg(target_vendor = "apple")]
++use std::os::macos::fs::MetadataExt;
++
++#[cfg(target_os = "windows")]
++use std::os::windows::fs::MetadataExt;
++
++#[cfg(target_os = "cygwin")]
++use std::os::cygwin::fs::MetadataExt;
++
++#[cfg(target_os = "emscripten")]
++use std::os::emscripten::fs::MetadataExt;
++
+ use std::os::fd::{AsFd, BorrowedFd, IntoRawFd};
+ use std::os::unix::fs::FileTypeExt;
+ use std::os::unix::io::{AsRawFd, FromRawFd, OwnedFd, RawFd};
 -- 
 2.41.0
 

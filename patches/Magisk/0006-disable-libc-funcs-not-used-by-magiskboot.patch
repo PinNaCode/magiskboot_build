@@ -1,0 +1,112 @@
+--- a/native/src/base/xwrap.rs
++++ b/native/src/base/xwrap.rs
+@@ -237,6 +237,7 @@ extern "C" fn xlseek64(fd: RawFd, offset: i64, whence: i32) -> i64 {
+     }
+ }
+ 
++#[cfg(any(target_os = "linux", target_os = "android"))]
+ pub(crate) fn xpipe2(fds: &mut [i32; 2], flags: i32) -> i32 {
+     unsafe {
+         let r = libc::pipe2(fds.as_mut_ptr(), flags);
+@@ -249,6 +249,7 @@ pub(crate) fn xpipe2(fds: &mut [i32; 2], flags: i32) -> i32 {
+ }
+ 
+ #[no_mangle]
++#[cfg(any(target_os = "linux", target_os = "android"))]
+ extern "C" fn xsetns(fd: RawFd, nstype: i32) -> i32 {
+     unsafe {
+         let r = libc::setns(fd, nstype);
+@@ -260,6 +261,7 @@ extern "C" fn xsetns(fd: RawFd, nstype: i32) -> i32 {
+ }
+ 
+ #[no_mangle]
++#[cfg(any(target_os = "linux", target_os = "android"))]
+ extern "C" fn xunshare(flags: i32) -> i32 {
+     unsafe {
+         let r = libc::unshare(flags);
+@@ -353,6 +355,7 @@ extern "C" fn xlisten(socket: i32, backlog: i32) -> i32 {
+ }
+ 
+ #[no_mangle]
++#[cfg(any(target_os = "linux", target_os = "android"))]
+ unsafe extern "C" fn xaccept4(
+     sockfd: RawFd,
+     addr: *mut sockaddr,
+@@ -461,6 +464,7 @@ extern "C" fn xdup2(oldfd: RawFd, newfd: RawFd) -> RawFd {
+ }
+ 
+ #[no_mangle]
++#[cfg(any(target_os = "linux", target_os = "android"))]
+ extern "C" fn xdup3(oldfd: RawFd, newfd: RawFd, flags: i32) -> RawFd {
+     unsafe {
+         let fd = libc::syscall(SYS_dup3, oldfd, newfd, flags) as RawFd;
+@@ -524,6 +527,7 @@ unsafe extern "C" fn xlinkat(
+ }
+ 
+ #[no_mangle]
++#[cfg(any(target_os = "linux", target_os = "android"))]
+ unsafe extern "C" fn xmount(
+     src: *const c_char,
+     target: *const c_char,
+@@ -539,6 +543,7 @@ unsafe extern "C" fn xmount(
+ }
+ 
+ #[no_mangle]
++#[cfg(any(target_os = "linux", target_os = "android"))]
+ unsafe extern "C" fn xumount(target: *const c_char) -> i32 {
+     let r = libc::umount(target);
+     if r < 0 {
+@@ -548,6 +553,7 @@ unsafe extern "C" fn xumount(target: *const c_char) -> i32 {
+ }
+ 
+ #[no_mangle]
++#[cfg(any(target_os = "linux", target_os = "android"))]
+ unsafe extern "C" fn xumount2(target: *const c_char, flags: i32) -> i32 {
+     let r = libc::umount2(target, flags);
+     if r < 0 {
+--- a/native/src/base/lib.rs
++++ b/native/src/base/lib.rs
+@@ -41,7 +41,9 @@ pub mod ffi {
+ 
+     #[namespace = "rust"]
+     extern "Rust" {
++        #[cfg(any(target_os = "linux", target_os = "android"))]
+         fn xpipe2(fds: &mut [i32; 2], flags: i32) -> i32;
++
+         #[cxx_name = "fd_path"]
+         fn fd_path(fd: i32, buf: &mut [u8]) -> isize;
+         #[cxx_name = "map_file"
+--- a/native/src/base/misc.cpp
++++ b/native/src/base/misc.cpp
+@@ -99,11 +99,20 @@ int gen_rand_str(char *buf, int len, bool varlen) {
+ }
+ 
+ int exec_command(exec_t &exec) {
++#ifdef __linux__
+     auto pipefd = array<int, 2>{-1, -1};
++#else
++    int pipefd[2] = {-1, -1};
++#endif
++
+     int outfd = -1;
+ 
+     if (exec.fd == -1) {
++#ifdef __linux__
+         if (xpipe2(pipefd, O_CLOEXEC) == -1)
++#else
++        if (pipe(pipefd) == -1)
++#endif
+             return -1;
+         outfd = pipefd[1];
+     } else if (exec.fd >= 0) {
+--- a/native/src/base/include/base.hpp
++++ b/native/src/base/include/base.hpp
+@@ -9,5 +9,7 @@
+ #endif
+ #include "../base-rs.hpp"
+ 
++#ifdef __linux__
+ using rust::xpipe2;
++#endif
+ using rust::fd_path;
+\ No newline at end of file
