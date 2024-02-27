@@ -59,7 +59,7 @@ if (WIN32)
     target_link_libraries(platform_stubs INTERFACE libgetline)
 
     # needed by some random Rust stuffs
-    target_link_libraries(${MAGISKBOOT_TARGET} ws2_32 userenv ntdll bcrypt)
+    target_link_libraries(${MAGISKBOOT_TARGET} ws2_32 userenv ntdll bcrypt synchronization)
 
     target_include_directories(android_libbase PRIVATE libc-compat/include)
 endif()
