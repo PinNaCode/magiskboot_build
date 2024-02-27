@@ -1,0 +1,52 @@
+--- a/native/src/base/misc.cpp
++++ b/native/src/base/misc.cpp
+@@ -68,6 +68,7 @@ int fork_dont_care() {
+     return 0;
+ }
+ 
++#ifdef __linux__
+ int fork_no_orphan() {
+     int pid = xfork();
+     if (pid)
+@@ -77,6 +78,7 @@ int fork_no_orphan() {
+         exit(1);
+     return 0;
+ }
++#endif
+ 
+ int exec_command(exec_t &exec) {
+     auto pipefd = array<int, 2>{-1, -1};
+@@ -270,6 +270,7 @@ uint32_t binary_gcd(uint32_t u, uint32_t v) {
+     return u << shift;
+ }
+ 
++#ifdef __linux__
+ int switch_mnt_ns(int pid) {
+     char mnt[32];
+     ssprintf(mnt, sizeof(mnt), "/proc/%d/ns/mnt", pid);
+@@ -283,6 +284,7 @@ int switch_mnt_ns(int pid) {
+     close(fd);
+     return ret;
+ }
++#endif
+ 
+ string &replace_all(string &str, string_view from, string_view to) {
+     size_t pos = 0;
+--- a/native/src/base/stream.cpp
++++ b/native/src/base/stream.cpp
+@@ -9,6 +9,7 @@
+ 
+ using namespace std;
+ 
++#if 0
+ static int strm_read(void *v, char *buf, int len) {
+     auto strm = static_cast<channel *>(v);
+     return strm->read(buf, len);
+@@ -34,6 +50,7 @@ sFILE make_channel_fp(channel_ptr &&strm) {
+     setbuf(fp.get(), nullptr);
+     return fp;
+ }
++#endif
+ 
+ ssize_t in_stream::readFully(void *buf, size_t len) {
+     size_t read_sz = 0;

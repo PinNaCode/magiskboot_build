@@ -1,21 +1,21 @@
-From 938b55549ae6e70cc3d95556443ca860b787dcf3 Mon Sep 17 00:00:00 2001
-From: Ookiineko <chiisaineko@protonmail.com>
-Date: Mon, 31 Jul 2023 21:44:45 +0800
-Subject: [PATCH] fix build err on MinGW
-
-Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
----
- native/src/base/Cargo.toml    |  7 ++++++-
- native/src/base/cxx_extern.rs | 19 ++++++++++++++++---
- native/src/base/files.rs      | 15 +++++++++++++++
- native/src/base/misc.cpp      |  2 ++
- native/src/base/misc.hpp      |  8 ++++++++
- native/src/base/xwrap.rs      | 15 +++++++++++++++
- native/src/boot/Cargo.toml    |  1 +
- native/src/boot/cpio.rs       | 22 +++++++++++++++++++++-
- native/src/boot/payload.rs    |  5 +++++
- 9 files changed, 89 insertions(+), 5 deletions(-)
-
+diff --git a/native/src/external/zopfli/src/zopfli/cache.c b/native/src/external/zopfli/src/zopfli/cache.c
+index 6b9444f..87b3402 100644
+--- a/native/src/external/zopfli/src/zopfli/cache.c
++++ b/native/src/external/zopfli/src/zopfli/cache.c
+@@ -33,8 +33,13 @@ void ZopfliInitCache(size_t blocksize, ZopfliLongestMatchCache* lmc) {
+   lmc->sublen = (unsigned char*)malloc(ZOPFLI_CACHE_LENGTH * 3 * blocksize);
+   if(lmc->sublen == NULL) {
+     fprintf(stderr,
++#ifdef _WIN32
++        "Error: Out of memory. Tried allocating %llu bytes of memory.\n",
++        (unsigned long long)ZOPFLI_CACHE_LENGTH * 3 * blocksize);
++#else
+         "Error: Out of memory. Tried allocating %lu bytes of memory.\n",
+         (unsigned long)ZOPFLI_CACHE_LENGTH * 3 * blocksize);
++#endif
+     exit (EXIT_FAILURE);
+   }
+ 
 diff --git a/native/src/base/Cargo.toml b/native/src/base/Cargo.toml
 index f89abca..42baccf 100644
 --- a/native/src/base/Cargo.toml
