@@ -18,7 +18,13 @@ diff --git a/native/src/Cargo.toml b/native/src/Cargo.toml
 index 114b55c..0b6e3c0 100644
 --- a/native/src/Cargo.toml
 +++ b/native/src/Cargo.toml
-@@ -6,7 +6,7 @@ resolver = "2"
+@@ -1,12 +1,12 @@
+ [workspace]
+ exclude = ["external"]
+-members = ["base", "boot", "core", "init", "sepolicy"]
++members = ["base", "boot"]
+ resolver = "2"
+ 
  [workspace.dependencies]
  cxx = { path = "external/cxx-rs" }
  cxx-gen = { path = "external/cxx-rs/gen/lib" }
@@ -26,7 +32,29 @@ index 114b55c..0b6e3c0 100644
 +libc = { path = "../../../../libc-compat/rs" }
  cfg-if = "1.0"
  num-traits = "0.2"
- num-derive = "0.3"
+ num-derive = "0.4"
+@@ -23,7 +23,6 @@ x509-cert = "0.2"
+ der = "0.7"
+ bytemuck = "1.14"
+ fdt = "0.1"
+-procfs = { version = "0.16", default-features = false }
+ 
+ [workspace.dependencies.argh]
+ git = "https://github.com/google/argh.git"
+@@ -38,13 +38,5 @@ git = "https://github.com/tafia/quick-protobuf.git"
+ rev = "2f37d5a65504de7d716b5b28fd82219501a901a9"
+ 
+-[profile.dev]
+-opt-level = "z"
+-lto = true
+-codegen-units = 1
+-panic = "abort"
+ 
+ [profile.release]
+-opt-level = "z"
+-lto = true
+ codegen-units = 1
+-panic = "abort"
 
 diff --git a/native/src/base/files.cpp b/native/src/base/files.cpp
 index 6829de2..8aef651 100644
