@@ -33,14 +33,6 @@ index 114b55c..0b6e3c0 100644
  cfg-if = "1.0"
  num-traits = "0.2"
  num-derive = "0.4"
-@@ -23,7 +23,6 @@ x509-cert = "0.2"
- der = "0.7"
- bytemuck = "1.14"
- fdt = "0.1"
--procfs = { version = "0.16", default-features = false }
- 
- [workspace.dependencies.argh]
- git = "https://github.com/google/argh.git"
 @@ -38,13 +38,5 @@ git = "https://github.com/tafia/quick-protobuf.git"
  rev = "2f37d5a65504de7d716b5b28fd82219501a901a9"
  
