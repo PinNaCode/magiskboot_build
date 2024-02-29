@@ -43,3 +43,21 @@
  #[derive(Default)]
  pub struct Utf8CString(String);
  
+--- a/native/src/base/files.rs
++++ b/native/src/base/files.rs
+@@ -981,6 +981,8 @@ pub(crate) fn map_fd(fd: BorrowedFd, sz: usize, rw: bool) -> io::Result<&'static
+     }
+ }
+ 
++cfg_if::cfg_if! {
++    if #[cfg(any(target_os = "android", target_os = "linux"))] {
+ #[allow(dead_code)]
+ pub struct MountInfo {
+     pub id: u32,
+@@ -1059,4 +1061,6 @@ pub fn parse_mount_info(pid: &str) -> Vec<MountInfo> {
+         });
+     }
+     res
++}
++    }
+ }
