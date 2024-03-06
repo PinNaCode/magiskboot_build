@@ -132,13 +132,13 @@ and pass `-DCMAKE_AR=llvm-ar -DCMAKE_RANLIB=llvm-ranlib` to CMake when configuri
 
 #### Windows (MinGW)
 
-> **Note**
->
-> A minor amount of POSIX functions in `libc-compat/winsup/*_compat.c` are currently stubbed and no-op (e.g. chmod, chown, mknod), but it shouldn't cause too much trouble for magiskboot to work.
->
-> However, if you know a better way to do this, please feel free to open a Pull Request to change it :)
-
 Install [MSYS2][MSYS2] first, and change the setting of `mintty.exe` to grant it with administrator privileges (needed for using native symlinks in some conditions).
+
+> **Warning**
+>
+> LLD from MINGW/UCRT environments currently has a bug that produces bad executables, so if you want to use LTO, please build under CLANG environments.
+>
+> For more details on differences between these environments, you can refer to the [MSYS2 documentation](https://www.msys2.org/docs/environments/).
 
 don't forget to set this environtment variable to allow symlinks to work properly: `export MSYS=winsymlinks:native` (required for the build I guess)
 
@@ -148,7 +148,9 @@ pacman -S --needed base-devel pactoys
 pacboy -S --needed {xz,lz4,bzip2,zlib,pkgconf,clang,cmake,libc++,ninja,rust}:p
 ````
 
-If you are cross-compiling and using vcpkg to manage the dependencies, please make sure CMake variable `MINGW` is set to `TRUE` during configuring.
+##### Cross-compiling
+
+If you are cross-compiling from a non-Windows host and using vcpkg to manage the dependencies, please make sure CMake variable `MINGW` is set to `TRUE` during configuring.
 
 #### Cygwin (WIP)
 

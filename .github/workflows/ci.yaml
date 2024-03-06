@@ -537,8 +537,8 @@ jobs:
       MSYS: "winsymlinks:native"
       MAGISKBOOT_WINSUP_NOCASE: 1
 
-      msystem: MINGW64
-      note: "msvcrt-x86_64-standalone"
+      msystem: CLANG64
+      note: "ucrt-x86_64-standalone"
       upload_prefix: "windows-mingw-w64"
 
     steps:
