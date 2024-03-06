@@ -535,7 +535,6 @@ jobs:
     needs: [vars]
     env:
       MSYS: "winsymlinks:native"
-      MAGISKBOOT_WINSUP_NOCASE: 1
 
       msystem: CLANG64
       note: "ucrt-x86_64-standalone"
