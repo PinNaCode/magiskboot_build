@@ -16,7 +16,6 @@
 #include "../include/winsup/at_compat.h"
 #include "../include/winsup/link_compat.h"
 #include "../include/winsup/mkdir_compat.h"
-#include "../include/winsup/open_compat.h"
 #include "../include/winsup/stat_compat.h"
 
 #include "internal/fd.h"
@@ -163,9 +162,9 @@ int openat (int dirfd, const char *pathname, int flags, ...) {
         va_start(ap, flags);
         mode_t mode = (mode_t) va_arg(ap, int);
         va_end(ap);
-        ret = _open_stub(pathname, flags, mode);
+        ret = open(pathname, flags, mode);
     } else
-        ret = _open_stub(pathname, flags);
+        ret = open(pathname, flags);
 
     free(real_pathname);
 

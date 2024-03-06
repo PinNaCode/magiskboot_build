@@ -5,12 +5,6 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include "../include/winsup/open_compat.h"
-
-#include "internal/fd.h"
-
-#include "../include/winsup/file_compat.h"
-
 #ifndef O_CLOEXEC
 #  define O_CLOEXEC               O_NOINHERIT
 #endif
@@ -94,7 +88,9 @@ static int __fixup_fmode(const char *old_mode, char *mode) {
     return 0;
 }
 
-FILE *_fdopen_stub(int fd, const char *mode) {
+FILE *__cdecl __real_fdopen(int fd, const char *mode);
+
+FILE *__cdecl __wrap_fdopen(int fd, const char *mode) {
     char new_mode[16];
 
     if (__fixup_fmode(mode, new_mode) < 0) {
@@ -102,10 +98,10 @@ FILE *_fdopen_stub(int fd, const char *mode) {
         return NULL;
     }
 
-    return fdopen(fd, new_mode);
+    return __real_fdopen(fd, new_mode);
 }
 
-FILE *_fopen_stub(const char *__restrict pathname, const char *__restrict mode) {
+FILE *__cdecl __wrap_fopen(const char *__restrict pathname, const char *__restrict mode) {
     int flags = __fmodeflags(mode);
 
     if (flags < 0) {
@@ -116,19 +112,17 @@ FILE *_fopen_stub(const char *__restrict pathname, const char *__restrict mode) 
     int fd;
 
     if (flags & O_CREAT)
-        fd = _open_stub(pathname, flags, 0666);
+        fd = open(pathname, flags, 0666);
     else
-        fd = _open_stub(pathname, flags);
+        fd = open(pathname, flags);
 
     if (fd < 0)
         return NULL;
 
-    __fd_cache_oflag(fd, flags);
-
-    return _fdopen_stub(fd, mode);
+    return fdopen(fd, mode);
 }
 
-int _creat_stub(const char *path, int mode) {
+int __cdecl __wrap_creat(const char *path, int mode) {
     // HACK: for msvcrt behavior on UCRT
     // msvcrt ignores unsupported modes
     // but UCRT will give EINVAL
@@ -141,10 +135,5 @@ int _creat_stub(const char *path, int mode) {
     if (mode & (S_IWUSR | S_IWGRP | S_IWOTH))
         fixed_mode |= S_IWRITE;
 
-    int fd = _open_stub(path, CREAT_OFLAGS, fixed_mode);
-
-    if (!(fd < 0))
-        __fd_cache_oflag(fd, CREAT_OFLAGS);
-
-    return fd;
+    return open(path, CREAT_OFLAGS, fixed_mode);
 }

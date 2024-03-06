@@ -39,6 +39,13 @@ elseif (APPLE)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_DARWIN_C_SOURCE -D__DARWIN_C_LEVEL=__DARWIN_C_FULL")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_DARWIN_C_SOURCE -D__DARWIN_C_LEVEL=__DARWIN_C_FULL")
 elseif (WIN32)
+    # libc-compat overrides
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=mkdir -Wl,--wrap=creat -Wl,--wrap=open -Wl,--wrap=fopen")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=fdopen -Wl,--wrap=fstat -Wl,--wrap=CreateFileW")
+
+    # llvm-mingw uses a different mangling
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=CreateFileW@28")
+
     include(CheckSymbolExists)
     check_symbol_exists(_UCRT "_mingw.h" USE_UCRT)
 elseif (CYGWIN)

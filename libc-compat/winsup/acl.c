@@ -68,7 +68,7 @@ int     chown (const char *path, uid_t owner, gid_t group) {
 int     fchown (int fildes, uid_t owner, gid_t group) {
     struct stat buf;
 
-    if (_fstat_stub(fildes, &buf) < 0)
+    if (fstat(fildes, &buf) < 0)
         return -1;
 
     return 0;  // FIXME: stub

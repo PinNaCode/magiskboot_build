@@ -6,12 +6,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <winternl.h>
-
-#include "../../include/winsup/stat_compat.h"
 
 #include "errno.h"
 
@@ -131,7 +130,7 @@ int __open_symlink_fd(const char *path, DWORD access, DWORD share_mode, int flag
 bool __is_dirfd(int fd) {
     struct stat buf;
 
-    if (_fstat_stub(fd, &buf) < 0)
+    if (fstat(fd, &buf) < 0)
         goto not;  // errno is set by fstat
 
     if (S_ISDIR(buf.st_mode))

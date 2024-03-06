@@ -2,6 +2,8 @@
 #include <fcntl.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -9,17 +11,14 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "internal/assert.h"
 #include "internal/errno.h"
 #include "internal/fd.h"
 #include "internal/fs.h"
 
-#include "../include/winsup/open_compat.h"
+#define LOG_TAG             "open_compat"
 
-#ifndef NDEBUG
-#  include "internal/assert.h"
-
-#  define LOG_TAG             "open_compat"
-#endif
+int __cdecl __real_open(const char *path, int oflag, ... );
 
 static int open_impl(const char *path, int oflag, va_list ap) {
     oflag |= O_BINARY;
@@ -33,7 +32,7 @@ static int open_impl(const char *path, int oflag, va_list ap) {
         if (access(path, F_OK) != 0)
             __ensure_case_sensitive(path, true);
 
-        int ret = open(path, oflag, (mode_t) va_arg(ap, int));
+        int ret = __real_open(path, oflag, (mode_t) va_arg(ap, int));
 
         return ret;
     }
@@ -79,10 +78,10 @@ static int open_impl(const char *path, int oflag, va_list ap) {
     }
 
 use_mingw:
-    return open(path, oflag);  // not a directory, mingw impl is good
+    return __real_open(path, oflag);  // not a directory, mingw impl is good
 }
 
-int _open_stub(const char *path, int oflag, ... ) {
+int __cdecl __wrap_open(const char *path, int oflag, ... ) {
     va_list ap;
     va_start(ap, oflag);
 
@@ -94,4 +93,51 @@ int _open_stub(const char *path, int oflag, ... ) {
         __fd_cache_oflag(fd, oflag);
 
     return fd;
+}
+
+// for Rust
+
+HANDLE WINAPI __real_CreateFileW(const wchar_t *lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode,
+                                 SECURITY_ATTRIBUTES *lpSecurityAttributes, DWORD dwCreationDisposition,
+                                 DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
+
+HANDLE WINAPI __wrap_CreateFileW(const wchar_t *lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode,
+                                 SECURITY_ATTRIBUTES *lpSecurityAttributes, DWORD dwCreationDisposition,
+                                 DWORD dwFlagsAndAttributes, HANDLE hTemplateFile) {
+    if (!lpFileName || !lpFileName[0])
+        goto skip;  // bad arguments
+
+    switch (dwCreationDisposition) {
+        case CREATE_ALWAYS:
+        case CREATE_NEW:
+        case OPEN_ALWAYS:
+            // these flags might ask to create a new file
+            break;
+        case OPEN_EXISTING:
+        case TRUNCATE_EXISTING:
+            // these flags will always open an existing file
+            goto skip;
+        default:
+            LOG_ERR("FIXME: unhandled dwCreationDisposition %ld", dwCreationDisposition);
+            break;
+    }
+
+    char path[PATH_MAX + 1];
+
+    size_t chars;
+    errno_t err = wcstombs_s(&chars, path, sizeof(path), lpFileName, sizeof(path) - 1);
+
+    if (err) {
+        LOG_ERR("unable to convert wide string '%S': %s", lpFileName, strerror(err));
+
+        abort();
+    }
+
+    // if we are creating a new file, make sure the parent directory is case sensitive
+    if (access(path, F_OK) != 0)
+        __ensure_case_sensitive(path, true);
+
+skip:
+    return __real_CreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
+                              dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 }

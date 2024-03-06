@@ -35,40 +35,6 @@ pub const S_IEXEC: crate::mode_t = 64;
 pub const S_IWRITE: crate::mode_t = 128;
 pub const S_IREAD: crate::mode_t = 256;
 
-// stat
-
-// shadowing the MinGW one since we reimplement
-// some missing features like directory and symlink handling
-
-extern "C" {
-    #[link_name = "_fstat_stub"]
-    pub fn fstat(fildes: c_int, buf: *mut stat) -> c_int;
-}
-
-// open
-
-// to support opening dir fd
-
-extern "C" {
-    #[link_name = "_open_stub"]
-    pub fn open(path: *const c_char, oflag: c_int, ...) -> c_int;
-
-    #[link_name = "_fopen_stub"]
-    pub fn fopen(filename: *const c_char, mode: *const c_char) -> *mut FILE;
-
-    #[link_name = "_fdopen_stub"]
-    pub fn fdopen(fd: c_int, mode: *const c_char) -> *mut FILE;
-}
-
-// creat
-
-// for UCRT, since it's very strict on the mode argument
-
-extern "C" {
-    #[link_name = "_creat_stub"]
-    pub fn creat(path: *const c_char, mode: c_int) -> c_int;
-}
-
 // acl
 
 // for mode_t type mismatch

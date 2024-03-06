@@ -385,23 +385,6 @@ Pass `-DCMAKE_BUILD_TYPE=Debug` to CMake instead of `Release` during configuring
 
 The result `magiskboot` executable will have a `_debug` suffix.
 
-#### Updating sources
-
-For vendored submodules (`src/`) with their name starting with `android_`, most patches are imported from [android-tools][android-tools], and don't always require updating.
-
-When syncing upstream `{android_libbase,Magisk}` changes, here is a few things to check:
-  * `build.py` changes
-  * `{,{base,boot}/}Android.mk` updates
-  * switch to `winsup` stub for MinGW for if any new file or spot reference to any of the following standard libc identifiers:
-    * struct DIR
-    * struct dirent
-    * mkdir
-    * {open,read,close,rewind,seek,tell}dir
-    * creat
-    * open
-    * fopen
-    * fstat
-
 ### License
 
 Patches and stub codes created by this project (not borrowed from other places) are licensed under Apache 2.0 or GNU General Public License (GPL) v3 at your option,

@@ -1,3 +1,5 @@
+// only used in magiskboot, not including its dependencies
+
 #include <assert.h>
 #include <dirent.h>
 #include <errno.h>
@@ -15,7 +17,6 @@
 
 #include "../include/winsup/at_compat.h"
 #include "../include/winsup/dirent_compat.h"
-#include "../include/winsup/open_compat.h"
 #include "../include/winsup/stat_compat.h"
 
 #include "internal/errno.h"
@@ -32,7 +33,7 @@
 _DIR_stub *_opendir_stub (const char *path) {
     _DIR_stub *res = NULL;
     DIR *real_dirp;
-    int fd = _open_stub(path, O_PATH);
+    int fd = open(path, O_PATH);
 
     if (fd < 0)
         goto error;

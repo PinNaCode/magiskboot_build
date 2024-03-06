@@ -15,8 +15,6 @@ extern "C" {
 
 #define     S_ISLNK(m)      (((m)&S_IFMT) == S_IFLNK)
 
-int _fstat_stub(int fd, struct stat *buf);
-
 int lstat (const char *__restrict path, struct stat *__restrict buf);
 
 #ifdef __cplusplus

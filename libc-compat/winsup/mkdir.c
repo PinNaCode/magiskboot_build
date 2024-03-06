@@ -19,8 +19,14 @@ int _mkdir_stub (const char *path, mode_t mode) {
         return -1;
     }
 
+    return 0;
+}
+
+int __cdecl __real_mkdir(const char *path);
+
+int __cdecl __wrap_mkdir(const char *path) {
     // enable case sensitive for the newly created directory
     __ensure_case_sensitive(path, false);
 
-    return 0;
+    return __real_mkdir(path);
 }

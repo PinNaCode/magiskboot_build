@@ -25,7 +25,7 @@
 #define CMD_SUFFIX          (('c' << 2) | ('m' << 1) | 'd')
 #define COM_SUFFIX          (('c' << 2) | ('o' << 1) | 'm')
 
-int _fstat_stub(int fd, struct stat *buf) {
+int __cdecl __wrap_fstat(int fd, struct stat *buf) {
     // ref: https://github.com/reactos/reactos/blob/455f33077599729c27f1f1347ad2f6329d50d1f3/sdk/lib/crt/stdio/stat64.c
     HANDLE h = (HANDLE) _get_osfhandle(fd);
 
@@ -148,7 +148,7 @@ int lstat (const char *__restrict path, struct stat *__restrict buf) {
         return -1;
     }
 
-    int ret = _fstat_stub(fd, buf);
+    int ret = fstat(fd, buf);
 
     close(fd);
 

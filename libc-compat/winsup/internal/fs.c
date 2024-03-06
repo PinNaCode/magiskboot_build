@@ -174,10 +174,4 @@ quit:
 
 __attribute__((constructor)) static void __init_enforce_mode(void) {
     enforce_case = !getenv("MAGISKBOOT_WINSUP_NOCASE");
-
-    // FIXME: some of the Rust stuffs don't go through our open() stubs (but mkdir() stub is used)
-    //        so need to ensure the CWD is case sensitive on startup
-    //        but not if the user makes magiskboot to create files under another directory
-    //        a possible workaround is probably to hook CreateFile() and add the checks
-    __ensure_case_sensitive(".", false);
 }
