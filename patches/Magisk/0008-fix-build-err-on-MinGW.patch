@@ -303,23 +303,6 @@ index b7a775c..9a77dde 100644
  #if 0
  static int strm_read(void *v, char *buf, size_t len) {
      auto strm = static_cast<channel *>(v);
-diff --git a/native/src/base/include/stream.hpp b/native/src/base/include/stream.hpp
-index 4742085..2b791b7 100644
---- a/native/src/base/include/stream.hpp
-+++ b/native/src/base/include/stream.hpp
-@@ -116,6 +120,7 @@ private:
-     sFILE fp;
- };
- 
-+#ifndef _WIN32
- // channel_ptr -> sFILE
- sFILE make_channel_fp(channel_ptr &&strm);
- 
-@@ -123,3 +128,4 @@ template <class T, class... Args>
- sFILE make_channel_fp(Args &&... args) {
-     return make_channel_fp(channel_ptr(new T(std::forward<Args>(args)...)));
- }
-+#endif
 diff --git a/native/src/boot/format.hpp b/native/src/boot/format.hpp
 index 79dac8f..e0634ba 100644
 --- a/native/src/boot/format.hpp
