@@ -106,7 +106,7 @@ sudo pacman -S --needed base-devel xz lz4 bzip2 zlib pkgconf \
 
 <details><summary>macOS</summary>
 
-#### macOS Big Sur (or higher verison)
+#### macOS Monterey (or higher verison)
 
 install [Homebrew][Homebrew] first
 
@@ -115,6 +115,8 @@ brew update
 brew upgrade  # upgrade all existing packages (optional)
 brew install xz lz4 pkg-config cmake ninja rust
 ````
+
+Theoretically you can build for older macOS version as well, but Homebrew only support the last three OS releases of macOS, so you will need to install the depended packages using other ways (maybe using MacPorts or sth?)
 
 #### LTO configuration
 
