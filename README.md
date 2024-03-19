@@ -1,6 +1,6 @@
 ## magiskboot_build
 
-![Magisk Version Badge](https://img.shields.io/badge/Magisk%20version-v27.0%20Canary%20(27001)-green?logo=magisk)
+![Magisk Version Badge](https://img.shields.io/badge/Magisk%20version-v27.0%20Canary%20(27002)-green?logo=magisk)
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ookiineko/magiskboot_build/ci.yaml?logo=githubactions&logoColor=orange&label=CI%20build)
 ![Last Upstream Sync Date](https://img.shields.io/github/gist/last-commit/cc0e3019a9107116d12df1e94e4a5c79?logo=git&label=Last%20upstream%20sync&color=blue)
 
