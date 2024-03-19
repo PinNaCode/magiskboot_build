@@ -113,7 +113,7 @@ install [Homebrew][Homebrew] first
 ````shell
 brew update
 brew upgrade  # upgrade all existing packages (optional)
-brew install xz lz4 bzip2 zlib pkg-config cmake ninja rust
+brew install xz lz4 pkg-config cmake ninja rust
 ````
 
 #### LTO configuration

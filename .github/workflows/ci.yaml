@@ -314,8 +314,7 @@ jobs:
     steps:
       - name: Prepare
         run: |
-          brew install --overwrite coreutils wget file xz lz4 \
-              bzip2 zlib pkg-config cmake ninja llvm rust
+          brew install --overwrite coreutils wget file xz lz4 pkg-config cmake ninja llvm rust
           echo "$(brew --prefix)/opt/llvm/bin" | tee -a $GITHUB_PATH
 
       - name: Prepare (Detect)
@@ -458,11 +457,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.vcpkg_root }}/installed
-          key: cross-vcpkgs-${{ matrix.vcpkg_triplet }}-appleclang-macos-${{ matrix.os_release }}
+          key: cross-vcpkgs-v2-${{ matrix.vcpkg_triplet }}-appleclang-macos-${{ matrix.os_release }}
 
       - name: Prepare (Cross)
         run: |
-          vcpkg install --host-triplet=${{ matrix.vcpkg_triplet }} zlib liblzma lz4 bzip2
+          vcpkg install --host-triplet=${{ matrix.vcpkg_triplet }} liblzma lz4
 
       - name: Prepare (PATH)
         run: |
