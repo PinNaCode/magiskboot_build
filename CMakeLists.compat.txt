@@ -80,4 +80,6 @@ else()
     # Couldn't bypass fortify, so disable it
     # see also: include-android/fortify_stub.h
     add_compile_options(-U_FORTIFY_SOURCE)
+
+    include(CMakeLists.android.txt)
 endif()

@@ -126,9 +126,6 @@ if (NOT NO_TARGETS_OR_DEPS)
     endif()
 
     include(CMakeLists.compat.txt)
-    if (NOT CMAKE_SYSTEM_NAME MATCHES "Android")
-        include(CMakeLists.android.txt)
-    endif()
 
     if (PREFER_STATIC_LINKING)
         message(STATUS "Static/standalone build")
