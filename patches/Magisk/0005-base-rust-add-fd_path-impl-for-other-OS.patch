@@ -76,10 +76,10 @@ diff --git a/native/src/base/Cargo.toml b/native/src/base/Cargo.toml
 index bfb8e57..f89abca 100644
 --- a/native/src/base/Cargo.toml
 +++ b/native/src/base/Cargo.toml
-@@ -15,3 +15,6 @@ libc = { workspace = true }
- bytemuck = { workspace = true }
+@@ -15,3 +15,6 @@ bytemuck = { workspace = true }
  num-traits = { workspace = true }
  num-derive = { workspace = true }
+ const_format = { workspace = true }
 +
 +[target.'cfg(target_os = "windows")'.dependencies]
 +filepath = "0.1.2"
