@@ -326,6 +326,9 @@ jobs:
     steps:
       - name: Prepare
         run: |
+          brew update
+          # HACK: ignore werid symlink conflict
+          brew install --overwrite coreutils wget file xz lz4 pkg-config cmake ninja llvm rust || true
           brew install --overwrite coreutils wget file xz lz4 pkg-config cmake ninja llvm rust
           echo "$(brew --prefix)/opt/llvm/bin" | tee -a $GITHUB_PATH
 
@@ -415,6 +418,9 @@ jobs:
     steps:
       - name: Prepare (Host)
         run: |
+          brew update
+          # HACK: ignore werid symlink conflict
+          brew install --overwrite coreutils file pkg-config cmake ninja llvm || true
           brew install --overwrite coreutils file pkg-config cmake ninja llvm
 
       - name: Prepare (Detect)
