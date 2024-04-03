@@ -653,7 +653,7 @@ jobs:
             build_rust_std: "ON"
     env:
       toolchain_url: https://github.com/mstorsjo/llvm-mingw/releases/download
-      toolchain_ver: 20240308
+      toolchain_ver: 20240320
       upload_prefix: "windows-mingw-w64"
 
     steps:
