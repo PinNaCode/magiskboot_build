@@ -166,6 +166,18 @@ jobs:
           path: ${{ env.vcpkg_root }}/installed
           key: cross-vcpkgs-${{ env.vcpkg_triplet }}-ondk-${{ env.ondk_ver }}
 
+      - name: Prepare (liblzma)
+        if: steps.cache-cross-vcpkgs.outputs.cache-hit != 'true'
+        run: |
+          # SECURITY: Git tarballs are currently not affected by the vulnerability
+          # TODO: remove 5.6.0 when vcpkg and github runner image updates
+          # TODO: remove this workaround when the repo is back
+          mkdir -p $VCPKG_INSTALLATION_ROOT/downloads
+          for xz_ver in 5.4.4 5.6.0; do
+            wget https://github.com/bminor/xz/archive/refs/tags/v${xz_ver}.tar.gz \
+              -O $VCPKG_INSTALLATION_ROOT/downloads/tukaani-project-xz-v${xz_ver}.tar.gz
+          done
+
       - name: Prepare (Cross)
         run: |
           vcpkg install --host-triplet=${{ env.vcpkg_triplet }} zlib liblzma lz4 bzip2
@@ -459,6 +471,18 @@ jobs:
           path: ${{ env.vcpkg_root }}/installed
           key: cross-vcpkgs-v2-${{ matrix.vcpkg_triplet }}-appleclang-macos-${{ matrix.os_release }}
 
+      - name: Prepare (liblzma)
+        if: steps.cache-cross-vcpkgs.outputs.cache-hit != 'true'
+        run: |
+          # SECURITY: Git tarballs are currently not affected by the vulnerability
+          # TODO: remove 5.6.0 when vcpkg and github runner image updates
+          # TODO: remove this workaround when the repo is back
+          mkdir -p $VCPKG_INSTALLATION_ROOT/downloads
+          for xz_ver in 5.4.4 5.6.0; do
+            wget https://github.com/bminor/xz/archive/refs/tags/v${xz_ver}.tar.gz \
+              -O $VCPKG_INSTALLATION_ROOT/downloads/tukaani-project-xz-v${xz_ver}.tar.gz
+          done
+
       - name: Prepare (Cross)
         run: |
           vcpkg install --host-triplet=${{ matrix.vcpkg_triplet }} liblzma lz4
@@ -671,6 +695,18 @@ jobs:
           path: ${{ env.vcpkg_root }}/installed
           key: cross-vcpkgs-${{ matrix.vcpkg_triplet }}-llvm-mingw-${{ env.toolchain_ver }}-${{ matrix.crt }}
 
+      - name: Prepare (liblzma)
+        if: steps.cache-cross-vcpkgs.outputs.cache-hit != 'true'
+        run: |
+          # SECURITY: Git tarballs are currently not affected by the vulnerability
+          # TODO: remove 5.6.0 when vcpkg and github runner image updates
+          # TODO: remove this workaround when the repo is back
+          mkdir -p $VCPKG_INSTALLATION_ROOT/downloads
+          for xz_ver in 5.4.4 5.6.0; do
+            wget https://github.com/bminor/xz/archive/refs/tags/v${xz_ver}.tar.gz \
+              -O $VCPKG_INSTALLATION_ROOT/downloads/tukaani-project-xz-v${xz_ver}.tar.gz
+          done
+
       - name: Prepare (Cross)
         run: |
           vcpkg install --host-triplet=${{ matrix.vcpkg_triplet }} zlib liblzma lz4 bzip2
@@ -786,6 +822,18 @@ jobs:
         with:
           path: ${{ env.vcpkg_root }}/installed
           key: cross-vcpkgs-${{ env.vcpkg_triplet }}-emsdk-${{ env.emsdk_ver }}
+
+      - name: Prepare (liblzma)
+        if: steps.cache-cross-vcpkgs.outputs.cache-hit != 'true'
+        run: |
+          # SECURITY: Git tarballs are currently not affected by the vulnerability
+          # TODO: remove 5.6.0 when vcpkg and github runner image updates
+          # TODO: remove this workaround when the repo is back
+          mkdir -p $VCPKG_INSTALLATION_ROOT/downloads
+          for xz_ver in 5.4.4 5.6.0; do
+            wget https://github.com/bminor/xz/archive/refs/tags/v${xz_ver}.tar.gz \
+              -O $VCPKG_INSTALLATION_ROOT/downloads/tukaani-project-xz-v${xz_ver}.tar.gz
+          done
 
       - name: Prepare (Cross)
         run: |
