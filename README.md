@@ -83,7 +83,7 @@ sudo apt install build-essential lzma-dev liblzma-dev liblz4-dev libbz2-dev \
                  ninja-build rustc cargo
 ````
 
-When configuring, set `CC` and `CXX` with correct values, for example: `clang-15` and `clang++-15`.
+When configuring, set `CC` and `CXX` to correct values, for example: `clang-15` and `clang++-15`.
 
 #### Alpine Linux (edge)
 
@@ -246,6 +246,8 @@ cmake --install build
 
 If you prefer a statically linked binary (optional), pass `-DPREFER_STATIC_LINKING=ON` to CMake while configuring, make sure you have installed the static version of the [depended libraries](#requirements), or you may run into configure or linker errors.
 
+If you build directly from the Git source tree and you want to re-configure (you have an existing build directory), pass `-DPATCH_VENDORED_PROJECTS=OFF` to prevent re-applying the patches which will otherwise causeing everything to build again. (TODO: can we improve this experience?)
+
 #### Rust
 
 You can specify extra arguments passed to Cargo by setting CMake variable `CARGO_FLAGS` while configuring, you can also provide an initial value of environment `RUSTFLAGS` by setting the corresponding CMake variable.
@@ -375,11 +377,6 @@ Feel free to add an [Issue](../../issues) about support on your new platform.
 #### Clean builds
 
 To quickly discard the current `build` directory and dirty vendored submodule (`src/`) changes, please run `make clean`.
-
-#### Tweaking patches
-
-To temporarily disable vendored projects patching, re-configure with `-DPATCH_VENDORED_PROJECTS=OFF` (useful if you are patching them manually).
-To enable it again, use `-DPATCH_VENDORED_PROJECTS=ON` (Note this will clean up changes in vendored modules and re-apply all the patches).
 
 #### Debug builds
 
