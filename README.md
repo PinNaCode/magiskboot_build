@@ -154,31 +154,27 @@ pacboy -S --needed {xz,lz4,bzip2,zlib,pkgconf,clang,cmake,libc++,ninja,rust}:p
 
 If you are cross-compiling from a non-Windows host and using vcpkg to manage the dependencies, please make sure CMake variable `MINGW` is set to `TRUE` during configuring.
 
-#### Cygwin (WIP)
+#### Cygwin (Experimental)
 
 > **Warning**
 >
-> Cygwin support is work-in-progress, you may run into problems.
+> Cygwin support is experimental, you may run into problems.
+>
+> It was once tested and worked but now its fully theoretical.
 
 To build for Cygwin, you need to compile a Rust toolchain from source, for more info: [Cygwin Rust porting](https://gist.github.com/ookiineko/057eb3a91825313caeaf6d793a33b0b2)
 
-You will also need to compile the LLVM & Clang from source with Cygwin patches, you can pick them from: [Ookiineko's unofficial cygpkgs](https://github.com/orgs/ookiineko-cygpkg/repositories)
-
 Currently Cygwin Rust has no host tools support, so cross compiling is needed, make sure to read the instructions for [Cross compiling](#cross-compiling).
 
-The cross compiler is available on Fedora Linux, provided by the [Fedora Cygwin][fedora-cygwin].
+The cross compiler is available on Fedora Linux, provided by the [Fedora Cygwin][fedora-cygwin], alternatively, you can also try [arch-cygwin](https://github.com/ookiineko/arch-cygwin).
 
-Install these packages: `cygwin`, `cygport` and `cygwin-{filesystem,binutils,gcc,pkg-config}`.
+When configuring, use `cygwin64-cmake` (`x86_64-pc-cygwin-cmake` on arch-cygwin) instead of `cmake`, but don't use it for `cmake --build` and other CMake commands.
 
-Build and install the [dependencies](#requirements) from source to sysroot using cygport, or download and extract the prebuilt package from a Cygwin mirror. Another way is to extract those files from an actual Cygwin installation.
+For Fedora Cygwin, you need to build the LLVM & Clang yourself, a patched [LLVM 15 source](https://github.com/ookiineko-cygport/llvm-project) is there. To use the patched Clang in Fedora Cygwin, set both `CMAKE_C_COMPILER_TARGET` and `CMAKE_CXX_COMPILER_TARGET` to `x86_64-unknown-windows-cygnus` and `CMAKE_SYSROOT` to `/usr/x86_64-pc-cygwin/sys-root` when configuring.
 
-When configuring, use `cygwin64-cmake` instead of `cmake`, but don't use it for `cmake --build` and other CMake commands.
+On Fedora Cygwin, there is another issue that `cygwin64-cmake` overrides C and C++ compilers to GCC, this is not supported by Magisk, and somehow ignoring the `CC` and `CXX` variables we are settings. To workaround this, set `CMAKE_C_COMPILER` and `CMAKE_CXX_COMPILER` manually to the path of the previous Cygwin cross Clang and Clang++. On arch-cygwin, set `CYGWIN_CC` and `CYGWIN_CXX` to `x86_64-pc-cygwin-clang` and `x86_64-pc-cygwin-clang++`.
 
-To use the patched Clang with Fedora Cygwin, set both `CMAKE_C_COMPILER_TARGET` and `CMAKE_CXX_COMPILER_TARGET` to `x86_64-unknown-windows-cygnus` and `CMAKE_SYSROOT` to `/usr/x86_64-pc-cygwin/sys-root` when configuring.
-
-Another issue is `cygwin64-cmake` overrides C and C++ compilers to GCC which is not supported by Magisk, and somehow ignoring the `CC` and `CXX` variables set by us. To workaround this, set `CMAKE_C_COMPILER` and `CMAKE_CXX_COMPILER` manually with the path to the previous Cygwin cross Clang and Clang++.
-
-Cygwin's Libc++ is buggy, if you can't pass linking with Libc++, see [this part](#help-my-build-has-failed) to apply patches for building without Libc++. (You will also need to apply patches to compile with old Clang and Rust toolchain.)
+Cygwin's Libc++ can be buggy, if you can't link with Libc++, see [this part](#help-my-build-has-failed) to apply patches for building without Libc++. (Fact: You will also need to apply patches to compile with old Clang and Rust toolchain.)
 
 </details>
 
