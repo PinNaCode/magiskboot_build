@@ -12,7 +12,7 @@ add_library(platform_stubs STATIC
     libc-compat/placeholder.c)
 target_include_directories(platform_stubs PUBLIC libc-compat/include)
 
-if ((NOT CMAKE_SYSTEM_NAME STREQUAL "Linux") AND (NOT CMAKE_SYSTEM_NAME STREQUAL "Android"))
+if (NOT HAVE_sendfile)
     message(STATUS "Using generic sendfile replacement")
     target_sources(platform_stubs PRIVATE
         libc-compat/non-linux/sendfile_fallback.c)
@@ -22,6 +22,36 @@ if (NOT HAVE_STRLCPY)
     message(STATUS "Using bundled libbsd strlcpy implementation")
     target_sources(platform_stubs PRIVATE
         libc-compat/libbsd/str.c)
+endif()
+
+if(NOT HAVE___errno)
+    target_sources(platform_stubs PRIVATE
+        libc-compat/common/__errno.c)
+
+    # e.g Linux and Emscripten
+    check_symbol_exists(__errno_location "errno.h" HAVE___errno_location)
+    if (HAVE___errno_location)
+        set_source_files_properties(libc-compat/common/__errno.c PROPERTIES
+                                    COMPILE_FLAGS -DHAVE___errno_location)
+    else()
+        # e.g macOS
+        check_symbol_exists(__error "errno.h" HAVE___error)
+        if (HAVE___error)
+        set_source_files_properties(libc-compat/common/__errno.c PROPERTIES
+                                    COMPILE_FLAGS -DHAVE___error)
+        else()
+            # e.g MinGW
+            check_symbol_exists(_errno "errno.h" HAVE__errno)
+            if (HAVE__errno)
+                set_source_files_properties(libc-compat/common/__errno.c PROPERTIES
+                                            COMPILE_FLAGS -DHAVE__errno)
+            else()
+                message(FATAL_ERROR "Don't know errno implementation on this platform")
+            endif()
+        endif()
+    endif()
+
+    message(STATUS "Using __errno alias")
 endif()
 
 if (WIN32)

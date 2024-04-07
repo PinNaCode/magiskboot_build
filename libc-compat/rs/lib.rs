@@ -6,12 +6,7 @@
 mod macros;
 
 cfg_if::cfg_if! {
-    if #[cfg(target_vendor = "apple")] {
-        // on macos, we need to shadow some stuffs
-
-        mod darwin;
-        pub use darwin::*;
-    } else if #[cfg(target_os = "windows")] {
+    if #[cfg(target_os = "windows")] {
         // windows has some missing defs,
         // we also need to shadow add some extra stuffs
 
@@ -28,5 +23,9 @@ cfg_if::cfg_if! {
     }
 }
 
+#[macro_use]
 mod common;
+
+post_defs_overrides!();
+
 pub use common::*;

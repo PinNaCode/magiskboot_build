@@ -26,6 +26,9 @@ elseif (EMSCRIPTEN)
     endif()
 
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -sALLOW_MEMORY_GROWTH -Wl,-u,ntohs -Wl,-u,htons -Wl,-u,htonl -Wl,--wrap=close")
+
+    # exists in musl but not in rust libc crate
+    set(RUSTFLAGS "${RUSTFLAGS} --cfg mbb_stubs_SYS_dup3")
 else()
     message(WARNING "
         New platform: ${CMAKE_SYSTEM_NAME}
@@ -43,12 +46,34 @@ endif()
 add_compile_definitions(_FILE_OFFSET_BITS=64 _LARGEFILE64_SOURCE)
 set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE")
 
+list(APPEND CMAKE_REQUIRED_INCLUDES "sys/types.h")
+include(CheckTypeSize)
+check_type_size(off64_t SIZEOF_off64_t)
+if(NOT HAVE_off64_t)
+    add_compile_definitions(off64_t=off_t)
+endif()
+
 include(CheckSymbolExists)
 check_symbol_exists(lseek64 "unistd.h" LSEEK64_EXISTS)
 if(NOT LSEEK64_EXISTS)
-    add_compile_definitions(off64_t=off_t)
     add_compile_definitions(lseek64=lseek)
+
+    set(RUSTFLAGS "${RUSTFLAGS} --cfg mbb_stubs_lseek64")
+endif()
+
+check_symbol_exists(lseek64 "unistd.h" FTRUNCATE64_EXISTS)
+if(NOT FTRUNCATE64_EXISTS)
     add_compile_definitions(ftruncate64=ftruncate)
+endif()
+
+check_symbol_exists(O_PATH "fcntl.h" HAVE_O_PATH)
+if(NOT HAVE_O_PATH)
+    set(RUSTFLAGS "${RUSTFLAGS} --cfg mbb_stubs_O_PATH")
+endif()
+
+check_symbol_exists(SYS_dup3 "sys/syscall.h" HAVE_SYS_dup3)
+if(NOT HAVE_SYS_dup3)
+    set(RUSTFLAGS "${RUSTFLAGS} --cfg mbb_stubs_SYS_dup3")
 endif()
 
 if (CMAKE_SYSTEM_NAME MATCHES "Android")
@@ -61,4 +86,14 @@ else()
     add_compile_options(-U_FORTIFY_SOURCE)
 
     include(CMakeLists.android.txt)
+endif()
+
+check_symbol_exists(sendfile "sys/sendfile.h" HAVE_sendfile)
+if (NOT HAVE_sendfile)
+    set(RUSTFLAGS "${RUSTFLAGS} --cfg mbb_stubs_sendfile")
+endif()
+
+check_symbol_exists(__errno "errno.h" HAVE___errno)
+if(NOT HAVE___errno)
+    set(RUSTFLAGS "${RUSTFLAGS} --cfg mbb_stubs___errno")
 endif()
