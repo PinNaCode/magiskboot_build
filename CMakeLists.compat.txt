@@ -33,6 +33,13 @@ else()
         You can file an Issue about this platform at https://github.com/ookiineko/magiskboot_build/issues if the build fails")
 endif()
 
+include(CheckSymbolExists)
+check_symbol_exists(_GNU_SOURCE "features.h" HAVE__GNU_SOURCE)
+if(NOT HAVE__GNU_SOURCE)
+    add_compile_definitions(_GNU_SOURCE)
+    set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -D_GNU_SOURCE")
+endif()
+
 add_compile_definitions(_FILE_OFFSET_BITS=64 _LARGEFILE64_SOURCE)
 set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE")
 
