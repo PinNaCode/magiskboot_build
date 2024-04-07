@@ -105,7 +105,7 @@ jobs:
       - name: Package source
         run: |
           CC=true cmake -B build -G Ninja -DNO_TARGETS_OR_DEPS=ON -DCMAKE_C_COMPILER_WORKS=YES
-          cmake --build build -t package_source
+          cmake --build build -t package_source -v
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -209,7 +209,7 @@ jobs:
                 -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }}
 
           echo -e "\n### build ###\n"
-          cmake --build build -j $(nproc)
+          cmake --build build -j $(nproc) -v
 
           file build/magiskboot*
           readelf -d build/magiskboot* || true
@@ -290,7 +290,7 @@ jobs:
                   -DUSE_LTO_LINKER_PLUGIN=${{ matrix.full_lto }}
 
           echo -e "\n### build ###\n"
-          cmake --build build -j $(nproc)
+          cmake --build build -j $(nproc) -v
 
           file build/magiskboot*
           ldd build/magiskboot* || true
@@ -364,7 +364,7 @@ jobs:
               -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} -DPREFER_STATIC_LINKING=ON -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }}
 
           echo -e "\n### build ###\n"
-          cmake --build build -j $(nproc)
+          cmake --build build -j $(nproc) -v
 
           file build/magiskboot*
           otool -L build/magiskboot*
@@ -537,7 +537,7 @@ jobs:
               -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }}
 
           echo -e "\n### build ###\n"
-          cmake --build build -j $(nproc)
+          cmake --build build -j $(nproc) -v
 
           file build/magiskboot*
           otool -L build/magiskboot*
@@ -605,7 +605,7 @@ jobs:
               -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} -DPREFER_STATIC_LINKING=ON -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }}
 
           echo -e "\n### build ###\n"
-          cmake --build build -j $(nproc)
+          cmake --build build -j $(nproc) -v
 
           file build/magiskboot*.exe
           ldd build/magiskboot*.exe
@@ -766,7 +766,7 @@ jobs:
                     -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }}
 
           echo -e "\n### build ###\n"
-          cmake --build build -j $(nproc)
+          cmake --build build -j $(nproc) -v
 
           file build/magiskboot*.exe
           strings build/magiskboot*.exe | grep -iE '^(\w|[-.])*\.dll$'
@@ -881,7 +881,7 @@ jobs:
               -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE="$(dirname $(which emcc))/cmake/Modules/Platform/Emscripten.cmake"
 
           echo -e "\n### build ###\n"
-          cmake --build build -j $(nproc)
+          cmake --build build -j $(nproc) -v
 
           file build/magiskboot*
           node ./build/magiskboot*.js || true
