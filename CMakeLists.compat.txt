@@ -33,6 +33,9 @@ else()
         You can file an Issue about this platform at https://github.com/ookiineko/magiskboot_build/issues if the build fails")
 endif()
 
+add_compile_definitions(_FILE_OFFSET_BITS=64 _LARGEFILE64_SOURCE)
+set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE")
+
 include(CheckSymbolExists)
 check_symbol_exists(lseek64 "unistd.h" LSEEK64_EXISTS)
 if(NOT LSEEK64_EXISTS)
