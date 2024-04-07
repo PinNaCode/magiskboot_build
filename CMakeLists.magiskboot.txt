@@ -1,15 +1,36 @@
-# the followings are copied from Magisk
+# partially copied from Magisk
+
+corrosion_import_crate(MANIFEST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src/Magisk/native/src/Cargo.toml
+                       CRATES magiskboot_rs)
+if (RUSTFLAGS)
+    corrosion_add_target_rustflags(magiskboot_rs ${RUSTFLAGS})
+endif()
+if (CARGO_FLAGS)
+    corrosion_set_cargo_flags(magiskboot_rs ${CARGO_FLAGS})
+endif()
+corrosion_set_env_vars(magiskboot_rs
+                       CXXBRIDGE_GEN_TARGET_OS=${CXXBRIDGE_GEN_TARGET_OS}
+                       RUSTC_BOOTSTRAP=${RUSTC_BOOTSTRAP})
+
+add_custom_target(workspace_cleanup
+                 COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_CURRENT_SOURCE_DIR}/src/Magisk/native/src/.cargo/config.toml
+                 COMMENT "Cleaning up workspace")
+add_dependencies(_cargo-build_magiskboot_rs workspace_cleanup)
 
 add_library(libbase STATIC
     src/Magisk/native/src/base/files.cpp
     src/Magisk/native/src/base/misc.cpp
     src/Magisk/native/src/base/logging.cpp
     src/Magisk/native/src/base/stream.cpp
-    src/Magisk/native/src/base/base-rs.cpp
-    src/Magisk/native/src/external/cxx-rs/src/cxx.cc)
+    src/Magisk/native/src/external/cxx-rs/src/cxx.cc
+    src/magiskbase-rs-wrapper.cc)
+add_dependencies(libbase magiskboot_rs-static)
 target_compile_definitions(libbase PRIVATE -DRUST_CXX_NO_EXCEPTIONS)
+add_dependencies(libbase prepared_generated_directory)
 target_include_directories(libbase PRIVATE
-    src/Magisk/native/src/base)
+    src/Magisk/native/src/base
+    src/Magisk/native/src/external/cxx-rs/include
+    ${CMAKE_CURRENT_BINARY_DIR}/generated)
 target_include_directories(libbase PUBLIC
     src/Magisk/native/src/include
     src/Magisk/native/src/base/include)
@@ -52,11 +73,13 @@ add_executable(${MAGISKBOOT_TARGET}
     src/Magisk/native/src/boot/bootimg.cpp
     src/Magisk/native/src/boot/compress.cpp
     src/Magisk/native/src/boot/format.cpp
-    src/Magisk/native/src/boot/boot-rs.cpp)
+    src/magiskboot-rs-wrapper.cc)
+add_dependencies(${MAGISKBOOT_TARGET} magiskboot_rs-static)
 target_include_directories(${MAGISKBOOT_TARGET} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Magisk/native/src/external/cxx-rs/include)
+    src/Magisk/native/src/external/cxx-rs/include)
 target_link_libraries(${MAGISKBOOT_TARGET}
     libbase
+    magiskboot_rs-static
     LibLZMA::LibLZMA
     PkgConfig::liblz4
     BZip2::BZip2

@@ -29,7 +29,8 @@ if(PATCH_VENDORED_PROJECTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/patches")
         android_core
         android_fmtlib
         mman-win32
-        msvc_getline)
+        msvc_getline
+        corrosion)
 
     if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Windows|MSYS")
         execute_process(COMMAND ${GIT_EXECUTABLE} submodule foreach --recursive ${GIT_EXECUTABLE} config core.symlinks true

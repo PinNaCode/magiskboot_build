@@ -1,0 +1,43 @@
+From 84bd18c9af0bec8bcd36706a60f7b71cba6b7873 Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Sun, 7 Apr 2024 22:50:35 +0900
+Subject: [PATCH] support `*-pc-windows-gnullvm` targets
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ cmake/Corrosion.cmake | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/cmake/Corrosion.cmake b/cmake/Corrosion.cmake
+index e47efe4..b78e283 100644
+--- a/cmake/Corrosion.cmake
++++ b/cmake/Corrosion.cmake
+@@ -347,6 +347,7 @@ function(_corrosion_add_library_target)
+ 
+     set(is_windows "")
+     set(is_windows_gnu "")
++    set(is_windows_gnullvm "")
+     set(is_windows_msvc "")
+     set(is_macos "")
+     if(Rust_CARGO_TARGET_OS STREQUAL "windows")
+@@ -355,6 +356,8 @@ function(_corrosion_add_library_target)
+             set(is_windows_msvc TRUE)
+         elseif(Rust_CARGO_TARGET_ENV STREQUAL "gnu")
+             set(is_windows_gnu TRUE)
++        elseif(Rust_CARGO_TARGET_ENV STREQUAL "gnullvm")
++            set(is_windows_gnullvm TRUE)
+         endif()
+     elseif(Rust_CARGO_TARGET_OS STREQUAL "darwin")
+         set(is_macos TRUE)
+@@ -379,7 +382,7 @@ function(_corrosion_add_library_target)
+ 
+     if(is_windows_msvc)
+         set(implib_name "${lib_name}.dll.lib")
+-    elseif(is_windows_gnu)
++    elseif(is_windows_gnu OR is_windows_gnullvm)
+         set(implib_name "lib${lib_name}.dll.a")
+     elseif(is_windows)
+         message(FATAL_ERROR "Unknown windows environment - Can't determine implib name")
+-- 
+2.44.0
+

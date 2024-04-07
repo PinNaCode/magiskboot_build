@@ -57,13 +57,13 @@ option(WITHOUT_LIBCXX "Don't link libcxx instead of libstdc++" OFF)
 # Rust related options
 set(RUSTFLAGS "" CACHE STRING "extra flags passed to rustc")
 set(CARGO_FLAGS "" CACHE STRING "extra flags passed to cargo")
-set(RUSTC_BOOTSTRAP "winsup,base,magiskboot" CACHE STRING "HACK: enable nightly features on stable channel for crates")
+set(RUSTC_BOOTSTRAP "winsup,base,magiskboot_rs" CACHE STRING "")
 
 # useful for cross-compiling
 option(RUST_BUILD_STD "Build Rust standard library" OFF)
-set(RUSTC_TARGET "" CACHE STRING "Rust target")
 
 include(CMakeLists.magisk.txt)
+include(CMakeLists.patch.txt)
 
 if (NOT NO_TARGETS_OR_DEPS)
     include(CheckLinkerFlag)
@@ -129,8 +129,10 @@ if (NOT NO_TARGETS_OR_DEPS)
 
     if (CMAKE_BUILD_TYPE MATCHES "Debug")
         set(MAGISKBOOT_TARGET magiskboot_debug)
+        message(STATUS "Debug (unoptimized) build")
     else()
         set(MAGISKBOOT_TARGET magiskboot)
+        message(STATUS "Release (optimized) build")
     endif()
 
     include(CMakeLists.compat.txt)
@@ -174,11 +176,8 @@ if (NOT NO_TARGETS_OR_DEPS)
 
     include(CMakeLists.rust.txt)
     include(CMakeLists.magiskboot.txt)
-    include(CMakeLists.lib.txt)
     include(CMakeLists.stub.txt)
 endif()
-
-include(CMakeLists.patch.txt)
 
 # CPack configuration for creating source tarballs which already include
 # patched versions of the vendored dependencies.

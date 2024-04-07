@@ -1,0 +1,40 @@
+From e35d1fc471466eb9194f57803c90ff305024ca05 Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Mon, 8 Apr 2024 01:09:20 +0900
+Subject: [PATCH] allow adding required cargo/rust flags when detecting LDLIBs
+ for staticlib
+
+- this is useful when the STD is supported but built from source instead
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ cmake/FindRust.cmake | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/cmake/FindRust.cmake b/cmake/FindRust.cmake
+index 97c65db..678c7dd 100644
+--- a/cmake/FindRust.cmake
++++ b/cmake/FindRust.cmake
+@@ -147,7 +147,9 @@ function(_corrosion_determine_libs_new target_triple out_libs)
+     execute_process(
+         COMMAND ${CMAKE_COMMAND} -E env
+             "CARGO_BUILD_RUSTC=${Rust_COMPILER_CACHED}"
+-        ${Rust_CARGO_CACHED} rustc --verbose --color never --target=${target_triple} -- --print=native-static-libs
++            "RUSTFLAGS=${Rust_Detect_RUSTFLAGS}"
++            ${Rust_Detect_ENV_VARS}
++        ${Rust_CARGO_CACHED} ${Rust_Detect_CARGO_FLAGS} rustc --verbose --color never --target=${target_triple} -- --print=native-static-libs
+         WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/corrosion/required_libs"
+         RESULT_VARIABLE cargo_build_result
+         ERROR_VARIABLE cargo_build_error_message
+@@ -286,7 +288,7 @@ if (NOT Rust_RUSTUP)
+ endif()
+ 
+ # List of user variables that will override any toolchain-provided setting
+-set(_Rust_USER_VARS Rust_COMPILER Rust_CARGO Rust_CARGO_TARGET Rust_CARGO_HOST_TARGET)
++set(_Rust_USER_VARS Rust_COMPILER Rust_CARGO Rust_CARGO_TARGET Rust_CARGO_HOST_TARGET Rust_Detect_RUSTFLAGS Rust_Detect_CARGO_FLAGS Rust_Detect_ENV_VARS)
+ foreach(_VAR ${_Rust_USER_VARS})
+     if (DEFINED "${_VAR}")
+         set(${_VAR}_CACHED "${${_VAR}}" CACHE INTERNAL "Internal cache of ${_VAR}")
+-- 
+2.44.0
+

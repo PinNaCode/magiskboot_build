@@ -88,9 +88,6 @@ if (WIN32)
     target_include_directories(libgetline PUBLIC src/msvc_getline)
     target_link_libraries(platform_stubs INTERFACE libgetline)
 
-    # needed by some random Rust stuffs
-    target_link_libraries(${MAGISKBOOT_TARGET} ws2_32 userenv ntdll bcrypt synchronization)
-
     target_include_directories(android_libbase PRIVATE libc-compat/include)
 endif()
 
@@ -102,5 +99,4 @@ if (EMSCRIPTEN)
 endif()
 
 target_link_libraries(libbase platform_stubs)
-target_link_libraries(libmagiskboot-rs INTERFACE platform_stubs)
 target_link_libraries(${MAGISKBOOT_TARGET} platform_stubs)

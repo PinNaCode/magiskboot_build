@@ -248,7 +248,7 @@ If you build directly from the Git source tree and you want to re-configure (you
 
 You can specify extra arguments passed to Cargo by setting CMake variable `CARGO_FLAGS` while configuring, you can also provide an initial value of environment `RUSTFLAGS` by setting the corresponding CMake variable.
 
-Note: unlike `RUSTFLAGS`, `CARGO_FLAGS` is using list syntax, not string. that is, replace all your spaces with `;`, e.g. `-DCARGO_FLAGS="-Z;no-index-update"` instead of `-DCARGO_FLAGS="-Z no-index-update"`
+Note: these variables are using [CMake's list syntax](https://cmake.org/cmake/help/latest/manual/cmake-language.7.html#cmake-language-lists), not string. that is, replace all your spaces with `;`, e.g. `-DCARGO_FLAGS="-Z;no-index-update"` instead of `-DCARGO_FLAGS="-Z no-index-update"`
 
 #### Cross compiling
 
@@ -268,7 +268,7 @@ vcpkg install --host-triplet=arm64-linux bzip2 lz4 zlib liblzma
 
 `arm64-linux` is the triplet of your cross target, pass this value to CMake using the `VCPKG_TARGET_TRIPLET` variable during configuration.
 
-Set variable `RUSTC_TARGET` to the Rust target you wanted to cross compile for, e.g. `aarch64-unknown-linux-gnu` (You can find them in [rustc documentation](https://doc.rust-lang.org/rustc/platform-support.html)).
+Set variable `Rust_CARGO_TARGET` to the Rust target you wanted to cross compile for, e.g. `aarch64-unknown-linux-gnu` (You can find them in [rustc documentation](https://doc.rust-lang.org/rustc/platform-support.html)).
 
 To integrate vcpkg with CMake, pass `-DCMAKE_TOOLCHAIN_FILE=/path/to/your/vcpkg/scripts/buildsystems/vcpkg.cmake` to CMake, to use your toolchain file with vcpkg, set the variable `VCPKG_CHAINLOAD_TOOLCHAIN_FILE` to the path of your actual toolchain file.
 

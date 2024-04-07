@@ -27,3 +27,7 @@
 	path = src/msvc_getline
 	url = https://github.com/CostantinoGrana/msvc_getline.git
 	shallow = true
+[submodule "corrosion"]
+	path = src/corrosion
+	url = https://github.com/corrosion-rs/corrosion.git
+	shallow = true

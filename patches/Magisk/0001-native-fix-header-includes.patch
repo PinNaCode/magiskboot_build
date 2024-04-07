@@ -48,6 +48,31 @@ index 114b55c..0b6e3c0 100644
  codegen-units = 1
 -panic = "abort"
 
+diff --git a/native/src/Cargo.lock b/native/src/Cargo.lock
+index 4b60785..a03a476 100644
+--- a/native/src/Cargo.lock
++++ b/native/src/Cargo.lock
+@@ -478,7 +478,7 @@ dependencies = [
+ ]
+ 
+ [[package]]
+-name = "magiskboot"
++name = "magiskboot_rs"
+ version = "0.0.0"
+ dependencies = [
+  "argh",
+diff --git a/native/src/boot/Cargo.toml b/native/src/boot/Cargo.toml
+index e3e0d30..c5ecb43 100644
+--- a/native/src/boot/Cargo.toml
++++ b/native/src/boot/Cargo.toml
+@@ -1,5 +1,5 @@
+ [package]
+-name = "magiskboot"
++name = "magiskboot_rs"
+ version = "0.0.0"
+ edition = "2021"
+ 
+
 diff --git a/native/src/base/files.cpp b/native/src/base/files.cpp
 index 6829de2..8aef651 100644
 --- a/native/src/base/files.cpp

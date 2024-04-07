@@ -1,0 +1,28 @@
+From ce3ab90de811b243bb87f9db43feafafe3f5d8cd Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Sun, 7 Apr 2024 23:43:53 +0900
+Subject: [PATCH] suppress rustup target not installed error
+
+- we want to be able to prefer building STD from source
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ cmake/Corrosion.cmake | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmake/Corrosion.cmake b/cmake/Corrosion.cmake
+index b78e283..22f44f2 100644
+--- a/cmake/Corrosion.cmake
++++ b/cmake/Corrosion.cmake
+@@ -47,7 +47,7 @@ if(Rust_TOOLCHAIN_IS_RUSTUP_MANAGED)
+         message(DEBUG "Cargo target ${Rust_CARGO_TARGET} is an official target-triple")
+         message(DEBUG "Installed targets: ${INSTALLED_TARGETS}")
+         if(NOT ("${Rust_CARGO_TARGET}" IN_LIST INSTALLED_TARGETS))
+-            message(FATAL_ERROR "Target ${Rust_CARGO_TARGET} is not installed for toolchain ${Rust_TOOLCHAIN}.\n"
++            message(WARNING "Target ${Rust_CARGO_TARGET} is not installed for toolchain ${Rust_TOOLCHAIN}.\n"
+                     "Help: Run `rustup target add --toolchain ${Rust_TOOLCHAIN} ${Rust_CARGO_TARGET}` to install "
+                     "the missing target."
+             )
+-- 
+2.44.0
+

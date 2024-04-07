@@ -201,7 +201,7 @@ jobs:
 
           echo -e "\n### configure ###\n"
           cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} \
-                -DRUSTC_TARGET=${{ env.rust_target }} -DRUST_BUILD_STD=ON \
+                -DRust_CARGO_TARGET=${{ env.rust_target }} -DRUST_BUILD_STD=ON \
                 -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
                 -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
                 -DANDROID_PLATFORM=${{ env.api_level }} -DANDROID_ABI=${{ env.target_arch }} \
@@ -531,7 +531,7 @@ jobs:
               -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} -DCMAKE_SYSTEM_NAME=Darwin \
               -DCMAKE_C_COMPILER_TARGET=${{ matrix.clang_target }} -DCMAKE_CXX_COMPILER_TARGET=${{ matrix.clang_target }} \
               -DCMAKE_AR=llvm-ar -DCMAKE_RANLIB=llvm-ranlib \
-              -DRUSTC_TARGET=${{ matrix.rust_target }} -DPREFER_STATIC_LINKING=ON \
+              -DRust_CARGO_TARGET=${{ matrix.rust_target }} -DPREFER_STATIC_LINKING=ON \
               -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
               -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
               -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }}
@@ -760,7 +760,7 @@ jobs:
           . "$HOME/.cargo/env"
           CC=${{ matrix.cc }} CXX=${{ matrix.cxx }} cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} \
                     -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} -DCMAKE_SYSTEM_NAME=Windows \
-                    -DRUSTC_TARGET=${{ matrix.rust_target }} -DRUST_BUILD_STD=${{ matrix.build_rust_std }} -DPREFER_STATIC_LINKING=ON \
+                    -DRust_CARGO_TARGET=${{ matrix.rust_target }} -DRUST_BUILD_STD=${{ matrix.build_rust_std }} -DPREFER_STATIC_LINKING=ON \
                     -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
                     -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} -DMINGW=TRUE \
                     -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }}
@@ -873,7 +873,7 @@ jobs:
           echo -e "\n### configure ###\n"
           . "$HOME/.cargo/env"
           emcmake cmake -G Ninja -B build -DCMAKE_EXE_LINKER_FLAGS="-sNODERAWFS" \
-              -DRUSTC_TARGET=${{ env.rust_target }} -DRUST_BUILD_STD=ON -DRUSTC_BOOTSTRAP=1 \
+              -DRust_CARGO_TARGET=${{ env.rust_target }} -DRUST_BUILD_STD=ON -DRUSTC_BOOTSTRAP=1 \
               -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }} \
               -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} -DPREFER_STATIC_LINKING=ON \
               -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
