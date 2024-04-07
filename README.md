@@ -19,7 +19,7 @@ for build-time dependencies:
 
 1. [pkg-config][pkg-config]
 2. [Clang][Clang] (maybe also others, but GCC doesn't work, see [this part](#your-compiler-is-not-capable-of-building-magiskboot))
-3. [Rust][Rust]
+3. [Rust][Rust] (stable channel is OK... spoiler: `RUSTC_BOOTSTRAP` HACK is used)
 4. [CMake][CMake]
 5. [Libc++][Libcxx] (optional, see [this part](#help-my-build-has-failed))
 
