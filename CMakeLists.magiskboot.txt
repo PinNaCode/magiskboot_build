@@ -87,4 +87,5 @@ target_link_libraries(${MAGISKBOOT_TARGET}
     libzopfli
     Threads::Threads)
 
-install(TARGETS ${MAGISKBOOT_TARGET} DESTINATION bin)
+include(GNUInstallDirs)
+install(TARGETS ${MAGISKBOOT_TARGET} DESTINATION ${CMAKE_INSTALL_BINDIR})
