@@ -242,7 +242,7 @@ cmake --install build
 
 To produce a statically linked binary (optional), pass `-DPREFER_STATIC_LINKING=ON` to CMake while configuring, make sure you have the static version of the [depended libraries](#requirements), otherwise you'll run into configure or link errors.
 
-If you build directly from the Git source tree and you want to re-configure (you have an existing build directory), pass `-DPATCH_VENDORED_PROJECTS=OFF` to prevent re-applying the patches which will otherwise causeing everything to build again. (TODO: can we improve this experience?)
+If you build directly from the Git source tree and you want to re-configure (you have an existing build directory), pass `-DPATCH_VENDORED_PROJECTS=OFF` to prevent re-applying the patches which will otherwise cause everything to build again. (TODO: can we improve this experience?)
 
 #### Rust
 
