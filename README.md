@@ -18,7 +18,7 @@ magiskboot itself depends on the following libraries:
 for build-time dependencies:
 
 1. [pkg-config][pkg-config]
-2. [Clang][Clang]
+2. [Clang][Clang] (maybe also others, but GCC doesn't work, see [this part](#your-compiler-is-not-capable-of-building-magiskboot))
 3. [Rust][Rust]
 4. [CMake][CMake]
 5. [Libc++][Libcxx] (optional, see [this part](#help-my-build-has-failed))
@@ -353,6 +353,10 @@ you can try to pick some known ones from [here](patches-contrib), or report it b
 Or you can try installing Rust via [rustup][rustup] instead.
 
 If you need to build with [Libstdc++][Libstdcxx] instead of [Libc++][Libcxx] (not recommended), pass `-DWITHOUT_LIBCXX=ON` to CMake during configuring, also apply [this patch](patches-contrib/Magisk/0029-workaround-support-building-with-libstdcxx.patch).
+
+#### "Your compiler is not capable of building magiskboot"
+
+Make sure you are using Clang to build. GCC doesn't work because of: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=36566
 
 #### Is this thing using the latest Magisk source?
 

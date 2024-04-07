@@ -11,8 +11,16 @@ if (NOT NO_TARGETS_OR_DEPS)
     set(CMAKE_CXX_EXTENSIONS ON)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-    if (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        message(FATAL_ERROR "Clang is required to build magiskboot, please set CXX or CMAKE_CXX_COMPILER to clang++ and reconfigure.")
+    include(CheckCXXSourceCompiles)
+    check_cxx_source_compiles("
+        int main () {
+            struct { int x; } __attribute__ ((packed)) foo = { 1337 };
+            [] (int &a) { (void) a; } (foo.x);
+        }
+    " CXX_COMPILER_BIND_PACKED_FIELD_WORKS)
+
+    if (NOT CXX_COMPILER_BIND_PACKED_FIELD_WORKS)
+        message(FATAL_ERROR "Your C++ compiler is not capable of building magiskboot, please check FAQ in README for more details.")
     endif()
 
     if (WITHOUT_LIBCXX)
