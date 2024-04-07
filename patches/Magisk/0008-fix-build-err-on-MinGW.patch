@@ -24,7 +24,7 @@ index f89abca..42baccf 100644
  
  [target.'cfg(windows)'.dependencies]
  filepath = "0.1.2"
-+winsup = { path = "../../../../../libc-compat/winsup/rs" }
++winsup = { path = "../../../../../src/winsup-rs" }
 diff --git a/native/src/base/cxx_extern.rs b/native/src/base/cxx_extern.rs
 index 86f56a8..a83b1df 100644
 --- a/native/src/base/cxx_extern.rs
@@ -234,7 +234,7 @@ index bcf3b25..c0aa236 100644
  num-traits = { workspace = true }
 +
 +[target.'cfg(windows)'.dependencies]
-+winsup = { path = "../../../../../libc-compat/winsup/rs" }
++winsup = { path = "../../../../../src/winsup-rs" }
 diff --git a/native/src/boot/cpio.rs b/native/src/boot/cpio.rs
 index 0e36b4d..0c353e2 100644
 --- a/native/src/boot/cpio.rs

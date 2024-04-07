@@ -1,4 +1,4 @@
-if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/flags.h)
+if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/include/flags.h)
     find_package(Git REQUIRED)
     if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src/Magisk/.git)
         execute_process(
@@ -43,7 +43,7 @@ if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/flags.h)
         endforeach()
     endif()
     message(STATUS "Magisk version: ${MAGISK_VERSION} (version code \"${MAGISK_VER_CODE}\")")
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/flags.h.in ${CMAKE_CURRENT_SOURCE_DIR}/flags.h @ONLY)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/flags.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/flags.h @ONLY)
 endif()
 
 if (CMAKE_BUILD_TYPE MATCHES "Debug")
@@ -64,10 +64,10 @@ else()
 endif()
 
 add_custom_target(generate_flags_h_in
-                  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/flags.h
+                  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/include/flags.h
                   BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/generated/flags.h.in
                   COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/generated
-                  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/flags.h ${CMAKE_CURRENT_BINARY_DIR}/generated/flags.h.in
+                  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/include/flags.h ${CMAKE_CURRENT_BINARY_DIR}/generated/flags.h.in
                   COMMAND ${sed_REPLACE_COMMAND} "s/!MAGISK_DEBUG!/${MAGISK_DEBUG}/g" ${CMAKE_CURRENT_BINARY_DIR}/generated/flags.h.in
                   COMMENT "Generating C header flags.h.in")
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/generated/flags.h

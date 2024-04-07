@@ -3,7 +3,7 @@ all:
 clean:
 	rm -rf build
 ifneq ($(wildcard .git),)
-	rm -f flags.h
+	rm -f include/flags.h
 ifeq ($(OS),Windows_NT)
 	git submodule foreach --recursive git config core.symlinks true
 endif  # Windows_NT

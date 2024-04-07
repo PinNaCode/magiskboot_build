@@ -29,7 +29,7 @@ index 114b55c..0b6e3c0 100644
  cxx = { path = "external/cxx-rs" }
  cxx-gen = { path = "external/cxx-rs/gen/lib" }
 -libc = "0.2"
-+libc = { path = "../../../../libc-compat/rs" }
++libc = { path = "../../../../src/libc-compat/rs" }
  cfg-if = "1.0"
  num-traits = "0.2"
  num-derive = "0.4"

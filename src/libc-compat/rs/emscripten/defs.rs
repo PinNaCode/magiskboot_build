@@ -1,7 +1,7 @@
 pub use libc::*;
 
 // shadowing these functions to use our stubs
-// check libc-compat/emsup/mmap_hack.c for details
+// check src/libc-compat/emsup/mmap_hack.c for details
 
 extern "C" {
     #[link_name = "_mmap_stub_impl"]

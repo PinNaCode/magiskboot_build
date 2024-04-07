@@ -1,4 +1,4 @@
-// defined in libc-compat/non-linux/sendfile_fallback.c
+// defined in src/libc-compat/non-linux/sendfile_fallback.c
 
 macro_rules! add_sendfile_stubs_if_needed {
     () => {
