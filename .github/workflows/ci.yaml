@@ -654,6 +654,10 @@ jobs:
             cmake_arch: aarch64
             cc: aarch64-w64-mingw32-clang
             cxx: aarch64-w64-mingw32-clang++
+
+            # XXX: what? why this wasn't detected by Corrosion automatically?
+            ldlibs: "-lbcrypt"
+
             vcpkg_triplet: arm64-mingw-static
             rust_target: aarch64-pc-windows-gnullvm
             build_rust_std: "ON"
@@ -759,7 +763,7 @@ jobs:
           echo -e "\n### configure ###\n"
           . "$HOME/.cargo/env"
           CC=${{ matrix.cc }} CXX=${{ matrix.cxx }} cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} \
-                    -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} -DCMAKE_SYSTEM_NAME=Windows \
+                    -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_EXE_LINKER_FLAGS=" ${{ matrix.ldlibs }}" \
                     -DRust_CARGO_TARGET=${{ matrix.rust_target }} -DRUST_BUILD_STD=${{ matrix.build_rust_std }} -DPREFER_STATIC_LINKING=ON \
                     -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
                     -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} -DMINGW=TRUE \
