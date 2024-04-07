@@ -130,6 +130,9 @@ if (NOT NO_TARGETS_OR_DEPS)
     find_package(PkgConfig REQUIRED)
     if (PREFER_STATIC_LINKING)
         message(STATUS "Static/standalone build")
+        set(CMAKE_FIND_LIBRARY_PREFIXES "${CMAKE_STATIC_LIBRARY_PREFIX}")
+        set(CMAKE_FIND_LIBRARY_SUFFIXES "${CMAKE_STATIC_LIBRARY_SUFFIX}")
+        list(APPEND PKG_CONFIG_EXECUTABLE "--static")
         include(CheckLinkerFlag)
         check_linker_flag(CXX -static STATIC_LINK_WORKS)
         if (STATIC_LINK_WORKS)
@@ -152,48 +155,12 @@ if (NOT NO_TARGETS_OR_DEPS)
         message(STATUS "Dynamic build")
     endif()
 
-    macro(find_package_ext_impl PKG_TO_FIND FIND_PKG_EXT_MODE)
-        if ("${FIND_PKG_EXT_MODE}" STREQUAL "PKGCONFIG")
-            pkg_check_modules(${PKG_TO_FIND}
-                IMPORTED_TARGET ${PKG_TO_FIND}
-                ${ARGN})
-        elseif("${FIND_PKG_EXT_MODE}" STREQUAL "CMAKE")
-            find_package(${PKG_TO_FIND} ${ARGN})
-        else()
-            message(FATAL_ERROR "Invalid find mode: ${FIND_PKG_EXT_MODE}")
-        endif()
-    endmacro()
-
-    function(find_package_ext PKG_TO_FIND)
-        if (PREFER_STATIC_LINKING)
-            set(OLD_CMAKE_FIND_LIBRARY_PREFIXES "${CMAKE_FIND_LIBRARY_PREFIXES}")
-            set(OLD_CMAKE_FIND_LIBRARY_SUFFIXES "${CMAKE_FIND_LIBRARY_SUFFIXES}")
-            set(OLD_PKG_CONFIG_EXECUTABLE "${PKG_CONFIG_EXECUTABLE}")
-
-            set(CMAKE_FIND_LIBRARY_PREFIXES "${CMAKE_STATIC_LIBRARY_PREFIX}")
-            set(CMAKE_FIND_LIBRARY_SUFFIXES "${CMAKE_STATIC_LIBRARY_SUFFIX}")
-            list(APPEND PKG_CONFIG_EXECUTABLE "--static")
-
-            find_package_ext_impl(${PKG_TO_FIND} ${ARGN})
-
-            set(CMAKE_FIND_LIBRARY_PREFIXES "${OLD_CMAKE_FIND_LIBRARY_PREFIXES}")
-            set(CMAKE_FIND_LIBRARY_SUFFIXES "${OLD_CMAKE_FIND_LIBRARY_SUFFIXES}")
-            set(PKG_CONFIG_EXECUTABLE "${OLD_PKG_CONFIG_EXECUTABLE}")
-
-            if (${PKG_TO_FIND}_FOUND)
-                return()
-            endif()
-        endif()
-
-        find_package_ext_impl(${PKG_TO_FIND} ${ARGN} REQUIRED)
-    endfunction()
-
     set(THREADS_PREFER_PTHREAD_FLAG ON)
-    find_package_ext(Threads CMAKE)
-    find_package_ext(LibLZMA CMAKE)
-    find_package_ext(liblz4 PKGCONFIG)
-    find_package_ext(BZip2 CMAKE)
-    find_package_ext(ZLIB CMAKE)
+    find_package(Threads REQUIRED)
+    find_package(LibLZMA REQUIRED)
+    pkg_check_modules(liblz4 REQUIRED IMPORTED_TARGET liblz4)
+    find_package(BZip2 REQUIRED)
+    find_package(ZLIB REQUIRED)
 
     add_compile_options(-Wall)
 

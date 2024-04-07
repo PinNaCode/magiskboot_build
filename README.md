@@ -240,7 +240,7 @@ cmake --build build -j $(nproc)  # build
 cmake --install build
 ````
 
-If you prefer a statically linked binary (optional), pass `-DPREFER_STATIC_LINKING=ON` to CMake while configuring, make sure you have installed the static version of the [depended libraries](#requirements), or you may run into configure or linker errors.
+If you prefer a statically linked binary (optional), pass `-DPREFER_STATIC_LINKING=ON` to CMake while configuring, make sure your distribution provided you the static version of the [depended libraries](#requirements), otherwise you'll run into configure errors and you have to change your distribution or try to compile the static version of those libraries yourself and install them to your system for the static build.
 
 If you build directly from the Git source tree and you want to re-configure (you have an existing build directory), pass `-DPATCH_VENDORED_PROJECTS=OFF` to prevent re-applying the patches which will otherwise causeing everything to build again. (TODO: can we improve this experience?)
 
