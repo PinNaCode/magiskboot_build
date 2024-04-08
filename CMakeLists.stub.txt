@@ -94,6 +94,9 @@ if (WIN32)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=mkdir -Wl,--wrap=creat -Wl,--wrap=open -Wl,--wrap=fopen")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=fdopen -Wl,--wrap=fstat -Wl,--wrap=CreateFileW")
 
+    # Rust STD is directly using these
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=_mkdir -Wl,--wrap=_creat -Wl,--wrap=_open -Wl,--wrap=_fdopen -Wl,--wrap=_fstat64")
+
     # llvm-mingw uses a different mangling
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=CreateFileW@28")
 endif()

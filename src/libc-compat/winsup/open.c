@@ -97,6 +97,20 @@ int __cdecl __wrap_open(const char *path, int oflag, ... ) {
 
 // for Rust
 
+int __cdecl __wrap__open(const char *path, int oflag, ... ) {
+    va_list ap;
+    int res;
+
+    va_start(ap, oflag);
+    if (oflag & O_CREAT)
+        res = open(path, oflag, (mode_t) va_arg(ap, int));
+    else
+        res = open(path, oflag);
+    va_end(ap);
+
+    return res;
+}
+
 HANDLE WINAPI __real_CreateFileW(const wchar_t *lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode,
                                  SECURITY_ATTRIBUTES *lpSecurityAttributes, DWORD dwCreationDisposition,
                                  DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);

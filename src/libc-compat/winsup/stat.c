@@ -154,3 +154,8 @@ int lstat (const char *__restrict path, struct stat *__restrict buf) {
 
     return ret;
 }
+
+// for Rust
+int __cdecl __wrap__fstat64(int fd, struct stat *buf) {
+    return fstat(fd, buf);
+}

@@ -137,3 +137,13 @@ int __cdecl __wrap_creat(const char *path, int mode) {
 
     return open(path, CREAT_OFLAGS, fixed_mode);
 }
+
+// for Rust
+
+FILE *__cdecl __wrap__fdopen(int fd, const char *mode) {
+    return fdopen(fd, mode);
+}
+
+int __cdecl __wrap__creat(const char *path, int mode) {
+    return creat(path, mode);
+}

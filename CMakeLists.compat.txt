@@ -38,6 +38,9 @@ elseif (APPLE)
         list(APPEND CMAKE_SYSTEM_PREFIX_PATH ${HOMEBREW_PREFIX})
     endif()
 elseif (WIN32)
+    # force struct stat to use 64-bit time_t (to match Rust's libc crate)
+    add_compile_definitions(__MINGW_USE_VC2005_COMPAT)
+
     # handled in CMakeLists.stub.txt
 elseif (CYGWIN)
     add_compile_definitions(__USE_LINUX_IOCTL_DEFS)

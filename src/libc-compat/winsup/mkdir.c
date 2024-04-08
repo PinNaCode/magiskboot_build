@@ -30,3 +30,9 @@ int __cdecl __wrap_mkdir(const char *path) {
 
     return __real_mkdir(path);
 }
+
+// For Rust
+
+int __cdecl __wrap__mkdir(const char *path) {
+    return mkdir(path);
+}
