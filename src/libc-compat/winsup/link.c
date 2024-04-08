@@ -16,10 +16,13 @@
 #include <ntdef.h>
 #include <winioctl.h>
 
+#include "internal/assert.h"
 #include "internal/errno.h"
 #include "internal/fd.h"
 
 #include "../include/winsup/link_compat.h"
+
+#define LOG_TAG             "link_compat"
 
 #ifndef MIN
 #  define MIN(a, b)   (((a) < (b)) ? (a) : (b))
@@ -92,12 +95,13 @@ ssize_t readlink (const char *__restrict path,
         return -1;  // never reached
     }
 
-    size_t chars;
-    errno_t err = wcstombs_s(&chars, buf, len, ws_ptr, MIN(len - 1, ws_len / sizeof(WCHAR)));
+    int chars;
+    chars = WideCharToMultiByte(CP_ACP, WC_NO_BEST_FIT_CHARS,
+                                ws_ptr, ws_len + 1, buf, len, NULL, NULL);
+    if (!chars) {
+        LOG_ERR("WideCharToMultiByte failed: %s", win_strerror(GetLastError()));
 
-    if (err) {
-        errno = err;
-        goto error;
+        abort();
     }
 
     ret = chars - 1;  // not including the terminating NULL

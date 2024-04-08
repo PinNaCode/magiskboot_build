@@ -1,9 +1,8 @@
 #include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <stdarg.h>
 #include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -138,11 +137,9 @@ HANDLE WINAPI __wrap_CreateFileW(const wchar_t *lpFileName, DWORD dwDesiredAcces
 
     char path[PATH_MAX + 1];
 
-    size_t chars;
-    errno_t err = wcstombs_s(&chars, path, sizeof(path), lpFileName, sizeof(path) - 1);
-
-    if (err) {
-        LOG_ERR("unable to convert wide string '%S': %s", lpFileName, strerror(err));
+    if (!WideCharToMultiByte(CP_ACP, WC_NO_BEST_FIT_CHARS,
+                             lpFileName, -1, path, sizeof(path), NULL, NULL)) {
+        LOG_ERR("WideCharToMultiByte failed: %s", win_strerror(GetLastError()));
 
         abort();
     }
