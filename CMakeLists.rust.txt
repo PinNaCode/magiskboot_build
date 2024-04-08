@@ -27,7 +27,7 @@ endif()
 
 set(Rust_Detect_ENV_VARS RUSTC_BOOTSTRAP=${RUSTC_BOOTSTRAP})
 
-if (USE_LTO_LINKER_PLUGIN)
+if (FULL_RUST_LTO)
     message(STATUS "Full LTO enabled")
     list(APPEND RUSTFLAGS -Clto=yes)
     list(APPEND RUSTFLAGS -Clinker-plugin-lto=yes)

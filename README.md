@@ -276,7 +276,7 @@ To integrate vcpkg with CMake, pass `-DCMAKE_TOOLCHAIN_FILE=/path/to/your/vcpkg/
 
 Set `LDFLAGS` to `" -flto"` before calling CMake.
 
-If you want to perform LTO at the final link time, pass `-DUSE_LTO_LINKER_PLUGIN=ON` to CMake during configuring. (And you will need to install [LLD][LLD]. Note: you may need to make sure your LLVM and LLD are sharing the same LLVM version with Rust.)
+If you want to perform LTO for the Rust part at final link time, pass `-DFULL_RUST_LTO=ON` to CMake during configuring. (And you will need to install [LLD][LLD]. Note: you may need to make sure your LLVM and LLD are sharing the same LLVM version with Rust.)
 
 ### Testing
 

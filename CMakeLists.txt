@@ -39,7 +39,7 @@ option(PATCH_VENDORED_PROJECTS "Patch vendored projects using patches directory"
 
 option(NO_TARGETS_OR_DEPS "Turn this on if you are creating source tarball only" OFF)
 
-option(USE_LTO_LINKER_PLUGIN "Keep LLVM bitcode in objects for LTO (requires LLD)" OFF)
+option(FULL_RUST_LTO "Keep LLVM bitcode in Rust libraries for LTO (requires LLD)" OFF)
 
 # Option to enable or disable building static linked version of magiskboot.
 # If enabled, the build result will be a standalone binary which you can run
