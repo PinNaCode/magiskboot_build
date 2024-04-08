@@ -23,12 +23,12 @@ if (NOT NO_TARGETS_OR_DEPS)
         message(FATAL_ERROR "Your C++ compiler is not capable of building magiskboot, please check FAQ in README for more details.")
     endif()
 
-    if (WITHOUT_LIBCXX)
-        message(STATUS "Libc++ is disabled")
-    else()
+    if (WITH_LIBCXX)
         message(STATUS "Libc++ is enabled")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++")
+    else()
+        message(STATUS "Libc++ is disabled")
     endif()
 
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -fomit-frame-pointer")
@@ -52,7 +52,7 @@ option(USE_LTO_LINKER_PLUGIN "Keep LLVM bitcode in objects for LTO (requires LLD
 # This requires installing depended static libraries on the host.
 option(PREFER_STATIC_LINKING "Prefer static libraries when linking" OFF)
 
-option(WITHOUT_LIBCXX "Don't link libcxx instead of libstdc++" OFF)
+option(WITH_LIBCXX "Link libcxx instead of libstdc++" ON)
 
 # Rust related options
 set(RUSTFLAGS "" CACHE STRING "extra flags passed to rustc")
