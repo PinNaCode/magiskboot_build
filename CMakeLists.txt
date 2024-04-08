@@ -1,6 +1,34 @@
 cmake_minimum_required(VERSION 3.22)
 project(magiskboot_build LANGUAGES C)
 
+# Option to enable or disable patching vendor projects using patches directory.
+# This helps to build vendor projects with or without any patching. Also if any
+# files are changed in vendor projects those can be retained with this option.
+option(PATCH_VENDORED_PROJECTS "Patch vendored projects using patches directory" ON)
+
+# Build-related options
+option(WITHOUT_BUILD "Turn this on if you are creating source tarball only" OFF)
+
+option(TRY_USE_LLD "Prefer LLD for linking when available" ON)
+
+# Option to enable or disable building static linked version of magiskboot.
+# If enabled, the build result will be a standalone binary which you can run
+# on any device with the same operating system and architecture.
+# This requires installing depended static libraries on the host.
+option(PREFER_STATIC_LINKING "Prefer static libraries when linking" OFF)
+
+# C++ related options
+option(WITH_LIBCXX "Link libcxx instead of libstdc++" ON)
+
+# Rust related options
+option(FULL_RUST_LTO "Keep LLVM bitcode in Rust libraries for LTO (requires LLD)" OFF)
+set(RUSTFLAGS "" CACHE STRING "extra flags passed to rustc")
+set(CARGO_FLAGS "" CACHE STRING "extra flags passed to cargo")
+set(RUSTC_BOOTSTRAP "winsup,base,magiskboot_rs" CACHE STRING "")
+
+# useful for cross-compiling
+option(RUST_BUILD_STD "Build Rust standard library" OFF)
+
 if (NOT WITHOUT_BUILD)
     enable_language(CXX)
 
@@ -31,32 +59,6 @@ if (NOT WITHOUT_BUILD)
         message(STATUS "Libc++ is disabled")
     endif()
 endif()
-
-# Option to enable or disable patching vendor projects using patches directory.
-# This helps to build vendor projects with or without any patching. Also if any
-# files are changed in vendor projects those can be retained with this option.
-option(PATCH_VENDORED_PROJECTS "Patch vendored projects using patches directory" ON)
-
-option(WITHOUT_BUILD "Turn this on if you are creating source tarball only" OFF)
-
-option(FULL_RUST_LTO "Keep LLVM bitcode in Rust libraries for LTO (requires LLD)" OFF)
-
-# Option to enable or disable building static linked version of magiskboot.
-# If enabled, the build result will be a standalone binary which you can run
-# on any device with the same operating system and architecture.
-# This requires installing depended static libraries on the host.
-option(PREFER_STATIC_LINKING "Prefer static libraries when linking" OFF)
-
-option(WITH_LIBCXX "Link libcxx instead of libstdc++" ON)
-option(TRY_USE_LLD "Prefer LLD for linking when available" ON)
-
-# Rust related options
-set(RUSTFLAGS "" CACHE STRING "extra flags passed to rustc")
-set(CARGO_FLAGS "" CACHE STRING "extra flags passed to cargo")
-set(RUSTC_BOOTSTRAP "winsup,base,magiskboot_rs" CACHE STRING "")
-
-# useful for cross-compiling
-option(RUST_BUILD_STD "Build Rust standard library" OFF)
 
 include(CMakeLists.magisk.txt)
 include(CMakeLists.patch.txt)
