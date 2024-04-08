@@ -46,6 +46,7 @@ jobs:
       cmake_build_type: ${{ steps.detect_build_type.outputs.CMAKE_BUILD_TYPE }}
       build_type: ${{ steps.detect_build_type.outputs.BUILD_TYPE }}
       full_lto: ${{ steps.determine_lto_type.outputs.FULL_LTO }}
+      lto_ldflags: ${{ steps.determine_lto_type.outputs.LTO_LDFLAGS }}
 
     steps:
       - name: Determine short Git commit SHA
@@ -69,12 +70,15 @@ jobs:
         id: determine_lto_type
         run: |
           FULL_LTO=OFF
+          LTO_LDFLAGS=""
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             if [[ "${{ github.event.inputs.full-lto }}" == "true" ]]; then
               FULL_LTO=ON
+              LTO_LDFLAGS="-lto"
             fi
           fi
           echo "FULL_LTO=${FULL_LTO}" | tee -a $GITHUB_OUTPUT
+          echo "LTO_LDFLAGS=${LTO_LDFLAGS}" | tee -a $GITHUB_OUTPUT
 
   src:
     name: Prepare (source)
@@ -202,6 +206,7 @@ jobs:
           echo -e "\n### configure ###\n"
           cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} \
                 -DRust_CARGO_TARGET=${{ env.rust_target }} -DRUST_BUILD_STD=ON \
+                -DCMAKE_EXE_LINKER_FLAGS=" ${{ needs.vars.outputs.lto_ldflags }}" \
                 -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
                 -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
                 -DANDROID_PLATFORM=${{ env.api_level }} -DANDROID_ABI=${{ env.target_arch }} \
@@ -232,10 +237,12 @@ jobs:
             tag: "jammy"
             # XXX: llvm ver is older than rust
             full_lto: "OFF"
+            lto_ldflags: ""
 
           - os: "alpine"
             tag: "edge"
             full_lto: ${{ needs.vars.outputs.full_lto }}
+            lto_ldflags: ${{ needs.vars.outputs.lto_ldflags }}
 
     container:
       image: ${{ matrix.os }}:${{ matrix.tag }}
@@ -286,7 +293,9 @@ jobs:
           cd magiskboot_*-src/
 
           echo -e "\n### configure ###\n"
-          CC=clang CXX=clang++ cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} \
+          CC=clang CXX=clang++ cmake -G Ninja -B build \
+                  -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} \
+                  -DCMAKE_EXE_LINKER_FLAGS=" ${{ matrix.lto_ldflags }}" \
                   -DUSE_LTO_LINKER_PLUGIN=${{ matrix.full_lto }}
 
           echo -e "\n### build ###\n"
@@ -361,10 +370,13 @@ jobs:
 
           echo -e "\n### configure ###\n"
           CC=clang CXX=clang++ cmake -G Ninja -B build -DCMAKE_AR=llvm-ar -DCMAKE_RANLIB=llvm-ranlib \
-              -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} -DPREFER_STATIC_LINKING=ON -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }}
+              -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} \
+              -DCMAKE_EXE_LINKER_FLAGS=" ${{ needs.vars.outputs.lto_ldflags }}" \
+              -DPREFER_STATIC_LINKING=ON -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }}
 
           echo -e "\n### build ###\n"
           cmake --build build -j $(nproc) -v
+          strip build/magiskboot*
 
           file build/magiskboot*
           otool -L build/magiskboot*
@@ -531,6 +543,7 @@ jobs:
               -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} -DCMAKE_SYSTEM_NAME=Darwin \
               -DCMAKE_C_COMPILER_TARGET=${{ matrix.clang_target }} -DCMAKE_CXX_COMPILER_TARGET=${{ matrix.clang_target }} \
               -DCMAKE_AR=llvm-ar -DCMAKE_RANLIB=llvm-ranlib \
+              -DCMAKE_EXE_LINKER_FLAGS=" ${{ needs.vars.outputs.lto_ldflags }}" \
               -DRust_CARGO_TARGET=${{ matrix.rust_target }} -DPREFER_STATIC_LINKING=ON \
               -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
               -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
@@ -538,6 +551,7 @@ jobs:
 
           echo -e "\n### build ###\n"
           cmake --build build -j $(nproc) -v
+          strip build/magiskboot*
 
           file build/magiskboot*
           otool -L build/magiskboot*
@@ -602,10 +616,13 @@ jobs:
 
           echo -e "\n### configure ###\n"
           CC=clang CXX=clang++ cmake -G Ninja -B build \
-              -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} -DPREFER_STATIC_LINKING=ON -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }}
+              -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} \
+              -DCMAKE_EXE_LINKER_FLAGS=" ${{ needs.vars.outputs.lto_ldflags }}" \
+              -DPREFER_STATIC_LINKING=ON -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }}
 
           echo -e "\n### build ###\n"
           cmake --build build -j $(nproc) -v
+          strip build/magiskboot*.exe
 
           file build/magiskboot*.exe
           ldd build/magiskboot*.exe
@@ -645,6 +662,7 @@ jobs:
             cmake_arch: x86
             cc: i686-w64-mingw32-clang
             cxx: i686-w64-mingw32-clang++
+            strip: i686-w64-mingw32-strip
             vcpkg_triplet: x86-mingw-static
             rust_target: i686-pc-windows-gnu
             build_rust_std: "OFF"
@@ -654,6 +672,7 @@ jobs:
             cmake_arch: aarch64
             cc: aarch64-w64-mingw32-clang
             cxx: aarch64-w64-mingw32-clang++
+            strip: aarch64-w64-mingw32-strip
 
             # XXX: what? why this wasn't detected by Corrosion automatically?
             ldlibs: "-lbcrypt"
@@ -763,7 +782,8 @@ jobs:
           echo -e "\n### configure ###\n"
           . "$HOME/.cargo/env"
           CC=${{ matrix.cc }} CXX=${{ matrix.cxx }} cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} \
-                    -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_EXE_LINKER_FLAGS=" ${{ matrix.ldlibs }}" \
+                    -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} -DCMAKE_SYSTEM_NAME=Windows \
+                    -DCMAKE_EXE_LINKER_FLAGS=" ${{ matrix.ldlibs }} ${{ needs.vars.outputs.lto_ldflags }}" \
                     -DRust_CARGO_TARGET=${{ matrix.rust_target }} -DRUST_BUILD_STD=${{ matrix.build_rust_std }} -DPREFER_STATIC_LINKING=ON \
                     -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
                     -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} -DMINGW=TRUE \
@@ -771,6 +791,7 @@ jobs:
 
           echo -e "\n### build ###\n"
           cmake --build build -j $(nproc) -v
+          ${{ matrix.strip }} build/magiskboot*.exe
 
           file build/magiskboot*.exe
           strings build/magiskboot*.exe | grep -iE '^(\w|[-.])*\.dll$'
@@ -876,7 +897,7 @@ jobs:
 
           echo -e "\n### configure ###\n"
           . "$HOME/.cargo/env"
-          emcmake cmake -G Ninja -B build -DCMAKE_EXE_LINKER_FLAGS="-sNODERAWFS" \
+          emcmake cmake -G Ninja -B build -DCMAKE_EXE_LINKER_FLAGS=" ${{ needs.vars.outputs.lto_ldflags }} -sNODERAWFS" \
               -DRust_CARGO_TARGET=${{ env.rust_target }} -DRUST_BUILD_STD=ON -DRUSTC_BOOTSTRAP=1 \
               -DUSE_LTO_LINKER_PLUGIN=${{ needs.vars.outputs.full_lto }} \
               -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} -DPREFER_STATIC_LINKING=ON \
@@ -886,6 +907,7 @@ jobs:
 
           echo -e "\n### build ###\n"
           cmake --build build -j $(nproc) -v
+          emstrip build/magiskboot*.wasm
 
           file build/magiskboot*
           node ./build/magiskboot*.js || true

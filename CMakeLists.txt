@@ -30,11 +30,6 @@ if (NOT NO_TARGETS_OR_DEPS)
     else()
         message(STATUS "Libc++ is disabled")
     endif()
-
-    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -fomit-frame-pointer")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fomit-frame-pointer")
-    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -fomit-frame-pointer")
-    set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -fomit-frame-pointer")
 endif()
 
 # Option to enable or disable patching vendor projects using patches directory.
@@ -53,6 +48,7 @@ option(USE_LTO_LINKER_PLUGIN "Keep LLVM bitcode in objects for LTO (requires LLD
 option(PREFER_STATIC_LINKING "Prefer static libraries when linking" OFF)
 
 option(WITH_LIBCXX "Link libcxx instead of libstdc++" ON)
+option(TRY_USE_LLD "Prefer LLD for linking when available" ON)
 
 # Rust related options
 set(RUSTFLAGS "" CACHE STRING "extra flags passed to rustc")
@@ -67,64 +63,14 @@ include(CMakeLists.patch.txt)
 
 if (NOT NO_TARGETS_OR_DEPS)
     include(CheckLinkerFlag)
-    check_linker_flag(CXX -fuse-ld=lld FUSE_LD_EQ_LLD_WORKS)
+    if (TRY_USE_LLD)
+        check_linker_flag(CXX -fuse-ld=lld FUSE_LD_EQ_LLD_WORKS)
 
-    # prefer LLD when it is available
-    if (FUSE_LD_EQ_LLD_WORKS)
-        set(CMAKE_REQUIRED_LINK_OPTIONS ${CMAKE_REQUIRED_LINK_OPTIONS} -fuse-ld=lld)
-
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fuse-ld=lld -Wno-unused-command-line-argument")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=lld -Wno-unused-command-line-argument")
-    endif()
-
-    include(CheckCXXCompilerFlag)
-    CHECK_CXX_COMPILER_FLAG("-flto" LTO_WORKS)
-
-    # Enable LTO by default for Release builds
-    if (LTO_WORKS AND (USE_LTO_LINKER_PLUGIN OR NOT CMAKE_BUILD_TYPE MATCHES "Debug"))
-        message(STATUS "LTO is enabled")
-        set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -flto")
-        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -flto")
-        set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -flto")
-        set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -flto")
-        set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -flto")
-        set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -flto")
-    else()
-        message(STATUS "LTO is disabled")
-    endif()
-
-    if (USE_LTO_LINKER_PLUGIN)
-        if (NOT LTO_WORKS)
-            message(FATAL_ERROR "LTO doesn't work with the current compiler setup")
+        # prefer LLD when it is available
+        if (FUSE_LD_EQ_LLD_WORKS)
+            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
+            set(CMAKE_REQUIRED_LINK_OPTIONS ${CMAKE_REQUIRED_LINK_OPTIONS} -fuse-ld=lld)
         endif()
-
-        # note Xcode's ld is capable of dealing with LLVM bitcode
-        # the only issue is AppleClang doesn't support -fuse-ld=lld flag
-        # so we bypass the check for it here
-        if (NOT APPLE AND NOT FUSE_LD_EQ_LLD_WORKS)
-            message(FATAL_ERROR "Unable to compile test program with -fuse-ld=lld")
-        endif()
-    endif()
-
-    include(CheckLinkerFlag)
-    check_linker_flag(CXX -Wl,--gc-sections GC_SECTIONS_WORKS)
-    if (GC_SECTIONS_WORKS)
-        set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -fdata-sections -ffunction-sections")
-        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fdata-sections -ffunction-sections")
-        set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -fdata-sections -ffunction-sections")
-        set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -fdata-sections -ffunction-sections")
-        set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -fdata-sections -ffunction-sections")
-        set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -fdata-sections -ffunction-sections")
-        set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -Wl,--gc-sections")
-        set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} -Wl,--gc-sections")
-        set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} -Wl,--gc-sections")
-    endif()
-
-    check_linker_flag(CXX -s STRIP_WORKS)
-    if (STRIP_WORKS)
-        set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -s")
-        set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} -s")
-        set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} -s")
     endif()
 
     if (CMAKE_BUILD_TYPE MATCHES "Debug")
@@ -146,19 +92,14 @@ if (NOT NO_TARGETS_OR_DEPS)
         include(CheckLinkerFlag)
         check_linker_flag(CXX -static STATIC_LINK_WORKS)
         if (STATIC_LINK_WORKS)
-            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static")
             set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
         endif()
         check_linker_flag(CXX -static-libgcc STATIC_LIBGCC_LINK_WORKS)
         if (STATIC_LIBGCC_LINK_WORKS)
-            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static-libgcc")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc")
             set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc")
         endif()
         check_linker_flag(CXX -static-libstdc++ STATIC_LIBSTDCXX_LINK_WORKS)
         if (STATIC_LIBSTDCXX_LINK_WORKS)
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++")
             set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libstdc++")
         endif()
     else()
