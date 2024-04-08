@@ -7,6 +7,36 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Android")
 elseif (APPLE)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_DARWIN_C_SOURCE -D__DARWIN_C_LEVEL=__DARWIN_C_FULL")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_DARWIN_C_SOURCE -D__DARWIN_C_LEVEL=__DARWIN_C_FULL")
+
+    if (CMAKE_CROSSCOMPILING)
+        message(STATUS "Homebrew is disabled due to cross-compiling")
+    else()
+        find_program(HOMEBREW_EXECUTABLE brew REQUIRED)
+        execute_process(
+            COMMAND ${HOMEBREW_EXECUTABLE} --prefix
+            OUTPUT_VARIABLE "HOMEBREW_PREFIX"
+            ERROR_QUIET
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        execute_process(
+            COMMAND ${HOMEBREW_EXECUTABLE} --version
+            OUTPUT_VARIABLE "HOMEBREW_VERSION"
+            ERROR_QUIET
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        if (HOMEBREW_VERSION MATCHES "^Homebrew[ \t]+")
+            string(REGEX MATCH "^Homebrew[ \t]+[^\n]+" HOMEBREW_VERSION ${HOMEBREW_VERSION})
+            string(REGEX REPLACE "^Homebrew[ \t]+" "" HOMEBREW_VERSION ${HOMEBREW_VERSION})
+        else()
+            set(HOMEBREW_VERSION "unknown")
+        endif()
+        if (EXISTS ${HOMEBREW_PREFIX})
+            message(STATUS "Found Homebrew: ${HOMEBREW_EXECUTABLE} (version ${HOMEBREW_VERSION})")
+        else()
+            message(WARNING "Cannot find Homebrew")
+        endif()
+        list(APPEND CMAKE_SYSTEM_PREFIX_PATH ${HOMEBREW_PREFIX})
+    endif()
 elseif (WIN32)
     # handled in CMakeLists.stub.txt
 elseif (CYGWIN)
