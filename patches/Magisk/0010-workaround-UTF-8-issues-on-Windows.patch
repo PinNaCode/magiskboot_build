@@ -1,0 +1,27 @@
+From 7f4f80f0d520abb0fdf25a02bdc656f66fb5b797 Mon Sep 17 00:00:00 2001
+From: Ookiineko <chiisaineko@protonmail.com>
+Date: Tue, 9 Apr 2024 00:45:17 +0800
+Subject: [PATCH] workaround UTF-8 issues on Windows
+
+Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
+---
+ native/src/base/cstr.rs | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/native/src/base/cstr.rs b/native/src/base/cstr.rs
+index d93db87..4bbbeb9 100644
+--- a/native/src/base/cstr.rs
++++ b/native/src/base/cstr.rs
+@@ -312,7 +312,9 @@ pub struct Utf8CStr([u8]);
+ impl Utf8CStr {
+     pub fn from_cstr(cstr: &CStr) -> Result<&Utf8CStr, StrErr> {
+         // Validate the buffer during construction
++        #[cfg(not(target_os = "windows"))]
+         str::from_utf8(cstr.to_bytes())?;
++
+         Ok(unsafe { Self::from_bytes_unchecked(cstr.to_bytes_with_nul()) })
+     }
+ 
+-- 
+2.44.0
+
