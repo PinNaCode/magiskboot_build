@@ -1,0 +1,3 @@
+src/winsup/internal/winerr_map.h linguist-generated=true
+libc-compat/winsup/internal/winerr_map.h linguist-generated=true
+src/libc-compat/winsup/internal/winerr_map.h linguist-generated=true
