@@ -108,7 +108,7 @@ jobs:
 
       - name: Package source
         run: |
-          CC=true cmake -B build -G Ninja -DNO_TARGETS_OR_DEPS=ON -DCMAKE_C_COMPILER_WORKS=YES
+          CC=true cmake -B build -G Ninja -DCMAKE_C_COMPILER_WORKS=YES -DWITHOUT_BUILD=ON
           cmake --build build -t package_source -v
 
       - name: Upload artifacts

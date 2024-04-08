@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 project(magiskboot_build LANGUAGES C)
 
-if (NOT NO_TARGETS_OR_DEPS)
+if (NOT WITHOUT_BUILD)
     enable_language(CXX)
 
     set(CMAKE_C_STANDARD 11)
@@ -37,7 +37,7 @@ endif()
 # files are changed in vendor projects those can be retained with this option.
 option(PATCH_VENDORED_PROJECTS "Patch vendored projects using patches directory" ON)
 
-option(NO_TARGETS_OR_DEPS "Turn this on if you are creating source tarball only" OFF)
+option(WITHOUT_BUILD "Turn this on if you are creating source tarball only" OFF)
 
 option(FULL_RUST_LTO "Keep LLVM bitcode in Rust libraries for LTO (requires LLD)" OFF)
 
@@ -61,7 +61,7 @@ option(RUST_BUILD_STD "Build Rust standard library" OFF)
 include(CMakeLists.magisk.txt)
 include(CMakeLists.patch.txt)
 
-if (NOT NO_TARGETS_OR_DEPS)
+if (NOT WITHOUT_BUILD)
     include(CheckLinkerFlag)
     if (TRY_USE_LLD)
         check_linker_flag(CXX -fuse-ld=lld FUSE_LD_EQ_LLD_WORKS)

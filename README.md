@@ -326,7 +326,7 @@ A very basic shell script is provided under the [`scripts`](scripts/magiskboot_t
 ````shell
 # configure for only packaging source
 CC=true cmake -G Ninja -B build \
-    -DNO_TARGETS_OR_DEPS=ON -DCMAKE_C_COMPILER_WORKS=YES
+    -DCMAKE_C_COMPILER_WORKS=YES -DWITHOUT_BUILD=ON
 cmake --build build -t package_source  # make a source package
 ````
 
