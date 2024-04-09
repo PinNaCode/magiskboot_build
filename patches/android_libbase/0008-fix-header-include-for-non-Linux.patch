@@ -1,7 +1,7 @@
 From 4dd2d39f64e754b43b068905bba29f17b3077b03 Mon Sep 17 00:00:00 2001
 From: Ookiineko <chiisaineko@protonmail.com>
 Date: Sat, 29 Jul 2023 16:13:35 +0800
-Subject: [PATCH] fix header include for Cygwin
+Subject: [PATCH] fix header include non-Linux
 
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
@@ -16,7 +16,7 @@ index 95db303..aa36686 100644
  #include <fcntl.h>
  #include <stdlib.h>
  #include <sys/socket.h>
-+#ifndef __CYGWIN__
++#if 0
  #include <sys/user.h>
 +#endif
  

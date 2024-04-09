@@ -1,7 +1,9 @@
 From 350222e64d496615ece40de309b6c9ba9e6b7740 Mon Sep 17 00:00:00 2001
 From: Ookiineko <chiisaineko@protonmail.com>
 Date: Mon, 20 Mar 2023 01:42:32 +0800
-Subject: [PATCH 2/6] base: files: add BLKGETSIZE impl for other OS
+Subject: [PATCH 2/6] base: files: disable BLKGETSIZE for non-Linux
+
+- not actually useful to us
 
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
@@ -13,26 +15,19 @@ diff --git a/native/src/base/files.rs b/native/src/base/files.rs
 index f107c34..465d63a 100644
 --- a/native/src/base/files.rs
 +++ b/native/src/base/files.rs
-@@ -483,20 +485,47 @@
+@@ -483,20 +485,32 @@
  
  // We mark the returned slice static because it is valid until explicitly unmapped
  pub(crate) fn map_file(path: &Utf8CStr, rw: bool) -> io::Result<&'static mut [u8]> {
 +    cfg_if::cfg_if! {
-+        if #[cfg(target_vendor = "apple")] {
-+            const DKIOCGETBLOCKSIZE: u32 = 0x40046418;
-+            const DKIOCGETBLOCKCOUNT: u32 = 0x40086419;
-+        } else if #[cfg(any(target_os = "linux", target_os = "android"))] {
++        if #[cfg(any(target_os = "linux", target_os = "android"))] {
      #[cfg(target_pointer_width = "64")]
      const BLKGETSIZE64: u32 = 0x80081272;
  
      #[cfg(target_pointer_width = "32")]
      const BLKGETSIZE64: u32 = 0x80041272;
-+        } else if #[cfg(target_os = "cygwin")] {
-+            const BLKGETSIZE64: u32 = 0x00041268;
-+        } else if #[cfg(any(target_os = "windows", target_os = "emscripten"))] {
-+            // no-op
 +        } else {
-+            compile_error!("Unknown BLKGETSIZE impl on this platform");
++            // no-op
 +        }
 +    }
  
@@ -42,20 +37,12 @@ index f107c34..465d63a 100644
      let st = f.metadata()?;
      let sz = if st.file_type().is_block_device() {
 +        cfg_if::cfg_if! {
-+            if #[cfg(target_vendor = "apple")] {
-+                let mut sz = 0_u32;
-+                let mut cnt = 0_u64;
-+                unsafe { ioctl(f.as_raw_fd(), DKIOCGETBLOCKSIZE, &mut sz) }.as_os_err()?;
-+                unsafe { ioctl(f.as_raw_fd(), DKIOCGETBLOCKCOUNT, &mut cnt) }.as_os_err()?;
-+                (sz as u64) * cnt
-+            } else if #[cfg(any(target_os = "linux", target_os = "android", target_os = "cygwin"))] {
++            if #[cfg(any(target_os = "linux", target_os = "android"))] {
          let mut sz = 0_u64;
          unsafe { ioctl(f.as_raw_fd(), BLKGETSIZE64, &mut sz) }.as_os_err()?;
          sz
-+            } else if #[cfg(any(target_os = "windows", target_os = "emscripten"))] {
-+                panic!("Unreachable code");
 +            } else {
-+                compile_error!("Unknown BLKGETSIZE impl on this platform");
++                panic!("Unreachable code");
 +            }
 +        }
      } else {
@@ -65,20 +52,13 @@ diff --git a/native/src/base/files.hpp b/native/src/base/files.hpp
 index 0d8d11c..3fda87d 100644
 --- a/native/src/base/files.hpp
 +++ b/native/src/base/files.hpp
-@@ -43,8 +43,17 @@ struct mount_info {
+@@ -43,8 +43,10 @@ struct mount_info {
  };
  
  struct mmap_data : public byte_data {
 +#ifdef __linux__
      static_assert((sizeof(void *) == 8 && BLKGETSIZE64 == 0x80081272) ||
                    (sizeof(void *) == 4 && BLKGETSIZE64 == 0x80041272));
-+#elif defined(__APPLE__)
-+    static_assert(DKIOCGETBLOCKSIZE == 0x40046418 &&
-+                  DKIOCGETBLOCKCOUNT == 0x40086419);
-+#elif defined(__CYGWIN__)
-+    static_assert(BLKGETSIZE64 == 0x00041268);
-+#elif !defined(_WIN32) && !defined(__EMSCRIPTEN__)
-+#   error "Unknown BLKGETSIZE impl on this platform"
 +#endif
      ALLOW_MOVE_ONLY(mmap_data)
  

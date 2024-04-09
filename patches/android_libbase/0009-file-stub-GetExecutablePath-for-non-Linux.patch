@@ -1,7 +1,7 @@
 From 48bd561bc79bae4df24297968a4e841f036e3359 Mon Sep 17 00:00:00 2001
 From: Ookiineko <chiisaineko@protonmail.com>
 Date: Tue, 9 Jan 2024 23:21:57 +0800
-Subject: [PATCH] file: stub GetExecutablePath for Emscripten
+Subject: [PATCH] file: stub GetExecutablePath for non-Linux
 
 Signed-off-by: Ookiineko <chiisaineko@protonmail.com>
 ---
@@ -12,15 +12,15 @@ diff --git a/file.cpp b/file.cpp
 index bc831e3..a0c694d 100644
 --- a/file.cpp
 +++ b/file.cpp
-@@ -490,6 +490,8 @@ std::string GetExecutablePath() {
-   if (result == 0 || result == sizeof(path) - 1) return "";
+@@ -489,7 +489,7 @@ std::string GetExecutablePath() {
    path[PATH_MAX - 1] = 0;
    return path;
-+#elif defined(__EMSCRIPTEN__)
-+  return "";
  #else
- #error unknown OS
+-#error unknown OS
++  abort();
  #endif
+ }
+ 
 -- 
 2.43.0
 

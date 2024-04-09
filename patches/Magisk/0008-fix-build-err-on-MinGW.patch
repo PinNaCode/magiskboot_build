@@ -239,7 +239,7 @@ diff --git a/native/src/boot/cpio.rs b/native/src/boot/cpio.rs
 index 0e36b4d..0c353e2 100644
 --- a/native/src/boot/cpio.rs
 +++ b/native/src/boot/cpio.rs
-@@ -1,10 +1,30 @@
+@@ -1,10 +1,24 @@
  
  use std::collections::BTreeMap;
  use std::fmt::{Display, Formatter};
@@ -248,16 +248,10 @@ index 0e36b4d..0c353e2 100644
 +use std::fs::{read, File};
 +
 +#[cfg(not(target_os = "windows"))]
-+use std::fs::metadata;
++use std::fs::{metadata, DirBuilder};
 +
 +#[cfg(target_os = "windows")]
-+use winsup::fs::metadata;
-+
-+#[cfg(not(target_os = "windows"))]
-+use std::fs::DirBuilder;
-+
-+#[cfg(target_os = "windows")]
-+use winsup::fs::DirBuilder;
++use winsup::fs::{metadata, DirBuilder};
 +
  use std::io::Write;
  use std::mem::size_of;
