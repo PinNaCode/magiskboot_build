@@ -159,8 +159,10 @@ If you are cross-compiling from a non-Windows host and using vcpkg to manage the
 > **Warning**
 >
 > Cygwin support is experimental, you may run into problems.
+
+> **Note**
 >
-> It was once tested and worked but now its fully theoretical.
+> You can get a prebuilt binary at [GitHub releases](../../releases/tag/cygwin-test).
 
 To build for Cygwin, you need to compile a Rust toolchain from source, for more info: [Cygwin Rust porting](https://gist.github.com/ookiineko/057eb3a91825313caeaf6d793a33b0b2)
 
