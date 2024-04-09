@@ -4,8 +4,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "internal/fs.h"
-
 #include "../include/winsup/mkdir_compat.h"
 
 int _mkdir_stub (const char *path, mode_t mode) {
@@ -20,19 +18,4 @@ int _mkdir_stub (const char *path, mode_t mode) {
     }
 
     return 0;
-}
-
-int __cdecl __real_mkdir(const char *path);
-
-int __cdecl __wrap_mkdir(const char *path) {
-    // enable case sensitive for the newly created directory
-    __ensure_case_sensitive(path, false);
-
-    return __real_mkdir(path);
-}
-
-// For Rust
-
-int __cdecl __wrap__mkdir(const char *path) {
-    return mkdir(path);
 }

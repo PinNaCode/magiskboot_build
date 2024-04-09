@@ -28,13 +28,6 @@ file $1
 __workspace="$(mktemp -d -t magiskboot_test.XXXXXXXXXX)"
 echo -e "\n### created temporary working directory: ${__workspace} ###\n"
 cd "${__workspace}"
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
-    # set current directory to case sensitive
-    set -x; chattr +C .; set +x
-elif [[ "$(uname -s)" == "Windows_NT" ]]; then
-    # Busybox-w32?
-    set -x; fsutil.exe file setCaseSensitiveInfo . enable; set +x
-fi
 cleanup() {
     if [ -d "${__workspace}" ]; then
         cd ${TMPDIR:-/tmp}

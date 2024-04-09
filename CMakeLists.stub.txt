@@ -71,11 +71,9 @@ if (WIN32)
         src/libc-compat/winsup/stat.c
         src/libc-compat/winsup/str.c
         src/libc-compat/winsup/uio.c
-        src/libc-compat/winsup/internal/acl.c
         src/libc-compat/winsup/internal/assert.c
         src/libc-compat/winsup/internal/errno.c
-        src/libc-compat/winsup/internal/fd.c
-        src/libc-compat/winsup/internal/fs.c)
+        src/libc-compat/winsup/internal/fd.c)
     target_link_libraries(platform_stubs INTERFACE shlwapi)
 
     add_library(libmman STATIC
@@ -95,11 +93,11 @@ if (WIN32)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=main")
 
     # libc-compat overrides
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=mkdir -Wl,--wrap=creat -Wl,--wrap=open -Wl,--wrap=fopen")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=creat -Wl,--wrap=open -Wl,--wrap=fopen")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=fdopen -Wl,--wrap=fstat -Wl,--wrap=CreateFileW")
 
     # Rust STD is directly using these
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=_mkdir -Wl,--wrap=_creat -Wl,--wrap=_open -Wl,--wrap=_fdopen -Wl,--wrap=_fstat64")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=_creat -Wl,--wrap=_open -Wl,--wrap=_fdopen -Wl,--wrap=_fstat64")
 
     # llvm-mingw uses a different mangling
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=CreateFileW@28")

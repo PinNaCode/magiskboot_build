@@ -3,9 +3,9 @@
 #include <limits.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <unistd.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -13,7 +13,6 @@
 #include "internal/assert.h"
 #include "internal/errno.h"
 #include "internal/fd.h"
-#include "internal/fs.h"
 
 #define LOG_TAG             "open_compat"
 
@@ -26,10 +25,6 @@ static int open_impl(const char *path, int oflag, va_list ap) {
 
     if (oflag & O_CREAT) {
         // creating file, cannot be a directory
-
-        // if we are creating a new file, make sure the parent directory is case sensitive
-        if (access(path, F_OK) != 0)
-            __ensure_case_sensitive(path, true);
 
         int ret = __real_open(path, oflag, (mode_t) va_arg(ap, int));
 
@@ -143,10 +138,6 @@ HANDLE WINAPI __wrap_CreateFileW(const wchar_t *lpFileName, DWORD dwDesiredAcces
 
         abort();
     }
-
-    // if we are creating a new file, make sure the parent directory is case sensitive
-    if (access(path, F_OK) != 0)
-        __ensure_case_sensitive(path, true);
 
 skip:
     return __real_CreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
