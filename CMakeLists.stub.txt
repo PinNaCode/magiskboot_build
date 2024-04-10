@@ -64,7 +64,6 @@ if (WIN32)
         src/libc-compat/winsup/file.c
         src/libc-compat/winsup/io.c
         src/libc-compat/winsup/link.c
-        src/libc-compat/winsup/main_hack.c
         src/libc-compat/winsup/mkdir.c
         src/libc-compat/winsup/mknod_stub.c
         src/libc-compat/winsup/open.c
@@ -92,9 +91,6 @@ if (WIN32)
     target_link_libraries(platform_stubs INTERFACE libgetline)
 
     target_include_directories(android_libbase PRIVATE src/libc-compat/include)
-
-    # HACK: fix passing native path in argv when using MSYS2's MinGW runtime
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=main")
 
     # libc-compat overrides
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=creat -Wl,--wrap=open -Wl,--wrap=fopen")
