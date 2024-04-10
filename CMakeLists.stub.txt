@@ -76,6 +76,10 @@ if (WIN32)
         src/libc-compat/winsup/internal/fd.c)
     target_link_libraries(platform_stubs INTERFACE shlwapi)
 
+    # these source files contains symbols that must not be excluded from the final executable
+    target_sources(${MAGISKBOOT_TARGET} PRIVATE
+        src/libc-compat/winsup/crt_flags.c)
+
     add_library(libmman STATIC
         src/mman-win32/mman.c)
     target_compile_definitions(libmman PRIVATE -DWITH_WINSUP)
