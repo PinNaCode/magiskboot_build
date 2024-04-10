@@ -13,50 +13,18 @@ index d19ce29..0e36b4d 100644
                          out.to_str().unwrap().as_ptr() as *const c_char,
                          entry.mode,
 diff --git a/native/src/base/files.rs b/native/src/base/files.rs
-index 176c828..fbcdab4 100644
+index 6582eee..8678392 100644
 --- a/native/src/base/files.rs
 +++ b/native/src/base/files.rs
-@@ -727,6 +730,9 @@ impl FsPath {
- 
-     pub fn set_attr(&self, attr: &FileAttr) -> io::Result<()> {
-         unsafe {
-+            #[cfg(any(target_vendor = "apple", target_os = "windows"))]
-+            use libc::mode_t as c_uint;
-+
-             if (attr.st.st_mode & libc::S_IFMT as c_uint) != S_IFLNK.as_() {
-                 libc::chmod(self.as_ptr(), (attr.st.st_mode & 0o777).as_()).as_os_err()?;
-             }
-@@ -749,6 +755,10 @@ impl FsPath {
- 
-     pub fn copy_to(&self, path: &FsPath) -> io::Result<()> {
-         let attr = self.get_attr()?;
-+
-+        #[cfg(any(target_vendor = "apple", target_os = "windows"))]
-+        use libc::mode_t as c_uint;
-+
-         if (attr.st.st_mode & libc::S_IFMT as c_uint) == S_IFDIR.as_() {
-             path.mkdir(0o777)?;
-             let mut src = Directory::open(self)?;
-@@ -774,6 +784,9 @@ impl FsPath {
+@@ -206,7 +206,7 @@ impl FileAttr {
+     #[inline(always)]
+     #[allow(clippy::unnecessary_cast)]
+     fn is(&self, mode: mode_t) -> bool {
+-        (self.st.st_mode & libc::S_IFMT as u32) as mode_t == mode
++        ((self.st.st_mode as mode_t) & libc::S_IFMT) == mode
      }
  
-     pub fn move_to(&self, path: &FsPath) -> io::Result<()> {
-+        #[cfg(any(target_vendor = "apple", target_os = "windows"))]
-+        use libc::mode_t as c_uint;
-+
-         if path.exists() {
-             let attr = path.get_attr()?;
-             if (attr.st.st_mode & libc::S_IFMT as c_uint) == S_IFDIR.as_() {
-@@ -788,6 +801,9 @@ impl FsPath {
-     }
- 
-     pub fn link_to(&self, path: &FsPath) -> io::Result<()> {
-+        #[cfg(any(target_vendor = "apple", target_os = "windows"))]
-+        use libc::mode_t as c_uint;
-+
-         let attr = self.get_attr()?;
-         if (attr.st.st_mode & libc::S_IFMT as c_uint) == S_IFDIR.as_() {
-             path.mkdir(0o777)?;
+     pub fn is_dir(&self) -> bool {
 diff --git a/native/src/boot/bootimg.cpp b/native/src/boot/bootimg.cpp
 index f853e61..1f6b2dc 100644
 --- a/native/src/boot/bootimg.cpp

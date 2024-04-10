@@ -25,7 +25,13 @@
 #define CMD_SUFFIX          (('c' << 2) | ('m' << 1) | 'd')
 #define COM_SUFFIX          (('c' << 2) | ('o' << 1) | 'm')
 
-int __cdecl __wrap_fstat(int fd, struct stat *buf) {
+_Static_assert(sizeof(struct stat) == sizeof(struct _stat64), "struct stat is not 64-bit");
+
+int __cdecl __wrap_fstat(int fd, struct _stat64 *buf) {
+    return _fstat64(fd, buf);
+}
+
+int __cdecl __wrap__fstat64(int fd, struct _stat64 *buf) {
     // ref: https://github.com/reactos/reactos/blob/455f33077599729c27f1f1347ad2f6329d50d1f3/sdk/lib/crt/stdio/stat64.c
     HANDLE h = (HANDLE) _get_osfhandle(fd);
 
@@ -153,9 +159,4 @@ int lstat (const char *__restrict path, struct stat *__restrict buf) {
     close(fd);
 
     return ret;
-}
-
-// for Rust
-int __cdecl __wrap__fstat64(int fd, struct stat *buf) {
-    return fstat(fd, buf);
 }

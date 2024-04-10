@@ -18,6 +18,10 @@ s_no_extra_traits! {
 pub const DT_REG: u8 = 1;
 pub const DT_LNK: u8 = 2;
 pub const DT_DIR: u8 = 3;
+pub const DT_FIFO: u8 = 4;
+pub const DT_SOCK: u8 = 5;
+pub const DT_BLK: u8 = 6;
+pub const DT_CHR: u8 = 7;
 
 // replace the MinGW impls bcs we've modified dirent struct and added dir fd support
 
@@ -165,8 +169,10 @@ safe_f! {
 
 // stat
 
-pub const S_IFBLK: crate::mode_t = 24576;
-pub const S_IFLNK: crate::mode_t = 40960;
+pub const S_IFBLK: crate::mode_t = 12288;
+pub const S_IFLNK: crate::mode_t = 24576;
+pub const S_IFSOCK: crate::mode_t = 49152;
+pub const S_IFIFO: crate::mode_t = 4096;
 
 extern "C" {
     pub fn lstat(path: *const crate::c_char, buf: *mut crate::stat) -> crate::c_int;

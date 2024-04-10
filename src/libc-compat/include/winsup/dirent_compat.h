@@ -11,6 +11,10 @@ extern "C" {
 #define DT_REG 1
 #define DT_LNK 2
 #define DT_DIR 3
+#define DT_FIFO 4
+#define DT_SOCK 5
+#define DT_BLK 6
+#define DT_CHR 7
 
 typedef struct _DIR_wrap _DIR_stub;
 

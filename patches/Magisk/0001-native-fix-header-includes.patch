@@ -267,34 +267,6 @@ index a80a746..857eff2 100644
  #include <base.hpp>
 
  #include "boot-rs.hpp"
---- a/native/src/base/files.rs
-+++ b/native/src/base/files.rs
-@@ -4,7 +4,25 @@ use std::ffi::CStr;
- use std::fs::File;
- use std::io::{BufRead, Read, Seek, SeekFrom, Write};
- use std::ops::Deref;
-+
-+#[cfg(target_os = "android")]
- use std::os::android::fs::MetadataExt;
-+
-+#[cfg(target_os = "linux")]
-+use std::os::linux::fs::MetadataExt;
-+
-+#[cfg(target_vendor = "apple")]
-+use std::os::macos::fs::MetadataExt;
-+
-+#[cfg(target_os = "windows")]
-+use std::os::windows::fs::MetadataExt;
-+
-+#[cfg(target_os = "cygwin")]
-+use std::os::cygwin::fs::MetadataExt;
-+
-+#[cfg(target_os = "emscripten")]
-+use std::os::emscripten::fs::MetadataExt;
-+
- use std::os::fd::{AsFd, BorrowedFd, IntoRawFd};
- use std::os::unix::fs::FileTypeExt;
- use std::os::unix::io::{AsRawFd, FromRawFd, OwnedFd, RawFd};
 -- 
 2.41.0
 

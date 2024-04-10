@@ -34,8 +34,8 @@ index f107c34..465d63a 100644
      let flag = if rw { O_RDWR } else { O_RDONLY };
      let f = File::from(open_fd!(path, flag | O_CLOEXEC)?);
  
-     let st = f.metadata()?;
-     let sz = if st.file_type().is_block_device() {
+     let attr = FsPath::from(path).get_attr()?;
+     let sz = if attr.is_block_device() {
 +        cfg_if::cfg_if! {
 +            if #[cfg(any(target_os = "linux", target_os = "android"))] {
          let mut sz = 0_u64;
@@ -46,7 +46,7 @@ index f107c34..465d63a 100644
 +            }
 +        }
      } else {
-         st.st_size()
+         attr.st.st_size as u64
      };-- 
 diff --git a/native/src/base/files.hpp b/native/src/base/files.hpp
 index 0d8d11c..3fda87d 100644

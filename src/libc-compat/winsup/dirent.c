@@ -129,6 +129,14 @@ struct _dirent_stub* _readdir_stub (_DIR_stub* dirp) {
         type = DT_LNK;
     else if (S_ISDIR(buf.st_mode))
         type = DT_DIR;
+    else if (S_ISFIFO(buf.st_mode))
+        type = DT_FIFO;
+    else if (S_ISSOCK(buf.st_mode))
+        type = DT_SOCK;
+    else if (S_ISBLK(buf.st_mode))
+        type = DT_BLK;
+    else if(S_ISCHR(buf.st_mode))
+        type = DT_CHR;
 
     // clone data
     res.d_ino = d->d_ino;
