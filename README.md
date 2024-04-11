@@ -240,8 +240,6 @@ cmake --install build
 
 To produce a statically linked binary (optional), pass `-DPREFER_STATIC_LINKING=ON` to CMake while configuring, make sure you have the static version of the [depended libraries](#requirements), otherwise you'll run into configure or link errors.
 
-If you build directly from the Git source tree and you want to re-configure (you have an existing build directory), pass `-DPATCH_VENDORED_PROJECTS=OFF` to prevent re-applying the patches which will otherwise cause everything to build again. (TODO: can we improve this experience?)
-
 #### Rust
 
 You can specify extra arguments passed to Cargo by setting CMake variable `CARGO_FLAGS` while configuring, you can also provide an initial value of environment `RUSTFLAGS` by setting the corresponding CMake variable.
@@ -366,11 +364,13 @@ Feel free to add an [Issue](../../issues) about support on your new platform.
 
 To quickly discard the current `build` directory and dirty vendored submodule (`src/`) changes, please run `make clean`.
 
-#### Debug builds
+#### Vendor projects patching
 
-Pass `-DCMAKE_BUILD_TYPE=Debug` to CMake instead of `Release` during configuring to make some error log more verbose.
+If you are building directly from the Git source tree, all the patches under the `patches/` directory will be automatically applied on the first configure. After that a flag file called `.mbb_patched` is created under your build directory (i.e. `build/`).
 
-The result `magiskboot` executable will have a `_debug` suffix.
+Removing the flag file and re-configure will discard any dirty changes in vendored projects, and re-apply all the patches to them again.
+
+To avoid applying any patch at configure time, create the flag file manually before calling CMake. Note that in this case this project might not build on anything other than Android.
 
 ### License
 

@@ -1,5 +1,5 @@
 # XXX: Consider using https://cmake.org/cmake/help/v3.0/module/ExternalProject.html
-if(PATCH_VENDORED_PROJECTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/patches")
+if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/.mbb_patched AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/patches")
     find_program(PATCH_EXECUTABLE patch REQUIRED)
     message(STATUS "Found patch: ${PATCH_EXECUTABLE}")
 
@@ -72,4 +72,6 @@ if(PATCH_VENDORED_PROJECTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/patches")
             endforeach()
         endif()
     endforeach()
+
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/.mbb_patched "")
 endif()

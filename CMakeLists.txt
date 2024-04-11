@@ -1,11 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 project(magiskboot_build LANGUAGES C)
 
-# Option to enable or disable patching vendor projects using patches directory.
-# This helps to build vendor projects with or without any patching. Also if any
-# files are changed in vendor projects those can be retained with this option.
-option(PATCH_VENDORED_PROJECTS "Patch vendored projects using patches directory" ON)
-
 # Build-related options
 option(WITHOUT_BUILD "Turn this on if you are creating source tarball only" OFF)
 
