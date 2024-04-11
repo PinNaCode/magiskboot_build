@@ -21,7 +21,7 @@ for build-time dependencies:
 2. [Clang][Clang] (maybe also others, but GCC doesn't work, see [this part](#your-compiler-is-not-capable-of-building-magiskboot))
 3. [Rust][Rust] (stable channel is OK... spoiler: `RUSTC_BOOTSTRAP` HACK is used)
 4. [CMake][CMake]
-5. [Libc++][Libcxx] (optional, see [this part](#building-without-libcxx))
+5. [Libc++][Libcxx] (optional, see [this part](#can-i-build-without-libcxx))
 
 please make sure you have installed the above softwares before building
 
@@ -338,7 +338,7 @@ you should be able to find your source package under the `build` folder
 
 Please use debug builds and paste your information (like crash or error logs) in a new [Issue](../../issues).
 
-#### Building without Libcxx
+#### Can I build without Libcxx?
 
 If you need to build with [Libstdc++][Libstdcxx] instead of [Libc++][Libcxx], pass `-DWITH_LIBCXX=OFF` to CMake during configuring, also apply [this patch](patches-contrib/Magisk/0029-workaround-support-building-with-libstdcxx.patch).
 
