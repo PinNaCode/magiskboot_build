@@ -168,11 +168,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.vcpkg_root }}/installed
-          key: cross-vcpkgs-${{ env.vcpkg_triplet }}-ondk-${{ env.ondk_ver }}
+          key: cross-vcpkgs-v2-${{ env.vcpkg_triplet }}-ondk-${{ env.ondk_ver }}
 
       - name: Prepare (Cross)
         run: |
-          vcpkg install --host-triplet=${{ env.vcpkg_triplet }} zlib liblzma lz4 bzip2
+          vcpkg install --host-triplet=${{ env.vcpkg_triplet }} zlib liblzma lz4 'bzip2[core]'
 
       - name: Synchronize (source)
         uses: yogeshlonkar/wait-for-jobs@v0.2.1
@@ -698,11 +698,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.vcpkg_root }}/installed
-          key: cross-vcpkgs-${{ matrix.vcpkg_triplet }}-llvm-mingw-${{ env.toolchain_ver }}-${{ matrix.crt }}
+          key: cross-vcpkgs-v2-${{ matrix.vcpkg_triplet }}-llvm-mingw-${{ env.toolchain_ver }}-${{ matrix.crt }}
 
       - name: Prepare (Cross)
         run: |
-          vcpkg install --host-triplet=${{ matrix.vcpkg_triplet }} zlib liblzma lz4 bzip2
+          vcpkg install --host-triplet=${{ matrix.vcpkg_triplet }} zlib liblzma lz4 'bzip2[core]'
 
       - name: Prepare (Rust)
         if: matrix.build_rust_std == 'OFF'
@@ -816,12 +816,12 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.vcpkg_root }}/installed
-          key: cross-vcpkgs-${{ env.vcpkg_triplet }}-emsdk-${{ env.emsdk_ver }}
+          key: cross-vcpkgs-v2-${{ env.vcpkg_triplet }}-emsdk-${{ env.emsdk_ver }}
 
       - name: Prepare (Cross)
         run: |
           vcpkg install --host-triplet=${{ env.vcpkg_triplet }} \
-                        zlib liblzma lz4 bzip2
+                        zlib liblzma lz4 'bzip2[core]'
 
       - name: Prepare (Rust)
         run: |
