@@ -21,7 +21,7 @@ for build-time dependencies:
 2. [Clang][Clang] (maybe also others, but GCC doesn't work, see [this part](#your-compiler-is-not-capable-of-building-magiskboot))
 3. [Rust][Rust] (stable channel is OK... spoiler: `RUSTC_BOOTSTRAP` HACK is used)
 4. [CMake][CMake]
-5. [Libc++][Libcxx] (optional, see [this part](#help-my-build-has-failed))
+5. [Libc++][Libcxx] (optional, see [this part](#building-without-libcxx))
 
 please make sure you have installed the above softwares before building
 
@@ -69,8 +69,6 @@ When configuring, pass `-DCMAKE_INSTALL_PREFIX=$PREFIX` to CMake.
 <details><summary>Linux</summary>
 
 #### Ubuntu 22.04 (jammy)
-
-Make sure to read [this part](#help-my-build-has-failed) before you start.
 
 ````shell
 sudo apt update
@@ -175,8 +173,6 @@ When configuring, use `cygwin64-cmake` (`x86_64-pc-cygwin-cmake` on arch-cygwin)
 For Fedora Cygwin, you need to build the LLVM & Clang yourself, a patched [LLVM 15 source](https://github.com/ookiineko-cygport/llvm-project) is there. To use the patched Clang in Fedora Cygwin, set both `CMAKE_C_COMPILER_TARGET` and `CMAKE_CXX_COMPILER_TARGET` to `x86_64-unknown-windows-cygnus` and `CMAKE_SYSROOT` to `/usr/x86_64-pc-cygwin/sys-root` when configuring.
 
 On Fedora Cygwin, there is another issue that `cygwin64-cmake` overrides C and C++ compilers to GCC, this is not supported by Magisk, and somehow ignoring the `CC` and `CXX` variables we are settings. To workaround this, set `CMAKE_C_COMPILER` and `CMAKE_CXX_COMPILER` manually to the path of the previous Cygwin cross Clang and Clang++. On arch-cygwin, set `CYGWIN_CC` and `CYGWIN_CXX` to `x86_64-pc-cygwin-clang` and `x86_64-pc-cygwin-clang++`.
-
-Cygwin's Libc++ can be buggy, if you can't link with Libc++, see [this part](#help-my-build-has-failed) to apply patches for building without Libc++. (Fact: You will also need to apply patches to compile with old Clang and Rust toolchain.)
 
 </details>
 
@@ -342,15 +338,7 @@ you should be able to find your source package under the `build` folder
 
 Please use debug builds and paste your information (like crash or error logs) in a new [Issue](../../issues).
 
-#### Help, my build has failed
-
-A recent version of Rust is needed since the upstream is actually using a custom nightly Rust compiler,
-
-if your distribution's Rust compiler is too old (e.g. Debian/Ubuntu based), manually applying some extra patches is probably needed,
-
-you can try to pick some known ones from [here](patches-contrib), or report it by filing an [Issue](../../issues) if that doesn't help.
-
-Or you can try installing Rust via [rustup][rustup] instead.
+#### Building without Libcxx
 
 If you need to build with [Libstdc++][Libstdcxx] instead of [Libc++][Libcxx], pass `-DWITH_LIBCXX=OFF` to CMake during configuring, also apply [this patch](patches-contrib/Magisk/0029-workaround-support-building-with-libstdcxx.patch).
 
