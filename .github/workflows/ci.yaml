@@ -74,7 +74,7 @@ jobs:
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             if [[ "${{ github.event.inputs.full-lto }}" == "true" ]]; then
               FULL_LTO=ON
-              LTO_LDFLAGS="-lto"
+              LTO_LDFLAGS="-flto"
             fi
           fi
           echo "FULL_LTO=${FULL_LTO}" | tee -a $GITHUB_OUTPUT
