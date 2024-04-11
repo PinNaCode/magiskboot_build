@@ -19,7 +19,7 @@ option(WITH_LIBCXX "Link libcxx instead of libstdc++" ON)
 option(FULL_RUST_LTO "Keep LLVM bitcode in Rust libraries for LTO (requires LLD)" OFF)
 set(RUSTFLAGS "" CACHE STRING "extra flags passed to rustc")
 set(CARGO_FLAGS "" CACHE STRING "extra flags passed to cargo")
-set(RUSTC_BOOTSTRAP "winsup,base,magiskboot_rs" CACHE STRING "")
+set(RUSTC_BOOTSTRAP "winsup,base,magiskboot" CACHE STRING "")
 
 # useful for cross-compiling
 option(RUST_BUILD_STD "Build Rust standard library" OFF)
@@ -70,14 +70,6 @@ if (NOT WITHOUT_BUILD)
         endif()
     endif()
 
-    if (CMAKE_BUILD_TYPE MATCHES "Debug")
-        set(MAGISKBOOT_TARGET magiskboot_debug)
-        message(STATUS "Debug (unoptimized) build")
-    else()
-        set(MAGISKBOOT_TARGET magiskboot)
-        message(STATUS "Release (optimized) build")
-    endif()
-
     include(CMakeLists.compat.txt)
 
     find_package(PkgConfig REQUIRED)
@@ -114,6 +106,15 @@ if (NOT WITHOUT_BUILD)
 
     include(CMakeLists.rust.txt)
     include(CMakeLists.magiskboot.txt)
+
+    if (CMAKE_BUILD_TYPE MATCHES "Debug")
+        set_target_properties(magiskboot_exe PROPERTIES OUTPUT_NAME "magiskboot_debug")
+        message(STATUS "Debug (unoptimized) build")
+    else()
+        set_target_properties(magiskboot_exe PROPERTIES OUTPUT_NAME "magiskboot")
+        message(STATUS "Release (optimized) build")
+    endif()
+
     include(CMakeLists.stub.txt)
 endif()
 
