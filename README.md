@@ -194,7 +194,7 @@ Install the [Emscripten][Emscripten] SDK and also a Rust compiler with Emscripte
 
 > **Warning**
 >
-> emsdk version 3.1.20 is recommended, you might run into weird problems with other versions.
+> emsdk version 3.1.31 is recommended, you might run into weird problems with other versions.
 
 Use [vcpkg][vcpkg] to install the [depended libraries](#requirements), the triplet is called `wasm32-emscripten`.
 
