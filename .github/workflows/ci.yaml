@@ -792,7 +792,7 @@ jobs:
         run: |
           sudo apt update
           sudo DEBIAN_FRONTEND=noninteractive apt install -y curl tar file \
-                        build-essential pkg-config cmake ninja-build nodejs
+                        build-essential pkg-config cmake ninja-build
 
       - name: Cache (Emscripten)
         id: cache-emsdk-system-libs
@@ -860,7 +860,7 @@ jobs:
           emstrip build/magiskboot*.wasm
 
           file build/magiskboot*
-          node ./build/magiskboot*.js || true
+          $EMSDK_NODE ./build/magiskboot*.js || true
           rm -rf $GITHUB_WORKSPACE/${{ env.progname }}-out && mkdir -p $GITHUB_WORKSPACE/${{ env.progname }}-out
           cp -afv build/magiskboot* $GITHUB_WORKSPACE/${{ env.progname }}-out
 
@@ -874,7 +874,7 @@ jobs:
       - name: Check
         run: |
           cd magiskboot_*-src/
-          ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/${{ env.progname }}-out/magiskboot*.js
+          EMULATOR=$EMSDK_NODE ./scripts/magiskboot_test.sh $GITHUB_WORKSPACE/${{ env.progname }}-out/magiskboot*.js
 
       # Fail fast
       - name: Cancel other jobs
