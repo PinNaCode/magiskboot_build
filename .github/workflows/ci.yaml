@@ -782,7 +782,7 @@ jobs:
     needs: [vars]
     env:
       vcpkg_triplet: "wasm32-emscripten"
-      emsdk_ver: 3.1.56
+      emsdk_ver: 3.1.31
       emsdk_cache_dir: "emsdk-cache"
       rust_target: "wasm32-unknown-emscripten"
       upload_suffix: "emscripten-wasm32-noderawfs-static"
@@ -823,12 +823,11 @@ jobs:
           vcpkg install --host-triplet=${{ env.vcpkg_triplet }} \
                         zlib liblzma lz4 bzip2
 
-      # rust from ubuntu is quite old so use rustup
       - name: Prepare (Rust)
         run: |
-          curl https://sh.rustup.rs -sSf | sh -s -- -y
+          curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain 1.77.2
           . "$HOME/.cargo/env"
-          rustup component add rust-src
+          rustup target add ${{ env.rust_target }}
 
       - name: Synchronize (source)
         uses: yogeshlonkar/wait-for-jobs@v0.2.1
@@ -850,8 +849,7 @@ jobs:
           echo -e "\n### configure ###\n"
           . "$HOME/.cargo/env"
           emcmake cmake -G Ninja -B build -DCMAKE_EXE_LINKER_FLAGS=" ${{ needs.vars.outputs.lto_ldflags }} -sNODERAWFS" \
-              -DRust_CARGO_TARGET=${{ env.rust_target }} -DRUST_BUILD_STD=ON -DRUSTC_BOOTSTRAP=1 \
-              -DFULL_RUST_LTO=${{ needs.vars.outputs.full_lto }} \
+              -DRust_CARGO_TARGET=${{ env.rust_target }} -DFULL_RUST_LTO=${{ needs.vars.outputs.full_lto }} \
               -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} -DPREFER_STATIC_LINKING=ON \
               -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
               -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }} \

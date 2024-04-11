@@ -45,11 +45,6 @@ elseif (WIN32)
 elseif (CYGWIN)
     add_compile_definitions(__USE_LINUX_IOCTL_DEFS)
 elseif (EMSCRIPTEN)
-    if (NOT (CMAKE_BUILD_TYPE MATCHES "Debug") AND NOT (CMAKE_BUILD_TYPE MATCHES "MinSize"))
-        # FIXME: why this is needed to pass linking
-        list(APPEND RUSTFLAGS -Copt-level=z)
-    endif()
-
     # exists in musl but not in rust libc crate
     list(APPEND RUSTFLAGS --cfg mbb_stubs_SYS_dup3)
 else()

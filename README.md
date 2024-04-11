@@ -194,15 +194,15 @@ Cygwin's Libc++ can be buggy, if you can't link with Libc++, see [this part](#he
 
 Please read the [Cross compiling](#cross-compiling) instructions first.
 
-Install the [Emscripten][Emscripten] SDK and also a **stable** Rust compiler (XXX: nightly too unstable for wasm).
+Install the [Emscripten][Emscripten] SDK and also a Rust compiler with Emscripten target (probably via [rustup][rustup]).
+
+> **Warning**
+>
+> emsdk version 3.1.20 is recommended, you might run into weird problems with other versions.
 
 Use [vcpkg][vcpkg] to install the [depended libraries](#requirements), the triplet is called `wasm32-emscripten`.
 
 When configuring, use `emcmake cmake` instead of `cmake` (but don't use it for `cmake --build` and other CMake commands) , and use `/path/to/your/emsdk/emscripten/cmake/Modules/Platform/Emscripten.cmake` as the toolchain file for vcpkg.
-
-Build Rust standard library from source to make sure things works as expected. (FIXME: why is this needed?)
-
-Pass `-DRUSTC_BOOTSTRAP=1` to CMake since we are using a stable Rust toolchain.
 
 For NodeJS, make sure to set `CMAKE_EXE_LINKER_FLAGS` to `-sNODERAWFS` to allow using the host filesystem.
 
@@ -419,6 +419,6 @@ For more details about these licenses, please see [LICENSE](LICENSE) and [LICENS
 [fedora-cygwin]: https://copr.fedorainfracloud.org/coprs/yselkowitz/cygwin/
 [cmake-toolchains]: https://cmake.org/cmake/help/latest/manual/cmake-toolchains.7.html
 [vcpkg]: https://vcpkg.io/
-[Emscripten]: https://emscripten.org/
+[Emscripten]: https://github.com/emscripten-core/emsdk
 [NodeJS]: https://nodejs.org/
 [ONDK]: https://github.com/topjohnwu/ondk
