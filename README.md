@@ -182,14 +182,6 @@ On arch-cygwin, set `CYGWIN_CC` and `CYGWIN_CXX` to `x86_64-pc-cygwin-clang` and
 
 #### Emscripten
 
-> **Note**
->
-> Currently this port only support running with NodeJS.
->
-> A web frontend wrapper must be written to handle the argument passing and file system management in browsers.
->
-> This should be implemented soon in the future ([#19](../../issues/19)), but unfortunately I am not a web developer, any help on this will be welcome QwQ
-
 Please read the [Cross compiling](#cross-compiling) instructions first.
 
 Install the [Emscripten SDK][emsdk] and also a Rust compiler with Emscripten target (probably via [rustup][rustup]).
@@ -202,9 +194,7 @@ Use [vcpkg][vcpkg] to install the [depended libraries](#requirements), the tripl
 
 When configuring, use `emcmake cmake` instead of `cmake` (but don't use it for `cmake --build` and other CMake commands) , and use `/path/to/your/emsdk/emscripten/cmake/Modules/Platform/Emscripten.cmake` as the toolchain file for vcpkg.
 
-For NodeJS, make sure to set `CMAKE_EXE_LINKER_FLAGS` to `-sNODERAWFS` to allow using the host filesystem.
-
-finally, you can run the result with [NodeJS][NodeJS] using: `node magiskboot.js`
+For NodeJS, make sure to set `CMAKE_EXE_LINKER_FLAGS` to `-sNODERAWFS` to allow using the host filesystem, then you will be able to run the end result with [NodeJS][NodeJS] like this: `node magiskboot.js`
 
 </details>
 
