@@ -8,3 +8,14 @@ extern "C" {
         flags: crate::c_int,
     ) -> crate::c_int;
 }
+
+// string
+
+extern "C" {
+    pub fn memmem(
+        haystack: *const crate::c_void,
+        haystacklen: crate::size_t,
+        needle: *const crate::c_void,
+        needlelen: crate::size_t,
+    ) -> *mut crate::c_void;
+}

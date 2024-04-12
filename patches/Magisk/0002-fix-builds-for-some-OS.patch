@@ -2,16 +2,15 @@ diff --git a/native/src/boot/cpio.rs b/native/src/boot/cpio.rs
 index d19ce29..0e36b4d 100644
 --- a/native/src/boot/cpio.rs
 +++ b/native/src/boot/cpio.rs
-@@ -353,8 +353,8 @@ impl Cpio {
-                 symlink(Path::new(&std::str::from_utf8(entry.data.as_slice())?), out)?;
+@@ -353,7 +353,7 @@ impl Cpio {
+                 FsPath::from(&buf).symlink_to(out)?;
              }
              S_IFBLK | S_IFCHR => {
 -                let dev = makedev(entry.rdevmajor.try_into()?, entry.rdevminor.try_into()?);
-                 unsafe {
-+                    let dev = makedev(entry.rdevmajor.try_into()?, entry.rdevminor.try_into()?);
-                     mknod(
-                         out.to_str().unwrap().as_ptr() as *const c_char,
-                         entry.mode,
++                let dev = unsafe { makedev(entry.rdevmajor.try_into()?, entry.rdevminor.try_into()?) };
+                 unsafe { mknod(out.as_ptr().cast(), entry.mode, dev) };
+             }
+             _ => {
 diff --git a/native/src/base/files.rs b/native/src/base/files.rs
 index 6582eee..8678392 100644
 --- a/native/src/base/files.rs

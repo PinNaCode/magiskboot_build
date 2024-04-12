@@ -211,3 +211,14 @@ extern "C" {
     pub fn fchmod(fd: crate::c_int, mode: crate::mode_t) -> crate::c_int;
     pub fn fchown(fd: crate::c_int, owner: crate::uid_t, group: crate::gid_t) -> crate::c_int;
 }
+
+// string
+
+extern "C" {
+    pub fn memmem(
+        haystack: *const crate::c_void,
+        haystacklen: crate::size_t,
+        needle: *const crate::c_void,
+        needlelen: crate::size_t,
+    ) -> *mut crate::c_void;
+}

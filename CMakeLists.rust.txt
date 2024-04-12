@@ -8,7 +8,10 @@ if (CMAKE_BUILD_TYPE MATCHES "WithDebInfo")
     list(APPEND RUSTFLAGS -g)
 endif()
 
-list(APPEND RUSTFLAGS -A dead_code -A unused_imports -A redundant_semicolons)
+list(APPEND RUSTFLAGS -A dead_code
+                      -A unused_imports
+                      -A redundant_semicolons
+                      -A unused_unsafe)
 
 if (RUST_BUILD_STD)
     message(STATUS "Building Rust STD from source")

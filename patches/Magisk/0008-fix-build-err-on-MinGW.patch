@@ -64,22 +64,23 @@ diff --git a/native/src/base/files.rs b/native/src/base/files.rs
 index bb1a1f7..0b4929b 100644
 --- a/native/src/base/files.rs
 +++ b/native/src/base/files.rs
-@@ -20,8 +20,15 @@
+@@ -20,9 +20,16 @@
  use std::fs::File;
  use std::io::{BufRead, Read, Seek, SeekFrom, Write};
  use std::ops::Deref;
 +cfg_if::cfg_if! {
 +if #[cfg(not(target_os = "windows"))] {
  use std::os::fd::{AsFd, BorrowedFd, IntoRawFd};
+ use std::os::unix::ffi::OsStrExt;
  use std::os::unix::io::{AsRawFd, FromRawFd, OwnedFd, RawFd};
 +} else {
 +use winsup::fd::{AsFd, BorrowedFd, IntoRawFd};
 +use winsup::fd::{AsRawFd, FromRawFd, OwnedFd, RawFd};
 +}
 +}
+ use std::path::Path;
  use std::{io, mem, ptr, slice};
  
- use libc::{c_char, c_int, c_uint, dirent, mode_t, EEXIST, ENOENT, O_CLOEXEC, O_RDONLY, O_RDWR};
 @@ -478,9 +487,15 @@ impl AsRawFd for Directory {
  }
  
@@ -96,6 +97,19 @@ index bb1a1f7..0b4929b 100644
  }
  
  impl Drop for Directory {
+@@ -843,7 +843,12 @@ impl FsPath {
+     pub fn parent(&self, buf: &mut dyn Utf8CStrWrite) -> bool {
+         buf.clear();
+         if let Some(parent) = Path::new(self.as_str()).parent() {
++            #[cfg(not(target_os = "windows"))]
+             let bytes = parent.as_os_str().as_bytes();
++
++            #[cfg(target_os = "windows")]
++            let bytes = parent.to_str().expect("failed to convert Path to str").as_bytes();
++
+             // SAFETY: all substring of self is valid UTF-8
+             let parent = unsafe { std::str::from_utf8_unchecked(bytes) };
+             buf.push_str(parent);
 diff --git a/native/src/base/misc.cpp b/native/src/base/misc.cpp
 index ee97878..0040ee3 100644
 --- a/native/src/base/misc.cpp
@@ -232,36 +246,6 @@ index bcf3b25..c0aa236 100644
 +
 +[target.'cfg(windows)'.dependencies]
 +winsup = { path = "../../../../../src/winsup-rs" }
-diff --git a/native/src/boot/cpio.rs b/native/src/boot/cpio.rs
-index 0e36b4d..0c353e2 100644
---- a/native/src/boot/cpio.rs
-+++ b/native/src/boot/cpio.rs
-@@ -1,10 +1,24 @@
- 
- use std::collections::BTreeMap;
- use std::fmt::{Display, Formatter};
--use std::fs::{DirBuilder, File};
-+
-+use std::fs::File;
-+
-+#[cfg(not(target_os = "windows"))]
-+use std::fs::DirBuilder;
-+
-+#[cfg(target_os = "windows")]
-+use winsup::fs::DirBuilder;
-+
- use std::io::{Read, Write};
- use std::mem::size_of;
-+
-+#[cfg(not(target_os = "windows"))]
- use std::os::unix::fs::{symlink, DirBuilderExt};
-+
-+#[cfg(target_os = "windows")]
-+use winsup::fs::{symlink, DirBuilderExt};
-+
- use std::path::Path;
- use std::process::exit;
- 
 diff --git a/native/src/boot/payload.rs b/native/src/boot/payload.rs
 index dab86d8..c0aca63 100644
 --- a/native/src/boot/payload.rs
