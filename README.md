@@ -250,13 +250,13 @@ Note: these variables are using [CMake's list syntax](https://cmake.org/cmake/he
 
 #### Cross compiling
 
-First get a cross-compiler with Libc++ and Clang by either installing from source or downloading it from somewhere (usually your distribution's package manager).
+First get a cross-compiler and likely also a Clang from somewhere (usually your distribution's package manager). If you don't have Libc++ installed for your crossed target, you could probably also try to link against [Libstdc++][Libstdcxx] instead, see [this part](#can-i-build-without-libcxx).
 
 Install Rust using [rustup][rustup] and add your cross target like this: `rustup target add aarch64-unknown-linux-gnu` (replace `aarch64-unknown-linux-gnu` with the Rust target of your target platform).
 
 If the cross Rust target can't be installed using [rustup][rustup], you can still compile if you build the Rust standard library (STD) from source, to do this, pass `-DRUST_BUILD_STD=ON` during configuration (Note this will require Nightly Rust and the STD source code to be installed on your system).
 
-To cross-compile, you may need a [CMake toolchain file][cmake-toolchains] describing your target specs, the location of the cross compiler toolchain and strategy for CMake to seek for the depended libraries.
+To cross-compile, you may need a [CMake toolchain file][cmake-toolchains] describing your target specs (for example the sysroot location, and target triplet for using Clang), the location of the cross compiler toolchain and strategy for CMake to seek for the depended libraries.
 
 You can install the depended libraries for your cross target by using [vcpkg][vcpkg], for example:
 
