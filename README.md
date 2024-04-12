@@ -172,7 +172,9 @@ When configuring, use `cygwin64-cmake` (`x86_64-pc-cygwin-cmake` on arch-cygwin)
 
 For Fedora Cygwin, you need to build the LLVM & Clang yourself, a patched [LLVM 15 source](https://github.com/ookiineko-cygport/llvm-project) is there. To use the patched Clang in Fedora Cygwin, set both `CMAKE_C_COMPILER_TARGET` and `CMAKE_CXX_COMPILER_TARGET` to `x86_64-unknown-windows-cygnus` and `CMAKE_SYSROOT` to `/usr/x86_64-pc-cygwin/sys-root` when configuring.
 
-On Fedora Cygwin, there is another issue that `cygwin64-cmake` overrides C and C++ compilers to GCC, this is not supported by Magisk, and somehow ignoring the `CC` and `CXX` variables we are settings. To workaround this, set `CMAKE_C_COMPILER` and `CMAKE_CXX_COMPILER` manually to the path of the previous Cygwin cross Clang and Clang++. On arch-cygwin, set `CYGWIN_CC` and `CYGWIN_CXX` to `x86_64-pc-cygwin-clang` and `x86_64-pc-cygwin-clang++`.
+On Fedora Cygwin, there is another issue that `cygwin64-cmake` overrides C and C++ compilers to GCC, this is not supported by Magisk, and somehow ignoring the `CC` and `CXX` variables we are settings. To workaround this, set `CMAKE_C_COMPILER` and `CMAKE_CXX_COMPILER` manually to the path of the previous Cygwin cross Clang and Clang++.
+
+On arch-cygwin, set `CYGWIN_CC` and `CYGWIN_CXX` to `x86_64-pc-cygwin-clang` and `x86_64-pc-cygwin-clang++`.
 
 </details>
 
