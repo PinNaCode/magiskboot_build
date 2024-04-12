@@ -263,6 +263,39 @@ index dab86d8..c0aca63 100644
  use byteorder::{BigEndian, ReadBytesExt};
  use quick_protobuf::{BytesReader, MessageRead};
  
+
+diff --git a/native/src/base/files.hpp b/native/src/base/files.hpp
+index 0d8d11c..c4bb952 100644
+--- a/native/src/base/files.hpp
++++ b/native/src/base/files.hpp
+
+@@ -110,7 +110,11 @@ std::vector<mount_info> parse_mount_info(const char *pid);
+ std::string resolve_preinit_dir(const char *base_dir);
+ 
+ using sFILE = std::unique_ptr<FILE, decltype(&fclose)>;
++#ifdef _WIN32
++using sDIR = std::unique_ptr<DIR, int (*)(DIR*)>;
++#else
+ using sDIR = std::unique_ptr<DIR, decltype(&closedir)>;
++#endif
+ sDIR make_dir(DIR *dp);
+ sFILE make_file(FILE *fp);
+ 
+diff --git a/native/src/base/include/stream.hpp b/native/src/base/include/stream.hpp
+index 4742085..b461534 100644
+--- a/native/src/base/include/stream.hpp
++++ b/native/src/base/include/stream.hpp
+@@ -1,6 +1,10 @@
+ #pragma once
+
++#ifdef _WIN32
++#  include <winsup/uio_compat.h>
++#else
+ #include <sys/uio.h>
++#endif
+ #include <cstdio>
+ #include <memory>
+ 
 diff --git a/native/src/base/stream.cpp b/native/src/base/stream.cpp
 index b7a775c..9a77dde 100644
 --- a/native/src/base/stream.cpp
@@ -295,5 +328,21 @@ index 79dac8f..e0634ba 100644
  /* Compression formats */
      GZIP,
      ZOPFLI,
+diff --git a/native/src/boot/bootimg.cpp b/native/src/boot/bootimg.cpp
+index a80a746..857eff2 100644
+--- a/native/src/boot/bootimg.cpp
++++ b/native/src/boot/bootimg.cpp
+@@ -1,6 +1,11 @@
+ #include <functional>
+ #include <memory>
+
++#ifdef _WIN32
++#  define O_CLOEXEC O_NOINHERIT
++
++#  include <winsup/str_compat.h>
++#endif
+ #include <base.hpp>
+
+ #include "boot-rs.hpp"
 -- 
 2.41.0.windows.3

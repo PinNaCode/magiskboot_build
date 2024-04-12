@@ -99,6 +99,16 @@
              return -1;
          outfd = pipefd[1];
      } else if (exec.fd >= 0) {
+@@ -175,7 +175,9 @@ void init_argv0(int argc, char **argv) {
+ void set_nice_name(const char *name) {
+     memset(argv0, 0, name_len);
+     strscpy(argv0, name, name_len);
++#if 0
+     prctl(PR_SET_NAME, name);
++#endif
+ }
+ 
+ /*
 --- a/native/src/base/include/base.hpp
 +++ b/native/src/base/include/base.hpp
 @@ -9,5 +9,7 @@

@@ -116,18 +116,6 @@ index 0d8d11c..c4bb952 100644
  #include "misc.hpp"
  
  template <typename T>
-@@ -110,7 +110,11 @@ std::vector<mount_info> parse_mount_info(const char *pid);
- std::string resolve_preinit_dir(const char *base_dir);
- 
- using sFILE = std::unique_ptr<FILE, decltype(&fclose)>;
-+#ifdef _WIN32
-+using sDIR = std::unique_ptr<DIR, int (*)(DIR*)>;
-+#else
- using sDIR = std::unique_ptr<DIR, decltype(&closedir)>;
-+#endif
- sDIR make_dir(DIR *dp);
- sFILE make_file(FILE *fp);
- 
 diff --git a/native/src/base/misc.cpp b/native/src/base/misc.cpp
 index 313d136..f0188b5 100644
 --- a/native/src/base/misc.cpp
@@ -173,31 +161,6 @@ index 313d136..f0188b5 100644
  
  #include <base.hpp>
  
-@@ -175,7 +175,9 @@ void init_argv0(int argc, char **argv) {
- void set_nice_name(const char *name) {
-     memset(argv0, 0, name_len);
-     strscpy(argv0, name, name_len);
-+#if 0
-     prctl(PR_SET_NAME, name);
-+#endif
- }
- 
- /*
-diff --git a/native/src/base/include/stream.hpp b/native/src/base/include/stream.hpp
-index 4742085..b461534 100644
---- a/native/src/base/include/stream.hpp
-+++ b/native/src/base/include/stream.hpp
-@@ -1,6 +1,10 @@
- #pragma once
-
-+#ifdef _WIN32
-+#  include <winsup/uio_compat.h>
-+#else
- #include <sys/uio.h>
-+#endif
- #include <cstdio>
- #include <memory>
- 
 diff --git a/native/src/base/xwrap.hpp b/native/src/base/xwrap.hpp
 index ce7a6dd..b4ba2c0 100644
 --- a/native/src/base/xwrap.hpp
@@ -226,22 +189,6 @@ index ce7a6dd..b4ba2c0 100644
  
  extern "C" {
  
-diff --git a/native/src/boot/bootimg.cpp b/native/src/boot/bootimg.cpp
-index a80a746..857eff2 100644
---- a/native/src/boot/bootimg.cpp
-+++ b/native/src/boot/bootimg.cpp
-@@ -1,6 +1,11 @@
- #include <functional>
- #include <memory>
-
-+#ifdef _WIN32
-+#  define O_CLOEXEC O_NOINHERIT
-+
-+#  include <winsup/str_compat.h>
-+#endif
- #include <base.hpp>
-
- #include "boot-rs.hpp"
 -- 
 2.41.0
 
