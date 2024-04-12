@@ -9,8 +9,10 @@
 // the close() to where munmap() is called
 
 #include <assert.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <sys/types.h>
@@ -20,6 +22,8 @@ struct map_entry {
     void *ptr;
     size_t len;
     int fd;
+    FILE *fp;
+    bool have_fp;
     bool want_close;
     struct map_entry *next;
 };
@@ -62,6 +66,7 @@ void *_mmap_stub_impl(void *addr, size_t len, int prot,
         map->ptr = ptr;
         map->len = len;
         map->fd = fildes;
+        map->have_fp = false;  // we wouldn't know yet until a call to fclose()
         map->want_close = false;
 
         // add to linked list
@@ -92,6 +97,44 @@ int __wrap_close(int fildes) {
     return 0;
 }
 
+// fclose() is in libc,
+// we don't know if it calls close() internally,
+// so better way is we also handle it
+
+int __real_fclose(FILE *stream);
+
+int __wrap_fclose(FILE *stream) {
+    int fildes;
+
+    if (!stream) {
+        // invalid fp
+        errno = EBADF;
+        return EOF;
+    }
+
+    if ((fildes = fileno(stream)) < 0) {
+        // probably opened by funopen or sth
+        // not interested
+        return __real_fclose(stream);
+    }
+
+    filter_map_by_key_or(fd, fildes, {
+        // mark all matches as todo for munmap
+        i->want_close = true;
+        i->fp = stream;
+        i->have_fp = true;
+    }, {
+        // no match, closing as-is
+        return __real_fclose(stream);
+    });
+
+    // we couldn't close yet,
+    // but we could try to flush it now
+    fflush(stream);
+
+    return 0;
+}
+
 static inline void post_munmap_hook(struct map_entry *map, size_t len) {
     // we dont support partial munmapping
     assert(map->len == len);
@@ -104,7 +147,10 @@ static inline void post_munmap_hook(struct map_entry *map, size_t len) {
         break;
     }, {
         // perform the delayed close
-        __real_close(map->fd);
+        if (map->have_fp)
+            assert(!__real_fclose(map->fp));
+        else
+            assert(!__real_close(map->fd));
     });
 }
 

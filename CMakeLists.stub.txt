@@ -109,7 +109,8 @@ if (EMSCRIPTEN)
     target_sources(platform_stubs PRIVATE
         src/libc-compat/emsup/mmap_hack.c)
 
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -sALLOW_MEMORY_GROWTH -Wl,-u,ntohs -Wl,-u,htons -Wl,-u,htonl -Wl,--wrap=close")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -sALLOW_MEMORY_GROWTH -Wl,-u,ntohs -Wl,-u,htons -Wl,-u,htonl")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=close -Wl,--wrap=fclose")
 endif()
 
 target_link_libraries(libbase platform_stubs)
