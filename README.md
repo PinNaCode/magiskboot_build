@@ -192,7 +192,7 @@ On arch-cygwin, set `CYGWIN_CC` and `CYGWIN_CXX` to `x86_64-pc-cygwin-clang` and
 
 Please read the [Cross compiling](#cross-compiling) instructions first.
 
-Install the [Emscripten][Emscripten] SDK and also a Rust compiler with Emscripten target (probably via [rustup][rustup]).
+Install the [Emscripten SDK][emsdk] and also a Rust compiler with Emscripten target (probably via [rustup][rustup]).
 
 > **Warning**
 >
@@ -409,6 +409,6 @@ For more details about these licenses, please see [LICENSE](LICENSE) and [LICENS
 [fedora-cygwin]: https://copr.fedorainfracloud.org/coprs/yselkowitz/cygwin/
 [cmake-toolchains]: https://cmake.org/cmake/help/latest/manual/cmake-toolchains.7.html
 [vcpkg]: https://vcpkg.io/
-[Emscripten]: https://github.com/emscripten-core/emsdk
+[emsdk]: https://github.com/emscripten-core/emsdk
 [NodeJS]: https://nodejs.org/
 [ONDK]: https://github.com/topjohnwu/ondk
