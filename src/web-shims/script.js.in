@@ -91,6 +91,8 @@ if (typeof window !== 'undefined') {
             };
 
             const _cmdline_edit = document.createElement('input');
+            _cmdline_edit.placeholder = 'Arguments…';
+
             const _clear_btn = document.createElement('button');
             const _exec_btn = document.createElement('button');
 
