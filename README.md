@@ -188,7 +188,7 @@ On arch-cygwin, set `CYGWIN_CC` and `CYGWIN_CXX` to `x86_64-pc-cygwin-clang` and
 >
 > A web frontend wrapper must be written to handle the argument passing and file system management in browsers.
 >
-> This should be implemented soon in the future, but unfortunately I am not a web developer, any help on this will be welcome QwQ
+> This should be implemented soon in the future ([#19](../../issues/19)), but unfortunately I am not a web developer, any help on this will be welcome QwQ
 
 Please read the [Cross compiling](#cross-compiling) instructions first.
 
