@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+    <title>magiskboot</title>
+    <!-- dummy favicon -->
+    <link rel="icon" href="data:;base64,iVBORw0KGgo="/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"/>
+    <style>
+      html {
+        /* prevent pull-down refresh */
+        overscroll-behavior: none;
+      }
+      body {
+        /* fit to full screen */
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100dvh;
+      }
+      #cmdline_edit, #conout {
+        font-family: monospace;
+      }
+      #conout {
+        /* auto fit */
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <button id="exec_btn" disabled>Run</button>
+      <button id="clear_btn">Clear</button>
+    </div>
+    <input id="cmdline_edit" placeholder="Argument…" autocomplete="off"/>
+    <textarea id="conout" readonly autocomplete="off"></textarea>
+    <label id="status_label">Loading:
+      <span id="status_show">Waiting</span>
+    </label>
+    {{{ SCRIPT }}}
+  </body>
+</html>

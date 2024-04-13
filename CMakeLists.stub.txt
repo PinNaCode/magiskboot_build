@@ -112,9 +112,9 @@ if (EMSCRIPTEN)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -sEXPORTED_RUNTIME_METHODS=ENV,FS,TTY,callMain")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -sFORCE_FILESYSTEM -sEXIT_RUNTIME=0")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --pre-js=${CMAKE_CURRENT_BINARY_DIR}/___script.js")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --shell-file=${CMAKE_CURRENT_SOURCE_DIR}/src/web-shims/shell.html.in")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --shell-file=${CMAKE_CURRENT_SOURCE_DIR}/src/web-shims/shell.in.html")
     set_target_properties(magiskboot_exe PROPERTIES LINK_DEPENDS
-                         "${CMAKE_CURRENT_BINARY_DIR}/___script.js;${CMAKE_CURRENT_SOURCE_DIR}/src/web-shims/shell.html.in")
+                         "${CMAKE_CURRENT_BINARY_DIR}/___script.js;${CMAKE_CURRENT_SOURCE_DIR}/src/web-shims/shell.in.html")
 
     message(STATUS "Using Emscripten mmap stubs")
 
