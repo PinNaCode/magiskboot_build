@@ -70,6 +70,7 @@ if (typeof window !== 'undefined') {
             const _dec = new TextDecoder();
 
             _conout.readOnly = true;
+            _conout.style.fontFamily = 'monospace';
             _conout.style.width = '1024px';
             _conout.style.height = '768px';
 
@@ -91,6 +92,7 @@ if (typeof window !== 'undefined') {
             };
 
             const _cmdline_edit = document.createElement('input');
+            _cmdline_edit.style.fontFamily = 'monospace';
             _cmdline_edit.placeholder = 'Arguments…';
 
             const _clear_btn = document.createElement('button');
