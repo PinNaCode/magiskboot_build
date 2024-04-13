@@ -802,7 +802,7 @@ jobs:
           key: emsdk-${{ env.emsdk_ver }}-${{ runner.os }}
 
       - name: Prepare (Emscripten)
-        uses: mymindstorm/setup-emsdk@v13
+        uses: mymindstorm/setup-emsdk@v14
         with:
           version: ${{ env.emsdk_ver }}
           actions-cache-folder: ${{ env.emsdk_cache_dir }}
