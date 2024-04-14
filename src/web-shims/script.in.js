@@ -99,7 +99,7 @@ if (typeof window !== 'undefined') {
 
                 // we can call main() now
                 status_label.textContent = 'Status: ';
-                status_show.textContent = 'Ready';
+                status_show.textContent = 'Idle';
                 cmdline_edit.readOnly = false;
             };
             cmdline_edit.addEventListener('keydown', (ev) => {
