@@ -104,6 +104,12 @@ if (typeof window !== 'undefined') {
                 status_show.textContent = 'Ready';
                 exec_btn.disabled = false;
             };
+            cmdline_edit.addEventListener('keydown', (ev) => {
+                if (ev.key === "Enter") {
+                    exec_btn.click();
+                    ev.preventDefault();
+                }
+            });
             exec_btn.addEventListener('click', () => {
                 // handle quoted arguments
 
