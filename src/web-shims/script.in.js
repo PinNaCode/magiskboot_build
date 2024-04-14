@@ -2,6 +2,7 @@ if (typeof window !== 'undefined') {
     // window is present, we are running in a browser
 
     var Module = {
+        'thisProgram': '@MAGISKBOOT_WASM_NAME@',
         'noInitialRun': true,  // prevent calling main() on page load
         'instantiateWasm': (imps, cb) => {
             var status_label = document.getElementById('status_label').childNodes[0];
