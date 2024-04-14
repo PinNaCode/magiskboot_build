@@ -45,18 +45,26 @@ if (typeof window !== 'undefined') {
 
                 if (succeed)
                     cb(wasm.instance);
+                else
+                    Module.abort();  // or emscripten will wait forever
             };
             xhr.onerror = (_) => {
                 status_label.textContent = 'Network Error';
                 status_show.textContent = '';
+
+                Module.abort();  // or emscripten will wait forever
             };
             xhr.onabort = (_) => {
                 status_label.textContent = 'Network Error: ';
                 status_show.textContent = 'Connection is aborted';
+
+                Module.abort();  // or emscripten will wait forever
             };
             xhr.ontimeout = (_) => {
                 status_label.textContent = 'Network Error: ';
                 status_show.textContent = 'Request timeout';
+
+                Module.abort();  // or emscripten will wait forever
             };
             xhr.send();
 
