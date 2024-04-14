@@ -93,8 +93,6 @@ if (typeof window !== 'undefined') {
             };
 
             const cmdline_edit = document.getElementById('cmdline_edit');
-            const exec_btn = document.getElementById('exec_btn');
-
             Module.onRuntimeInitialized = () => {
                 // set initial cwd to a nice place
                 Module.FS.chdir('/home/web_user');
@@ -102,35 +100,36 @@ if (typeof window !== 'undefined') {
                 // we can call main() now
                 status_label.textContent = 'Status: ';
                 status_show.textContent = 'Ready';
-                exec_btn.disabled = false;
+                cmdline_edit.readOnly = false;
             };
             cmdline_edit.addEventListener('keydown', (ev) => {
                 if (ev.key === "Enter") {
-                    exec_btn.click();
+                    if (cmdline_edit.readOnly)
+                        return;  // not safe to call main() yet
+
                     ev.preventDefault();
+
+                    // handle quoted arguments
+
+                    var args = cmdline_edit.value.match(/'[^']+'|"[^"]+"|[^\s]+/g);
+
+                    if (args === null)
+                        args = [];
+
+                    args = args.map((m) => {
+                        if ((m.startsWith('\'') && m.endsWith('\''))
+                            || (m.startsWith('"') && m.endsWith('"')))
+                            return m.substring(1, m.length - 1);
+                        else
+                            return m;
+                    });
+
+                    cmdline_edit.value = '';
+                    conout.value = '';  // clear old output
+                    status_show.textContent = 'Running';
+                    const ex = Module.callMain(args);
+                    status_show.textContent = `Exited (code ${ex})`;
                 }
-            });
-            exec_btn.addEventListener('click', () => {
-                // handle quoted arguments
-
-                var args = cmdline_edit.value.match(/'[^']+'|"[^"]+"|[^\s]+/g);
-
-                if (args === null)
-                    args = [];
-
-                args = args.map((m) => {
-                    if ((m.startsWith('\'') && m.endsWith('\''))
-                        || (m.startsWith('"') && m.endsWith('"')))
-                        return m.substring(1, m.length - 1);
-                    else
-                        return m;
-                });
-
-                cmdline_edit.value = '';
-                conout.value = '';  // clear old output
-                status_show.textContent = 'Running';
-                const ex = Module.callMain(args);
-                status_show.textContent = `Exited (code ${ex})`;
             });
         },
     };

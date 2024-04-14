@@ -38,14 +38,11 @@
     </style>
   </head>
   <body>
-    <div>
-      <button id="exec_btn" disabled>Run</button>
-    </div>
-    <input id="cmdline_edit" placeholder="Argument…" autocomplete="off"/>
-    <textarea id="conout" readonly autocomplete="off"></textarea>
-    <label id="status_label">Note: 
+    <label id="status_label">Note:
       <span id="status_show">May stuck when lack support for WebAssembly</span>
     </label>
+    <input id="cmdline_edit" placeholder="Argument…" autocomplete="off" readonly/>
+    <textarea id="conout" readonly autocomplete="off"></textarea>
     {{{ SCRIPT }}}
   </body>
 </html>
