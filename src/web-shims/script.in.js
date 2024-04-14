@@ -76,11 +76,17 @@ if (typeof window !== 'undefined') {
 
             const conout = document.getElementById('conout');
             const _dec = new TextDecoder();
+            var con_upd = null;
 
             Module.TTY.stream_ops.write = (_, buff, off, len) => {
                 const arr = buff.subarray(off, off + len);
                 conout.value += _dec.decode(arr);
-                conout.scrollTop = conout.scrollHeight;
+
+                if (con_upd !== null)
+                    clearTimeout(con_upd);
+                con_upd = setTimeout(() => {
+                    conout.scrollTop = conout.scrollHeight;
+                }, 150);
 
                 return len;
             }
