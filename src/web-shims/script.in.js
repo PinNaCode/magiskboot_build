@@ -102,10 +102,23 @@ if (typeof window !== 'undefined') {
                 exec_btn.disabled = false;
             };
             exec_btn.addEventListener('click', () => {
-                conout.value = '';  // clear old output
-                const args = cmdline_edit.value.split(/\s+/);  // ws seperated args
-                cmdline_edit.value = '';
+                // handle quoted arguments
 
+                var args = cmdline_edit.value.match(/'[^']+'|"[^"]+"|[^\s]+/g);
+
+                if (args === null)
+                    args = [];
+
+                args = args.map((m) => {
+                    if ((m.startsWith('\'') && m.endsWith('\''))
+                        || (m.startsWith('"') && m.endsWith('"')))
+                        return m.substring(1, m.length - 1);
+                    else
+                        return m;
+                });
+
+                cmdline_edit.value = '';
+                conout.value = '';  // clear old output
                 status_show.textContent = 'Running';
                 const ex = Module.callMain(args);
                 status_show.textContent = `Exited (code ${ex})`;
