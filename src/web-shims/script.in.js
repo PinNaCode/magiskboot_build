@@ -1,4 +1,6 @@
 if (typeof window !== 'undefined') {
+    // window is present, we are running in a browser
+
     var Module = {
         'noInitialRun': true,  // prevent calling main() on page load
         'instantiateWasm': (imps, cb) => {
