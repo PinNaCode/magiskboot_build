@@ -17,7 +17,16 @@
         margin: 0;
         display: flex;
         flex-direction: column;
-        height: 100dvh;
+        /* fallback */
+        position: fixed;
+        height: 100%;
+        height: 100dvh;  /* require new browsers */
+      }
+      @supports(-webkit-touch-callout: none) {
+        /* safari only */
+        body {
+          height: -webkit-fill-available;
+        }
       }
       #cmdline_edit, #conout {
         font-family: monospace;
