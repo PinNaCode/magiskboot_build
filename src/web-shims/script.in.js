@@ -72,6 +72,53 @@ if (typeof window !== 'undefined') {
             return {};
         },
         'preInit': () => {
+            const scr_sel = document.getElementById('scr_sel');
+            const scr_cmd = document.getElementById('scr_cmd');
+            const scr_env = document.getElementById('scr_env');
+            const scrs = [scr_cmd, scr_env];
+
+            scr_sel.addEventListener('wheel', (ev) => {
+                ev.preventDefault();
+
+                // allow changing screen by scrolling
+
+                if (ev.deltaY < 0)
+                    scr_sel.selectedIndex = Math.max(scr_sel.selectedIndex - 1, 0);
+                else
+                    scr_sel.selectedIndex = Math.min(scr_sel.selectedIndex + 1, scr_sel.length - 1);
+
+                scr_sel.dispatchEvent(new Event('change'));
+            });
+
+            scr_sel.addEventListener('change', () => {
+                // switch screen
+
+                var scr = null;
+
+                switch (scr_sel.value) {
+                    case 'cmd':
+                        scr = scr_cmd;
+                        break;
+                    case 'env':
+                        scr = scr_env;
+                        break;
+                }
+
+                if (scr === null)
+                    return;
+
+                scrs.forEach((i) => {
+                    var disp = null;
+
+                    if (i === scr)
+                        disp = 'flex';
+                    else
+                        disp = 'none';
+
+                    i.style.display = disp;
+                });
+            });
+
             // bind stdout
 
             const conout = document.getElementById('conout');
@@ -108,6 +155,7 @@ if (typeof window !== 'undefined') {
                 status_label.textContent = 'Status: ';
                 status_show.textContent = 'Idle';
                 cmdline_edit.readOnly = false;
+                scr_sel.disabled = false;
             };
             cmdline_edit.addEventListener('keydown', (ev) => {
                 if (ev.key === "Enter") {

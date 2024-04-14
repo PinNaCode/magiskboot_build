@@ -15,8 +15,6 @@
       body {
         /* fit to full screen */
         margin: 0;
-        display: flex;
-        flex-direction: column;
         /* fallback */
         position: fixed;
         height: 100%;
@@ -28,21 +26,35 @@
           height: -webkit-fill-available;
         }
       }
-      #cmdline_edit, #conout {
+      body, div {
+        display: flex;
+        flex-direction: column;
+      }
+      input, textarea {
         font-family: monospace;
       }
-      #conout {
+      textarea, div {
         /* auto fit */
         flex: 1;
       }
     </style>
   </head>
   <body>
-    <label id="status_label">Note:
-      <span id="status_show">May stuck when lack support for WebAssembly</span>
-    </label>
-    <input id="cmdline_edit" placeholder="Argument…" autocomplete="off" readonly/>
-    <textarea id="conout" readonly autocomplete="off"></textarea>
+    <select id="scr_sel" disabled autocomplete="off">
+      <option value="cmd" selected>Command</option>
+      <option value="env">Environ</option>
+    </select>
+    <div id="scr_cmd">
+      <label id="status_label">Note:
+        <span id="status_show">May stuck when lack support for WebAssembly</span>
+      </label>
+      <input id="cmdline_edit" placeholder="Argument…" autocomplete="off" readonly/>
+      <textarea id="conout" readonly autocomplete="off"></textarea>
+    </div>
+    <div id="scr_env" style="display: none">
+      <button id="apply_env_btn">Save &amp; Restart</button>
+      <textarea id="env_edit" autocomplete="off" placeholder="NAME1&#10;NAME2=&#10;NAME3=value3&#10;…"></textarea>
+    </div>
     {{{ SCRIPT }}}
   </body>
 </html>
