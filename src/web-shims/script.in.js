@@ -96,6 +96,9 @@ if (typeof window !== 'undefined') {
             const exec_btn = document.getElementById('exec_btn');
 
             Module.onRuntimeInitialized = () => {
+                // set initial cwd to a nice place
+                Module.FS.chdir('/home/web_user');
+
                 // we can call main() now
                 status_label.textContent = 'Status: ';
                 status_show.textContent = 'Ready';
