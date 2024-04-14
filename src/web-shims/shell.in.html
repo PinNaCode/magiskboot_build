@@ -48,12 +48,12 @@
       <label id="status_label">Note:
         <span id="status_show">May stuck when lack support for WebAssembly</span>
       </label>
-      <input id="cmdline_edit" placeholder="Argument…" autocomplete="off" readonly/>
+      <input id="cmdline_edit" placeholder="foo &quot;bar&quot; 'baz' &quot;foo bar&quot; 'foo bar' …" autocomplete="off" readonly/>
       <textarea id="conout" readonly autocomplete="off"></textarea>
     </div>
     <div id="scr_env" style="display: none">
       <button id="apply_env_btn">Save &amp; Restart</button>
-      <textarea id="env_edit" autocomplete="off" placeholder="NAME1&#10;NAME2=&#10;NAME3=value3&#10;…"></textarea>
+      <textarea id="env_edit" autocomplete="off" placeholder="FOO&#10;FOO=&#10;FOO=bar&#10;BAZ=foo bar&#10;…"></textarea>
     </div>
     {{{ SCRIPT }}}
   </body>
