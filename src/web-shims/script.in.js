@@ -194,6 +194,55 @@ if (typeof window !== 'undefined') {
                     }, 150);
                 }
             });
+
+            // env vars
+
+            const env_edit = document.getElementById('env_edit');
+            const json = localStorage.getItem('mbb_environ');
+            if (json !== null) {
+                // restore saved environ
+
+                const environ = JSON.parse(json);
+                Object.keys(environ).forEach((k) => {
+                    const v = environ[k];
+                    Module.ENV[k] = v;  // pass to emscripten
+                    env_edit.value += `${k}=${v}\n`;
+                });
+            }
+
+            const apply_env_btn = document.getElementById('apply_env_btn');
+            apply_env_btn.addEventListener('click', () => {
+                const new_environ = {};
+
+                env_edit.value.split('\n').forEach((l) => {
+                    const l_ = l.trim();
+
+                    if (l_.length === 0)
+                        return;  // empty line
+
+                    const sep = l_.indexOf('=');
+                    var k = null;
+                    var v = null;
+
+                    if (sep === -1) {
+                        // key only, flag vars?
+                        k = l_;
+                        v = '';
+                    } else {
+                        k = l_.slice(0, sep);
+                        v = l_.slice(sep + 1)
+                    }
+
+                    new_environ[k] = v;
+                });
+
+                const new_json = JSON.stringify(new_environ);
+                localStorage.setItem('mbb_environ', new_json);
+
+                // emscripten limitation:
+                // setting ENV is only effective before runtime is initialized
+                window.location.reload();
+            });
         },
     };
 }
