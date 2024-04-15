@@ -247,6 +247,8 @@ var Module = {
             const new_json = JSON.stringify(new_environ);
             localStorage.setItem('mbb_environ', new_json);
 
+            document.body.style.display = 'none';  // hide page when reloading
+
             // emscripten limitation:
             // setting ENV is only effective before runtime is initialized
             window.location.reload();
