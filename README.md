@@ -148,7 +148,7 @@ pacman -S --needed base-devel pactoys
 pacboy -S --needed {xz,lz4,bzip2,zlib,pkgconf,clang,cmake,libc++,ninja,rust}:p
 ````
 
-##### Cross-compiling
+##### Cross builds
 
 If you are cross-compiling from a non-Windows host and using vcpkg to manage the dependencies, please make sure CMake variable `MINGW` is set to `TRUE` during configuring.
 
