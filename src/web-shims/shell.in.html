@@ -45,6 +45,7 @@
   <body>
     <select id="scr_sel" disabled autocomplete="off">
       <option value="tty" selected>TTY</option>
+      <option value="vfs">VFS</option>
       <option value="env">Environ</option>
     </select>
     <div id="scr_tty" class="mbb_flex">
@@ -53,6 +54,8 @@
       </label>
       <input id="cmdline_edit" placeholder="foo &quot;bar&quot; 'baz' &quot;foo bar&quot; 'foo bar' …" autocomplete="off" readonly/>
       <textarea id="conout" readonly autocomplete="off" class="mbb_flex"></textarea>
+    </div>
+    <div id="scr_vfs" style="display: none" class="mbb_flex">
     </div>
     <div id="scr_env" style="display: none" class="mbb_flex">
       <div class="mbb_hlayout">

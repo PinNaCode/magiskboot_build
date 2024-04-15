@@ -82,8 +82,9 @@ var Module = {
     'preInit': () => {
         const scr_sel = document.getElementById('scr_sel');
         const scr_tty = document.getElementById('scr_tty');
+        const scr_vfs = document.getElementById('scr_vfs');
         const scr_env = document.getElementById('scr_env');
-        const scrs = [scr_tty, scr_env];
+        const scrs = [scr_tty, scr_vfs, scr_env];
 
         scr_sel.addEventListener('wheel', (ev) => {
             ev.preventDefault();
@@ -106,6 +107,9 @@ var Module = {
             switch (scr_sel.value) {
                 case 'tty':
                     scr = scr_tty;
+                    break;
+                case 'vfs':
+                    scr = scr_vfs;
                     break;
                 case 'env':
                     scr = scr_env;
