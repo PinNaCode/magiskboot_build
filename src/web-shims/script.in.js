@@ -218,6 +218,11 @@ var Module = {
             });
         }
 
+        const clear_env_btn = document.getElementById('clear_env_btn');
+        clear_env_btn.addEventListener('click', () => {
+            env_edit.value = '';
+        });
+
         const apply_env_btn = document.getElementById('apply_env_btn');
         apply_env_btn.addEventListener('click', () => {
             const new_environ = {};
