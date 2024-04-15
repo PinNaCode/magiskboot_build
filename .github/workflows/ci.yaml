@@ -793,7 +793,7 @@ jobs:
 
     env:
       vcpkg_triplet: "wasm32-emscripten"
-      emsdk_ver: 3.1.37
+      emsdk_ver: 3.1.34
       emsdk_cache_dir: "emsdk-cache"
       rust_target: "wasm32-unknown-emscripten"
       upload_suffix: "emscripten-wasm32-static"
