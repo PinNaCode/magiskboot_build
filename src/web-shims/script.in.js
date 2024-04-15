@@ -81,9 +81,9 @@ var Module = {
     },
     'preInit': () => {
         const scr_sel = document.getElementById('scr_sel');
-        const scr_cmd = document.getElementById('scr_cmd');
+        const scr_tty = document.getElementById('scr_tty');
         const scr_env = document.getElementById('scr_env');
-        const scrs = [scr_cmd, scr_env];
+        const scrs = [scr_tty, scr_env];
 
         scr_sel.addEventListener('wheel', (ev) => {
             ev.preventDefault();
@@ -104,8 +104,8 @@ var Module = {
             var scr = null;
 
             switch (scr_sel.value) {
-                case 'cmd':
-                    scr = scr_cmd;
+                case 'tty':
+                    scr = scr_tty;
                     break;
                 case 'env':
                     scr = scr_env;
