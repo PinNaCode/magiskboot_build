@@ -165,8 +165,10 @@ var Module = {
             Module.FS.chdir('/home/web_user');
 
             // we can call main() now
+
             status_label.textContent = 'Status: ';
             status_show.textContent = 'Idle';
+
             cmdline_edit.readOnly = false;
             scr_sel.disabled = false;
         };
@@ -184,7 +186,7 @@ var Module = {
 
                 // handle quoted arguments
 
-                var args = cmdline_edit.value.match(/'[^']+'|"[^"]+"|[^\s]+/g);
+                var args = cmdline_edit.value.match(/'[^']+'|"[^"]+"|\S+/g);
 
                 if (args === null)
                     args = [];
@@ -200,7 +202,9 @@ var Module = {
                 cmdline_edit.value = '';
                 conout.value = '';  // clear old output
                 status_show.textContent = 'Running';
+
                 const ex = Module.callMain(args);
+
                 status_upd = setTimeout(() => {
                     status_show.textContent = `Exited (code ${ex})`;
                 }, 150);
@@ -217,6 +221,7 @@ var Module = {
             const environ = JSON.parse(json);
             Object.keys(environ).forEach((k) => {
                 const v = environ[k];
+
                 Module.ENV[k] = v;  // pass to emscripten
                 env_edit.value += `${k}=${v}\n`;
             });
