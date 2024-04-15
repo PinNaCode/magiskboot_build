@@ -784,10 +784,11 @@ jobs:
       matrix:
         include:
           - upload_prefix: "node"
-            ldflags: "-sNODERAWFS"
+            ldflags: "-sENVIRONMENT=node -sEXIT_RUNTIME=1 -sNODERAWFS"
             check: YES
 
           - upload_prefix: "web"
+            ldflags: "-sENVIRONMENT=web"
             keep_shell_file: YES
             opt_size: YES
 
@@ -886,7 +887,12 @@ jobs:
           fi
 
           file build/magiskboot*
-          $EMSDK_NODE ./build/magiskboot*.js || true
+          du -h build/magiskboot*
+
+          if [[ "${{ matrix.check }}" == "YES" ]]; then
+            $EMSDK_NODE ./build/magiskboot*.js || true
+          fi
+
           rm -rf $GITHUB_WORKSPACE/${{ env.progname }}-out && mkdir -p $GITHUB_WORKSPACE/${{ env.progname }}-out
           cp -afv build/magiskboot* $GITHUB_WORKSPACE/${{ env.progname }}-out
 

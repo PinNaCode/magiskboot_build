@@ -194,7 +194,9 @@ Use [vcpkg][vcpkg] to install the [depended libraries](#requirements), the tripl
 
 When configuring, use `emcmake cmake` instead of `cmake` (but don't use it for `cmake --build` and other CMake commands) , and use `/path/to/your/emsdk/emscripten/cmake/Modules/Platform/Emscripten.cmake` as the toolchain file for vcpkg.
 
-For NodeJS, make sure to set `CMAKE_EXE_LINKER_FLAGS` to `-sNODERAWFS` to allow using the host filesystem, then you will be able to run the end result with [NodeJS][NodeJS] like this: `node magiskboot.js`
+To target web browsers, set `-sENVIRONMENT=web` in `CMAKE_EXE_LINKER_FLAGS` (recommended step, for reducing JS size).
+
+For NodeJS, set `-sENVIRONMENT=node` instead. **Make sure** to also set `-sEXIT_RUNTIME=1` and  `-sNODERAWFS`. And then you will be able to run the end result with [NodeJS][NodeJS] like this: `node magiskboot.js`
 
 </details>
 
