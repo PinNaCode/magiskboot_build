@@ -147,6 +147,7 @@ if (typeof window !== 'undefined') {
             };
 
             const cmdline_edit = document.getElementById('cmdline_edit');
+            var status_upd = null;
             Module.onRuntimeInitialized = () => {
                 // set initial cwd to a nice place
                 Module.FS.chdir('/home/web_user');
@@ -163,6 +164,11 @@ if (typeof window !== 'undefined') {
                         return;  // not safe to call main() yet
 
                     ev.preventDefault();
+
+                    if (status_upd !== null) {
+                        clearTimeout(status_upd);
+                        status_upd = null;
+                    }
 
                     // handle quoted arguments
 
@@ -183,7 +189,9 @@ if (typeof window !== 'undefined') {
                     conout.value = '';  // clear old output
                     status_show.textContent = 'Running';
                     const ex = Module.callMain(args);
-                    status_show.textContent = `Exited (code ${ex})`;
+                    status_upd = setTimeout(() => {
+                        status_show.textContent = `Exited (code ${ex})`;
+                    }, 150);
                 }
             });
         },
