@@ -178,7 +178,7 @@ On arch-cygwin, set `CYGWIN_CC` and `CYGWIN_CXX` to `x86_64-pc-cygwin-clang` and
 
 </details>
 
-<details><summary>WebAssembly</summary>
+<details><summary>Web</summary>
 
 #### Emscripten
 
