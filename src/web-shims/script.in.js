@@ -1,7 +1,15 @@
-#if !NODERAWFS
-// only when not targeting NodeJS
-
 var Module = {
+#if NODERAWFS
+    // only for targeting NodeJS
+
+    'preInit': () => {
+        // temporary solution for inheriting system environ:
+        //   https://github.com/emscripten-core/emscripten/pull/3948#issuecomment-744032264
+        Object.assign(Module.ENV, process.env);
+    },
+#else
+    // only for targeting browsers
+
     'thisProgram': '@MAGISKBOOT_WASM_NAME@',
     'noInitialRun': true,  // prevent calling main() on page load
     'instantiateWasm': (imps, cb) => {
@@ -244,5 +252,5 @@ var Module = {
             window.location.reload();
         });
     },
-};
 #endif
+};
