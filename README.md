@@ -192,7 +192,7 @@ Install the [Emscripten SDK][emsdk] and also a Rust compiler with Emscripten tar
 
 Use [vcpkg][vcpkg] to install the [depended libraries](#requirements), the triplet is called `wasm32-emscripten`.
 
-When configuring, use `emcmake cmake` instead of `cmake` (but don't use it for `cmake --build` and other CMake commands) , and use `/path/to/your/emsdk/emscripten/cmake/Modules/Platform/Emscripten.cmake` as the toolchain file for vcpkg.
+When configuring, use `emcmake cmake` instead of `cmake` (but don't use it for `cmake --build` and other CMake commands) , and use `/path/to/your/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake` as the toolchain file for vcpkg.
 
 To target web browsers, set `-sENVIRONMENT=web` in `CMAKE_EXE_LINKER_FLAGS` (recommended step, for reducing JS size).
 
