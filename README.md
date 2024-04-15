@@ -198,6 +198,8 @@ To target web browsers, set `-sENVIRONMENT=web` in `CMAKE_EXE_LINKER_FLAGS` (rec
 
 For NodeJS, set `-sENVIRONMENT=node` instead. **Make sure** to also set `-sEXIT_RUNTIME=1` and  `-sNODERAWFS`. And then you will be able to run the end result with [NodeJS][NodeJS] like this: `node magiskboot.js`
 
+You can find more details about these linker flags in [Emscripten documentation](https://emscripten.org/docs/tools_reference/settings_reference.html).
+
 </details>
 
 ### Usage
