@@ -257,6 +257,34 @@ var Module = {
                 });
         });
 
+        const rename_btn = document.getElementById('rename_btn');
+        rename_btn.addEventListener('click', () => {
+            const ent = dirent_tab.querySelector('.mbb_highlight');
+
+            if (ent === null)
+                return;
+
+            var name = ent.textContent;
+            if (name.endsWith('/'))
+                name = name.slice(0, -1);
+
+            var new_name = prompt('New name for this entry:', name);
+
+            if (new_name === null)
+                return;
+
+            new_name = new_name.trim();
+
+            if (new_name.length === 0
+                || new_name === name)
+                return;
+
+            mbb_fs_err_ignored(() => {
+                Module.FS.rename(name, new_name);
+                mbb_do_dirent_disp();
+            });
+        });
+
         // start up
 
         const scr_sel = document.getElementById('scr_sel');  // always show TTY screen on load
