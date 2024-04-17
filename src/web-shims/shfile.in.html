@@ -29,53 +29,78 @@
           height: -webkit-fill-available;
         }
       }
-      body, div {
+      .mbb_scr {
+        display: none;
+      }
+      body, fieldset, .mbb_hlayout, .mbb_scr:target {
         display: flex;
+      }
+      body, .mbb_scr:target {
         flex-direction: column;
       }
-      input, textarea {
+      textarea, .mbb_mono {
         font-family: monospace;
       }
-      .mbb_flex {
+      textarea, .mbb_flex, .mbb_scr {
         /* auto fit */
         flex: 1;
       }
-      .mbb_hlayout {
+      fieldset, .mbb_hlayout {
         flex-direction: row;
       }
     </style>
   </head>
   <body>
-    <select id="scr_sel" disabled autocomplete="off">
-      <option value="tty" selected>TTY</option>
-      <option value="vfs">VFS</option>
-      <option value="env">Environ</option>
-    </select>
+    <fieldset id="scr_sel" disabled autocomplete="off">
+      <!-- Screen Switcher -->
 
-    <div id="scr_tty" class="mbb_flex">
+      <label class="mbb_flex">
+        <input type="radio" name="mbb_scr" checked onclick="window.location.href = '#scr_tty'"/>
+        TTY
+      </label>
+
+      <label class="mbb_flex">
+        <input type="radio" name="mbb_scr" onclick="window.location.href = '#scr_vfs'"/>
+        VFS
+      </label>
+
+      <label class="mbb_flex">
+        <input type="radio" name="mbb_scr" onclick="window.location.href = '#scr_env'"/>
+        Environ
+      </label>
+    </fieldset>
+    <hr/>
+
+    <div id="scr_tty" class="mbb_scr">
+      <!-- TTY screen -->
+
       <label id="status_label">Note:&nbsp;
         <span id="status_show">May stuck when lack support for WebAssembly</span>
       </label>
 
-      <input id="cmdline_edit" placeholder="foo &quot;bar&quot; 'baz' &quot;foo bar&quot; 'foo bar' …" autocomplete="off" readonly/>
+      <input id="cmdline_edit" placeholder="foo &quot;bar&quot; 'baz' &quot;foo bar&quot; 'foo bar' …" autocomplete="off" readonly class="mbb_mono"/>
 
-      <textarea id="conout" readonly autocomplete="off" class="mbb_flex"></textarea>
+      <textarea id="conout" readonly autocomplete="off"></textarea>
     </div>
 
-    <div id="scr_vfs" style="display: none" class="mbb_flex">
+    <div id="scr_vfs" class="mbb_scr">
+      <!-- VFS screen -->
+
       <label>CWD:&nbsp;
         <span id="cwd_show">?</span>
       </label>
     </div>
 
-    <div id="scr_env" style="display: none" class="mbb_flex">
+    <div id="scr_env" class="mbb_scr">
+      <!-- Environ screen -->
+
       <div class="mbb_hlayout">
         <button id="apply_env_btn" class="mbb_flex">Save &amp; Restart</button>
 
         <button id="clear_env_btn">Clear</button>
       </div>
 
-      <textarea id="env_edit" autocomplete="off" placeholder="FOO&#10;FOO=&#10;FOO=bar&#10;BAZ=foo bar&#10;…" class="mbb_flex"></textarea>
+      <textarea id="env_edit" autocomplete="off" placeholder="FOO&#10;FOO=&#10;FOO=bar&#10;BAZ=foo bar&#10;…"></textarea>
     </div>
 
     <!-- placeholder for emscripten generated script -->

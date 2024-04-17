@@ -80,57 +80,6 @@ var Module = {
         return {};
     },
     'preInit': () => {
-        const scr_sel = document.getElementById('scr_sel');
-        const scr_tty = document.getElementById('scr_tty');
-        const scr_vfs = document.getElementById('scr_vfs');
-        const scr_env = document.getElementById('scr_env');
-        const scrs = [scr_tty, scr_vfs, scr_env];
-
-        scr_sel.addEventListener('wheel', (ev) => {
-            ev.preventDefault();
-
-            // allow changing screen by scrolling
-
-            if (ev.deltaY < 0)
-                scr_sel.selectedIndex = Math.max(scr_sel.selectedIndex - 1, 0);
-            else
-                scr_sel.selectedIndex = Math.min(scr_sel.selectedIndex + 1, scr_sel.length - 1);
-
-            scr_sel.dispatchEvent(new Event('change'));
-        });
-
-        scr_sel.addEventListener('change', () => {
-            // switch screen
-
-            var scr = null;
-
-            switch (scr_sel.value) {
-                case 'tty':
-                    scr = scr_tty;
-                    break;
-                case 'vfs':
-                    scr = scr_vfs;
-                    break;
-                case 'env':
-                    scr = scr_env;
-                    break;
-            }
-
-            if (scr === null)
-                return;
-
-            scrs.forEach((i) => {
-                var disp = null;
-
-                if (i === scr)
-                    disp = 'flex';
-                else
-                    disp = 'none';
-
-                i.style.display = disp;
-            });
-        });
-
         // bind stdout
 
         const conout = document.getElementById('conout');
@@ -160,6 +109,9 @@ var Module = {
 
         // start up
 
+        const scr_sel = document.getElementById('scr_sel');  // always show TTY screen on load
+        window.location.href = '#scr_tty';
+
         const status_label = document.getElementById('status_label').childNodes[0];
         const status_show = document.getElementById('status_show');
         window.onerror = (_) => {
@@ -173,13 +125,14 @@ var Module = {
             Module.FS.chdir('/home/web_user');
             mbb_do_fs_disp();
 
-            // we can call main() now
+            // we can do stuffs now
+
+            scr_sel.disabled = false;
 
             status_label.textContent = 'Status: ';
             status_show.textContent = 'Idle';
 
             cmdline_edit.readOnly = false;
-            scr_sel.disabled = false;
         };
 
         // exec ctrl
