@@ -105,17 +105,6 @@ var Module = {
         const fileop_panel = document.getElementById('fileop_panel');
         const dirent_tab = document.getElementById('dirent_tab');
 
-        dirent_tab.addEventListener('click', (ev) => {
-            if (ev.target.tagName === 'TD') {
-                const prev_ent = dirent_tab.querySelector('.mbb_highlight');
-                if (prev_ent !== null)
-                    prev_ent.classList.remove('mbb_highlight');
-
-                ev.target.classList.add('mbb_highlight');
-                fileop_panel.disabled = false;
-            }
-        });
-
         function mbb_do_cwd_disp() {
             cwd_show.textContent = Module.FS.cwd();
         }
@@ -137,6 +126,31 @@ var Module = {
                 dirent_tab.insertRow().insertCell().textContent = ent_name;
             });
         }
+
+        dirent_tab.addEventListener('click', (ev) => {
+            if (ev.target.tagName === 'TD') {
+                const prev_ent = dirent_tab.querySelector('.mbb_highlight');
+                if (prev_ent !== null) {
+                    if (prev_ent === ev.target) {
+                        const path = ev.target.textContent;
+                        const buf = Module.FS.lstat(path);
+
+                        if (Module.FS.isDir(buf.mode)) {
+                            Module.FS.chdir(path);
+                            mbb_do_cwd_disp();
+                            mbb_do_dirent_disp();
+                        }
+
+                        return;
+                    }
+
+                    prev_ent.classList.remove('mbb_highlight');
+                }
+
+                ev.target.classList.add('mbb_highlight');
+                fileop_panel.disabled = false;
+            }
+        });
 
         function mbb_fs_err_ignored(fn) {
             try {
