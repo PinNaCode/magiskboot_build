@@ -224,6 +224,9 @@ var Module = {
                         return m;
                 });
 
+                cmdline_edit.readOnly = true;
+                scr_sel.disabled = true;
+
                 cmdline_edit.value = '';
                 conout.value = '';  // clear old output
                 status_show.textContent = 'Running';
@@ -233,6 +236,9 @@ var Module = {
                 status_upd = setTimeout(() => {
                     mbb_do_dirent_disp();
                     status_show.textContent = `Exited (code ${ex})`;
+
+                    cmdline_edit.readOnly = false;
+                    scr_sel.disabled = false;
                 }, 150);
             }
         });
