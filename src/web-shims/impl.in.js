@@ -126,7 +126,7 @@ var Module = {
 
                 var ent_name = ent;
 
-                const buf = Module.FS.stat(ent);
+                const buf = Module.FS.lstat(ent);
                 if (Module.FS.isDir(buf.mode)) {
                     ent_name = ent + '/';
                 }
@@ -201,7 +201,7 @@ var Module = {
                 return;
 
             const path = ent.textContent;
-            const buf = FS.stat(path);
+            const buf = FS.lstat(path);
 
             if (Module.FS.isDir(buf.mode))
                 mbb_fs_err_ignored(() => {
