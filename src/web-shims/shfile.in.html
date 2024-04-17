@@ -40,7 +40,13 @@
       body, .mbb_scr:target {
         flex-direction: column;
       }
-      textarea, .mbb_mono {
+      div, body {
+        /* quirk to make table scrollable:
+         *   https://stackoverflow.com/a/35609992
+         */
+        overflow: hidden;
+      }
+      textarea, td, .mbb_mono {
         font-family: monospace;
       }
       textarea, .mbb_flex, .mbb_scr {
@@ -52,6 +58,9 @@
       }
       .mbb_hsep {
         width: 0.5rem;
+      }
+      .mbb_pager {
+        overflow: auto;
       }
     </style>
   </head>
@@ -102,6 +111,13 @@
       <label>CWD:&nbsp;
         <span id="cwd_show">?</span>
       </label>
+
+      <div class="mbb_flex mbb_pager">
+        <table>
+          <tbody id="dirent_tab">
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <div id="scr_env" class="mbb_scr">
