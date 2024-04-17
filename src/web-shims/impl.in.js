@@ -129,6 +129,8 @@ var Module = {
 
         dirent_tab.addEventListener('click', (ev) => {
             if (ev.target.tagName === 'TD') {
+                ev.preventDefault();
+
                 const prev_ent = dirent_tab.querySelector('.mbb_highlight');
                 if (prev_ent !== null) {
                     if (prev_ent === ev.target) {
