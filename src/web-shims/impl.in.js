@@ -121,13 +121,7 @@ var Module = {
                     ent_name = ent + '/';
                 }
 
-                const ent_td = document.createElement('td');
-                ent_td.textContent = ent_name;
-
-                const ent_tr = document.createElement('tr');
-                ent_tr.appendChild(ent_td);
-
-                dirent_tab.appendChild(ent_tr);
+                dirent_tab.insertRow().insertCell().textContent = ent_name;
             });
         }
 
