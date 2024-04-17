@@ -104,6 +104,16 @@ var Module = {
         const cwd_show = document.getElementById('cwd_show');
         const dirent_tab = document.getElementById('dirent_tab');
 
+        dirent_tab.addEventListener('click', (ev) => {
+            if (ev.target.tagName === 'TD') {
+                const prev_ent = dirent_tab.querySelector('.mbb_highlight');
+                if (prev_ent !== null)
+                    prev_ent.classList.remove('mbb_highlight');
+
+                ev.target.classList.add('mbb_highlight');
+            }
+        });
+
         function mbb_do_cwd_disp() {
             cwd_show.textContent = Module.FS.cwd();
         }
