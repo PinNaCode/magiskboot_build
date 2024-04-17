@@ -48,6 +48,9 @@
       fieldset, .mbb_hlayout {
         flex-direction: row;
       }
+      .mbb_hsep {
+        width: 0.5rem;
+      }
     </style>
   </head>
   <body>
@@ -95,10 +98,13 @@
       <!-- Environ screen -->
 
       <div class="mbb_hlayout">
-        <button id="apply_env_btn" class="mbb_flex">Save &amp; Restart</button>
-
-        <button id="clear_env_btn">Clear</button>
+        <div class="mbb_hsep"></div>
+        <button id="apply_env_btn" style="flex: 7">Save &amp; Restart</button>
+        <div class="mbb_hsep"></div>
+        <button id="clear_env_btn" class="mbb_flex">Clear</button>
+        <div class="mbb_hsep"></div>
       </div>
+      <hr/>
 
       <textarea id="env_edit" autocomplete="off" placeholder="FOO&#10;FOO=&#10;FOO=bar&#10;BAZ=foo bar&#10;…"></textarea>
     </div>
