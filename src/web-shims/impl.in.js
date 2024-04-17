@@ -150,7 +150,15 @@ var Module = {
             return len;
         }
 
-        // exec ctrl
+        // filesystem
+
+        const cwd_show = document.getElementById('cwd_show');
+
+        function mbb_do_fs_disp() {
+            cwd_show.textContent = Module.FS.cwd();
+        }
+
+        // start up
 
         const status_label = document.getElementById('status_label').childNodes[0];
         const status_show = document.getElementById('status_show');
@@ -163,6 +171,7 @@ var Module = {
         Module.onRuntimeInitialized = () => {
             // set initial cwd to a nice place
             Module.FS.chdir('/home/web_user');
+            mbb_do_fs_disp();
 
             // we can call main() now
 
@@ -172,6 +181,9 @@ var Module = {
             cmdline_edit.readOnly = false;
             scr_sel.disabled = false;
         };
+
+        // exec ctrl
+
         cmdline_edit.addEventListener('keydown', (ev) => {
             if (ev.key === "Enter") {
                 if (cmdline_edit.readOnly)
