@@ -148,10 +148,14 @@ var Module = {
 
         const mkdir_btn = document.getElementById('mkdir_btn');
         mkdir_btn.addEventListener('click', () => {
-            const name = prompt('Name for the new folder:').trim();
+            var name = prompt('Name for the new folder:');
 
-            if (name === null || name.length === 0)
+            if (name === null)
                 return;
+
+            name = name.trim();
+            if (name.length === 0)
+                returnl
 
             mbb_fs_err_ignored(() => {
                 Module.FS.mkdir(name);
@@ -168,9 +172,13 @@ var Module = {
 
                 const rder = new FileReader();
                 rder.onload = (_) => {
-                    const name = prompt('Name for the imported file:', f.name).trim();
+                    var name = prompt('Name for the imported file:', f.name);
 
-                    if (name === null || name.length === 0)
+                    if (name === null)
+                        return;
+
+                    name = name.trim();
+                    if (name.length === 0)
                         return;
 
                     const data = new Uint8Array(rder.result);
