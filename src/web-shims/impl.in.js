@@ -13,8 +13,8 @@ var Module = {
     'thisProgram': '@MAGISKBOOT_WASM_NAME@',
     'noInitialRun': true,  // prevent calling main() on page load
     'instantiateWasm': (imps, cb) => {
-        var status_label = document.getElementById('status_label').childNodes[0];
-        var status_show = document.getElementById('status_show');
+        const status_label = document.getElementById('status_label').childNodes[0];
+        const status_show = document.getElementById('status_show');
 
         status_label.textContent = 'Fetching: ';
         status_show.textContent = '-- % (? / ?)';
@@ -219,7 +219,7 @@ var Module = {
 
             name = name.trim();
             if (name.length === 0)
-                returnl
+                return;
 
             mbb_fs_err_ignored(() => {
                 Module.FS.mkdir(name);
