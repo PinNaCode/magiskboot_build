@@ -56,24 +56,27 @@
     </style>
   </head>
   <body>
-    <fieldset id="scr_sel" disabled autocomplete="off">
+    <fieldset id="scr_sel" disabled>
       <!-- Screen Switcher -->
 
       <label class="mbb_flex">
         <input type="radio" name="mbb_scr" checked
-               onclick="window.location.href = '#scr_tty'"/>
+               onclick="window.location.href = '#scr_tty'"
+               autocomplete="off"/>
         TTY
       </label>
 
       <label class="mbb_flex">
         <input type="radio" name="mbb_scr"
-               onclick="window.location.href = '#scr_vfs'"/>
+               onclick="window.location.href = '#scr_vfs'"
+               autocomplete="off"/>
         VFS
       </label>
 
       <label class="mbb_flex">
         <input type="radio" name="mbb_scr"
-               onclick="window.location.href = '#scr_env'"/>
+               onclick="window.location.href = '#scr_env'"
+               autocomplete="off"/>
         Environ
       </label>
     </fieldset>
@@ -113,9 +116,9 @@
       </div>
       <hr/>
 
-      <textarea id="env_edit" autocomplete="off"
-                placeholder="FOO&#10;FOO=&#10;FOO=bar&#10;BAZ=foo bar&#10;…">
-      </textarea>
+      <textarea id="env_edit"
+                placeholder="FOO&#10;FOO=&#10;FOO=bar&#10;BAZ=foo bar&#10;…"
+                autocomplete="off"></textarea>
     </div>
 
     <!-- placeholder for emscripten generated script -->
