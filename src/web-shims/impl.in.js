@@ -109,8 +109,34 @@ var Module = {
             cwd_show.textContent = Module.FS.cwd();
         }
 
+        const cp_btn = document.getElementById('cp_btn');
+        cp_btn.addEventListener('click', () => {
+            const ent = dirent_tab.querySelector('.mbb_highlight');
+
+            if (ent === null)
+                return;
+
+            const name = ent.textContent;
+            var new_name = prompt("New name for the copied file:", name);
+
+            if (new_name === null)
+                return;
+
+            new_name = new_name.trim();
+            if (new_name.length === 0
+                || new_name === name)
+                return;
+
+            const data = Module.FS.readFile(name);
+            mbb_fs_err_ignored(() => {
+                Module.FS.writeFile(new_name, data);
+                mbb_do_dirent_disp();
+            });
+        });
+
         function mbb_do_dirent_disp() {
             fileop_panel.disabled = true;
+            cp_btn.disabled = true;
             dirent_tab.innerHTML = '';  // remove old entries
             Module.FS.readdir('.').sort().forEach((ent) => {
                 if (ent === '.')
@@ -164,6 +190,12 @@ var Module = {
 
                 ev.target.classList.add('mbb_highlight');
                 fileop_panel.disabled = false;
+
+                const name = ev.target.textContent;
+                const buf = Module.FS.lstat(name);
+
+                if (Module.FS.isFile(buf.mode))
+                    cp_btn.disabled = false;
             }
         });
 
