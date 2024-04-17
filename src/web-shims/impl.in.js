@@ -134,20 +134,20 @@ var Module = {
                 const prev_ent = dirent_tab.querySelector('.mbb_highlight');
                 if (prev_ent !== null) {
                     if (prev_ent === ev.target) {
-                        const path = ev.target.textContent;
-                        const buf = Module.FS.lstat(path);
+                        const name = ev.target.textContent;
+                        const buf = Module.FS.lstat(name);
 
                         if (Module.FS.isDir(buf.mode)) {
-                            Module.FS.chdir(path);
+                            Module.FS.chdir(name);
                             mbb_do_cwd_disp();
                             mbb_do_dirent_disp();
                         } else {
-                            const data = Module.FS.readFile(path);
+                            const data = Module.FS.readFile(name);
                             const blob = new Blob([data]);
                             const data_url = window.URL.createObjectURL(blob);
 
                             const dl_link = document.createElement('a');
-                            dl_link.download = path;  // download name
+                            dl_link.download = name;
                             dl_link.href = data_url;
                             dl_link.click();
 
@@ -232,13 +232,13 @@ var Module = {
             if (ent === null)
                 return;
 
-            const path = ent.textContent;
-            const buf = FS.lstat(path);
+            const name = ent.textContent;
+            const buf = FS.lstat(name);
 
             if (Module.FS.isDir(buf.mode))
                 mbb_fs_err_ignored(() => {
                     try {
-                        Module.FS.rmdir(path);
+                        Module.FS.rmdir(name);
                     } catch (exc) {
                         if (exc instanceof Module.FS.ErrnoError
                             && exc.code === 'ENOTEMPTY') {
@@ -252,7 +252,7 @@ var Module = {
                 });
             else
                 mbb_fs_err_ignored(() => {
-                    Module.FS.unlink(path);
+                    Module.FS.unlink(name);
                     mbb_do_dirent_disp();
                 });
         });
