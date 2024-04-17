@@ -131,6 +131,41 @@ var Module = {
             });
         }
 
+        const mkdir_btn = document.getElementById('mkdir_btn');
+        mkdir_btn.addEventListener('click', () => {
+            const name = prompt('Name for the new folder:').trim();
+
+            if (name === null || name.length === 0)
+                return;
+
+            Module.FS.mkdir(name);
+            mbb_do_dirent_disp();
+        });
+
+        const imp_btn = document.getElementById('imp_btn');
+        imp_btn.addEventListener('click', () => {
+            const file_picker = document.createElement('input');
+            file_picker.type = 'file';
+            file_picker.onchange = (ev) => {
+                const f = ev.target.files[0];
+
+                const rder = new FileReader();
+                rder.onload = (_) => {
+                    const name = prompt('Name for the imported file:', f.name).trim();
+
+                    if (name === null || name.length === 0)
+                        return;
+
+                    const data = new Uint8Array(rder.result);
+
+                    Module.FS.writeFile(name, data);
+                    mbb_do_dirent_disp();
+                };
+                rder.readAsArrayBuffer(f);
+            };
+            file_picker.click();
+        });
+
         // start up
 
         const scr_sel = document.getElementById('scr_sel');  // always show TTY screen on load
