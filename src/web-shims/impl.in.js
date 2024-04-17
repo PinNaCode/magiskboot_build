@@ -102,9 +102,33 @@ var Module = {
         // filesystem
 
         const cwd_show = document.getElementById('cwd_show');
+        const dirent_tab = document.getElementById('dirent_tab');
 
-        function mbb_do_fs_disp() {
+        function mbb_do_cwd_disp() {
             cwd_show.textContent = Module.FS.cwd();
+        }
+
+        function mbb_do_dirent_disp() {
+            dirent_tab.innerHTML = '';  // remove old entries
+            Module.FS.readdir('.').sort().forEach((ent) => {
+                if (ent === '.')
+                    return;  // hide current dir
+
+                var ent_name = ent;
+
+                const buf = Module.FS.stat(ent);
+                if (Module.FS.isDir(buf.mode)) {
+                    ent_name = ent + '/';
+                }
+
+                const ent_td = document.createElement('td');
+                ent_td.textContent = ent_name;
+
+                const ent_tr = document.createElement('tr');
+                ent_tr.appendChild(ent_td);
+
+                dirent_tab.appendChild(ent_tr);
+            });
         }
 
         // start up
@@ -123,7 +147,8 @@ var Module = {
         Module.onRuntimeInitialized = () => {
             // set initial cwd to a nice place
             Module.FS.chdir('/home/web_user');
-            mbb_do_fs_disp();
+            mbb_do_cwd_disp();
+            mbb_do_dirent_disp();
 
             // we can do stuffs now
 
@@ -171,6 +196,7 @@ var Module = {
                 const ex = Module.callMain(args);
 
                 status_upd = setTimeout(() => {
+                    mbb_do_dirent_disp();
                     status_show.textContent = `Exited (code ${ex})`;
                 }, 150);
             }
