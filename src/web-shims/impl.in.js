@@ -273,7 +273,7 @@ var Module = {
                         Module.FS.rmdir(name);
                     } catch (exc) {
                         if (exc instanceof Module.FS.ErrnoError
-                            && exc.code === 'ENOTEMPTY') {
+                            && exc.errno === 55) {  // ENOTEMPTY
                             alert('Directory is not empty');
                             return;
                         } else
