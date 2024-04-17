@@ -185,6 +185,38 @@ var Module = {
             file_picker.click();
         });
 
+        const rm_btn = document.getElementById('rm_btn');
+        rm_btn.addEventListener('click', () => {
+            const ent = dirent_tab.querySelector('.mbb_highlight');
+
+            if (ent === null)
+                return;
+
+            const path = ent.textContent;
+            const buf = FS.stat(path);
+
+            if (Module.FS.isDir(buf.mode))
+                mbb_fs_err_ignored(() => {
+                    try {
+                        Module.FS.rmdir(path);
+                    } catch (exc) {
+                        if (exc instanceof Module.FS.ErrnoError
+                            && exc.code === 'ENOTEMPTY') {
+                            alert('Directory is not empty');
+                            return;
+                        } else
+                            throw exc;
+                    }
+
+                    mbb_do_dirent_disp();
+                });
+            else
+                mbb_fs_err_ignored(() => {
+                    Module.FS.unlink(path);
+                    mbb_do_dirent_disp();
+                });
+        });
+
         // start up
 
         const scr_sel = document.getElementById('scr_sel');  // always show TTY screen on load
