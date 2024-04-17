@@ -139,6 +139,19 @@ var Module = {
                             Module.FS.chdir(path);
                             mbb_do_cwd_disp();
                             mbb_do_dirent_disp();
+                        } else {
+                            const data = Module.FS.readFile(path);
+                            const blob = new Blob([data]);
+                            const data_url = window.URL.createObjectURL(blob);
+
+                            const dl_link = document.createElement('a');
+                            dl_link.download = path;  // download name
+                            dl_link.href = data_url;
+                            dl_link.click();
+
+                            setTimeout(() => {
+                                window.URL.revokeObjectURL(data_url);
+                            }, 0);
                         }
 
                         return;
