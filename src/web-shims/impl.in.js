@@ -131,6 +131,17 @@ var Module = {
             });
         }
 
+        function mbb_fs_err_ignored(fn) {
+            try {
+                return fn();
+            } catch (exc) {
+                if (exc instanceof Module.FS.ErrnoError)
+                    return;
+
+                throw exc;
+            }
+        }
+
         const mkdir_btn = document.getElementById('mkdir_btn');
         mkdir_btn.addEventListener('click', () => {
             const name = prompt('Name for the new folder:').trim();
@@ -138,8 +149,10 @@ var Module = {
             if (name === null || name.length === 0)
                 return;
 
-            Module.FS.mkdir(name);
-            mbb_do_dirent_disp();
+            mbb_fs_err_ignored(() => {
+                Module.FS.mkdir(name);
+                mbb_do_dirent_disp();
+            });
         });
 
         const imp_btn = document.getElementById('imp_btn');
@@ -158,8 +171,10 @@ var Module = {
 
                     const data = new Uint8Array(rder.result);
 
-                    Module.FS.writeFile(name, data);
-                    mbb_do_dirent_disp();
+                    mbb_fs_err_ignored(() => {
+                        Module.FS.writeFile(name, data);
+                        mbb_do_dirent_disp();
+                    });
                 };
                 rder.readAsArrayBuffer(f);
             };
