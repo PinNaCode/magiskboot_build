@@ -102,6 +102,7 @@ var Module = {
         // filesystem
 
         const cwd_show = document.getElementById('cwd_show');
+        const fileop_panel = document.getElementById('fileop_panel');
         const dirent_tab = document.getElementById('dirent_tab');
 
         dirent_tab.addEventListener('click', (ev) => {
@@ -111,6 +112,7 @@ var Module = {
                     prev_ent.classList.remove('mbb_highlight');
 
                 ev.target.classList.add('mbb_highlight');
+                fileop_panel.disabled = false;
             }
         });
 
@@ -119,6 +121,7 @@ var Module = {
         }
 
         function mbb_do_dirent_disp() {
+            fileop_panel.disabled = true;
             dirent_tab.innerHTML = '';  // remove old entries
             Module.FS.readdir('.').sort().forEach((ent) => {
                 if (ent === '.')
