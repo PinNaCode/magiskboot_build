@@ -417,6 +417,7 @@ var Module = {
                 Module.ENV[k] = v;  // pass to emscripten
                 env_edit.value += `${k}=${v}\n`;
             });
+            env_edit.scrollTop = env_edit.scrollHeight;
         }
 
         const clear_env_btn = document.getElementById('clear_env_btn');
