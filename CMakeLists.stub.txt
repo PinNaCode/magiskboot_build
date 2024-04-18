@@ -114,13 +114,12 @@ if (EMSCRIPTEN)
 
     message(STATUS "Using custom HTML wrapper")
 
-    get_target_property(MAGISKBOOT_WASM_NAME magiskboot_exe OUTPUT_NAME)
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/web-shims/impl.in.js ${CMAKE_CURRENT_BINARY_DIR}/___shims.js @ONLY)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -sFORCE_FILESYSTEM -sEXPORTED_RUNTIME_METHODS=ENV,FS,TTY,callMain,abort")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --pre-js=${CMAKE_CURRENT_BINARY_DIR}/___shims.js")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -sFORCE_FILESYSTEM -sEXPORTED_RUNTIME_METHODS=ENV,FS,TTY,callMain,abort,mbb_get_wasm_name,mbb_set_this_prog")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --pre-js=${CMAKE_CURRENT_SOURCE_DIR}/src/web-shims/impl.pre.js")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --js-library=${CMAKE_CURRENT_SOURCE_DIR}/src/web-shims/utils.lib.js")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --shell-file=${CMAKE_CURRENT_SOURCE_DIR}/src/web-shims/shfile.in.html")
     set_target_properties(magiskboot_exe PROPERTIES LINK_DEPENDS
-                         "${CMAKE_CURRENT_BINARY_DIR}/___shims.js;${CMAKE_CURRENT_SOURCE_DIR}/src/web-shims/shfile.in.html")
+                         "${CMAKE_CURRENT_SOURCE_DIR}/src/web-shims/impl.pre.js;${CMAKE_CURRENT_SOURCE_DIR}/src/web-shims/utils.lib.js;${CMAKE_CURRENT_SOURCE_DIR}/src/web-shims/shfile.in.html")
 
     message(STATUS "Using Emscripten mmap stubs")
 

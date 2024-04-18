@@ -10,9 +10,18 @@ var Module = {
 #else
     // only for targeting browsers
 
-    'thisProgram': '@MAGISKBOOT_WASM_NAME@',
     'noInitialRun': true,  // prevent calling main() on page load
     'instantiateWasm': (imps, cb) => {
+        if (Module.mbb_get_wasm_name === undefined) {
+            // library function not yet initialized, maybe later
+
+            setTimeout(() => {
+                Module['instantiateWasm'](imps, cb);
+            }, 50);
+
+            return;
+        }
+
         const status_label = document.getElementById('status_label').childNodes[0];
         const status_show = document.getElementById('status_show');
 
@@ -23,7 +32,7 @@ var Module = {
 
         const xhr = new XMLHttpRequest();
 
-        xhr.open('GET', '@MAGISKBOOT_WASM_NAME@.wasm', true);
+        xhr.open('GET', Module.mbb_get_wasm_name(), true);
         xhr.responseType = 'arraybuffer';
         xhr.onprogress = (ev) => {
             if (ev.lengthComputable) {
@@ -80,6 +89,9 @@ var Module = {
         return {};
     },
     'preInit': () => {
+        // set a pretty argv[0]
+        Module.mbb_set_this_prog(Module.mbb_get_wasm_name().split('.wasm')[0]);
+
         // bind stdout
 
         const conout = document.getElementById('conout');
