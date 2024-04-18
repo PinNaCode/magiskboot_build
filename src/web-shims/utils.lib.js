@@ -1,3 +1,6 @@
+#if !NODERAWFS
+// for Web only
+
 // XXX: `mergeInto' is emsdk version dependent!
 //      check emscripten source to adapt to other vers
 mergeInto(LibraryManager.library, {
@@ -12,3 +15,4 @@ mergeInto(LibraryManager.library, {
         thisProgram = this_prog;
     },
 });
+#endif

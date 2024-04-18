@@ -194,7 +194,7 @@ Use [vcpkg][vcpkg] to install the [depended libraries](#requirements), the tripl
 
 When configuring, use `emcmake cmake` instead of `cmake` (but don't use it for `cmake --build` and other CMake commands) , and use `/path/to/your/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake` as the toolchain file for vcpkg.
 
-To target web browsers, set `-sENVIRONMENT=web` in `CMAKE_EXE_LINKER_FLAGS` (recommended step, for reducing JS size).
+To target web browsers, set `-sENVIRONMENT=web` in `CMAKE_EXE_LINKER_FLAGS` (recommended step, for reducing JS size). If you want real-time console output, set `-sASYNCIFY` as well (Note this will increase the binary size significantly).
 
 For NodeJS, set `-sENVIRONMENT=node` instead. **Make sure** to also set `-sEXIT_RUNTIME=1` and  `-sNODERAWFS`. And then you will be able to run the end result with [NodeJS][NodeJS] like this: `node magiskboot.js`
 

@@ -790,7 +790,7 @@ jobs:
             check: YES
 
           - upload_prefix: "web"
-            ldflags: "-sENVIRONMENT=web"
+            ldflags: "-sENVIRONMENT=web -sASYNCIFY"
             keep_shell_file: YES
             opt_size: YES
 

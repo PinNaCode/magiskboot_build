@@ -109,8 +109,7 @@ if (EMSCRIPTEN)
     set_source_files_properties(src/Magisk/native/src/boot/main.cpp PROPERTIES
                                 COMPILE_FLAGS -Dmain=__mbb_main)
     target_link_libraries(magiskboot_exe embind)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -sASYNCIFY -Wl,--wrap=printf -Wl,--wrap=iprintf")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=fprintf -Wl,--wrap=fiprintf -Wl,--wrap=exit")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=printf -Wl,--wrap=iprintf -Wl,--wrap=fprintf -Wl,--wrap=fiprintf -Wl,--wrap=exit")
 
     message(STATUS "Using custom HTML wrapper")
 

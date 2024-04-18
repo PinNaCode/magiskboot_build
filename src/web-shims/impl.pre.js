@@ -336,8 +336,13 @@ var Module = {
         const cmdline_edit = document.getElementById('cmdline_edit');
         var status_upd = null;
         Module.onRuntimeInitialized = () => {
+#if ASYNCIFY
             // turn on Web exclusive hacks
             Module.mbb_enable_conio_hack();
+#else
+            alert('Asyncify is not enabled, real-time terminal output will not be available.\n\n' +
+                  'See README for more details.');
+#endif
 
             // set initial cwd to a nice place
             Module.FS.chdir('/home/web_user');
