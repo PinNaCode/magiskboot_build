@@ -1,6 +1,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include <emscripten.h>
@@ -12,23 +13,41 @@
 /* 10 characters */
 #define  MBB_CONOUT_THRESHOLD       (10)
 
+// used for exit code callback in JS
+
 extern int __mbb_main(int argc, char **argv);
 
 // defined in src/Magisk/native/src/boot/main.cpp
 // renamed by our -Dmain=__mbb_main in CMakeLists.stubs.txt
 static int (*main_ptr)(int argc, char **argv) = __mbb_main;
 
+// used for handling exits in Rust code
+
 __attribute__((noreturn)) extern "C" void __real_exit(int status);
 
 __attribute__((noreturn)) static void (*exit_ptr)(int status) = __real_exit;
+
+// used for intercepting writes in Rust code
+
+extern "C" ssize_t __real_write(int fd, const void *buf, size_t count);
+
+ssize_t (*write_ptr)(int fd, const void *buf, size_t count) = __real_write;
+
+// used for intercepting writes in C++ code
 
 static int (*vprintf_ptr)(const char *format, va_list ap) = vprintf;
 
 static int (*vfprintf_ptr)(FILE *stream, const char *format, va_list ap) = vfprintf;
 
+// redirect these overrided calls to our ptrs
+
 extern "C" {
     __attribute__((noreturn)) void __wrap_exit(int status) {
         exit_ptr(status);
+    }
+
+    ssize_t __wrap_write(int fd, const void *buf, size_t count) {
+        return write_ptr(fd, buf, count);
     }
 
     int __wrap_printf(const char *format, ...) {
@@ -98,13 +117,13 @@ __attribute__((noreturn)) static void __exit_wrap(int status) {
     __real_exit(status);
 }
 
-static void __xprintf_hook(const char *s) {
+static void __conout_hook(const char *s, size_t len) {
     // when should we update UI?
 
-    if (strlen(s) >= MBB_CONOUT_THRESHOLD)
+    if (len >= MBB_CONOUT_THRESHOLD)
         goto do_sleep;  // when the line is long enough
 
-    if (strchr(s, '\n') || strchr(s, '\r'))
+    if (memchr(s, '\n', len) || memchr(s, '\r', len))
         goto do_sleep;  // when there is a newline char in the str
 
     return;
@@ -115,13 +134,35 @@ do_sleep:
     emscripten_sleep(MBB_CONIO_DELAY);  // note this needs -sASYNCIFY in LDFLAGS
 }
 
+static void __check_do_conout_hook(int fd, const char *s, size_t len) {
+    switch (fd) {
+        case STDOUT_FILENO:
+        case STDERR_FILENO:
+            // give browser a chance to update UI
+            __conout_hook(s, len);
+            break;
+        default:
+            break;
+    }
+}
+
+ssize_t __write_wrap(int fd, const void *buf, size_t count) {
+    ssize_t res;
+
+    res = __real_write(fd, buf, count);
+    if (!(res > 0))
+        return res;
+
+    __check_do_conout_hook(fd, (const char *) buf, count);
+
+    return res;
+}
+
 static int __vprintf_wrap(const char *format, va_list ap) {
     int res;
 
     res = vprintf(format, ap);
-
-    // give browser a chance to update UI
-    __xprintf_hook(format);
+    __conout_hook(format, strlen(format));
 
     return res;
 }
@@ -130,15 +171,7 @@ static int __vfprintf_wrap(FILE *stream, const char *format, va_list ap) {
     int res;
 
     res = vfprintf(stream, format, ap);
-
-    switch (fileno(stream)) {
-        case STDOUT_FILENO:
-        case STDERR_FILENO:
-            __xprintf_hook(format);  // same as above
-            break;
-        default:
-            break;
-    }
+    __check_do_conout_hook(fileno(stream), format, strlen(format));
 
     return res;
 }
@@ -152,6 +185,7 @@ static void __enable_conio_hack(void) {
 
     exit_ptr = __exit_wrap;
 
+    write_ptr = __write_wrap;
     vprintf_ptr = __vprintf_wrap;
     vfprintf_ptr = __vfprintf_wrap;
 }
