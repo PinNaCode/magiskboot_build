@@ -84,17 +84,10 @@ var Module = {
 
         const conout = document.getElementById('conout');
         const _dec = new TextDecoder();
-        var con_upd = null;
-
         Module.TTY.stream_ops.write = (_, buff, off, len) => {
             const arr = buff.subarray(off, off + len);
             conout.value += _dec.decode(arr);
-
-            if (con_upd !== null)
-                clearTimeout(con_upd);
-            con_upd = setTimeout(() => {
-                conout.scrollTop = conout.scrollHeight;
-            }, 150);
+            conout.scrollTop = conout.scrollHeight;
 
             return len;
         }
@@ -331,6 +324,9 @@ var Module = {
         const cmdline_edit = document.getElementById('cmdline_edit');
         var status_upd = null;
         Module.onRuntimeInitialized = () => {
+            // turn on Web exclusive hacks
+            Module.mbb_enable_conio_hack();
+
             // set initial cwd to a nice place
             Module.FS.chdir('/home/web_user');
             mbb_do_cwd_disp();
@@ -382,17 +378,18 @@ var Module = {
                 conout.value = '';  // clear old output
                 status_show.textContent = 'Running';
 
-                const ex = Module.callMain(args);
-
-                status_upd = setTimeout(() => {
-                    mbb_do_dirent_disp();
-                    status_show.textContent = `Exited (code ${ex})`;
-
-                    cmdline_edit.readOnly = false;
-                    scr_sel.disabled = false;
-                }, 150);
+                Module.callMain(args);
             }
         });
+        Module['mbb_main_cb'] = (ex) => {
+            status_upd = setTimeout(() => {
+                mbb_do_dirent_disp();
+                status_show.textContent = `Exited (code ${ex})`;
+
+                cmdline_edit.readOnly = false;
+                scr_sel.disabled = false;
+            }, 150);
+        };
 
         // env vars
 

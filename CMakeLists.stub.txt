@@ -104,6 +104,14 @@ if (WIN32)
 endif()
 
 if (EMSCRIPTEN)
+    target_sources(magiskboot_exe PRIVATE
+        src/web-shims/conio_hack.cc)
+    set_source_files_properties(src/Magisk/native/src/boot/main.cpp PROPERTIES
+                                COMPILE_FLAGS -Dmain=__mbb_main)
+    target_link_libraries(magiskboot_exe embind)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -sASYNCIFY -Wl,--wrap=printf -Wl,--wrap=iprintf")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=fprintf -Wl,--wrap=fiprintf -Wl,--wrap=exit")
+
     message(STATUS "Using custom HTML wrapper")
 
     get_target_property(MAGISKBOOT_WASM_NAME magiskboot_exe OUTPUT_NAME)
