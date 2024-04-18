@@ -843,17 +843,6 @@ jobs:
           . "$HOME/.cargo/env"
           rustup target add ${{ env.rust_target }}
 
-      - name: Determine Build type
-        id: detect_build_type
-        run: |
-          cmake_build_type=${{ needs.vars.outputs.cmake_build_type }}
-          if [ "${{ matrix.opt_size }}" == "YES" ]; then
-            if [ "${{ needs.vars.outputs.cmake_build_type }}" == "Release" ]; then
-              cmake_build_type=MinSizeRel
-            fi
-          fi
-          echo "cmake_build_type=${cmake_build_type}" | tee -a $GITHUB_OUTPUT
-
       - name: Synchronize (source)
         uses: yogeshlonkar/wait-for-jobs@v0.2.1
         with:
@@ -875,7 +864,7 @@ jobs:
           . "$HOME/.cargo/env"
           emcmake cmake -G Ninja -B build -DCMAKE_EXE_LINKER_FLAGS=" ${{ needs.vars.outputs.lto_ldflags }} ${{ matrix.ldflags }}" \
               -DRust_CARGO_TARGET=${{ env.rust_target }} -DFULL_RUST_LTO=${{ needs.vars.outputs.full_lto }} \
-              -DCMAKE_BUILD_TYPE=${{ steps.detect_build_type.outputs.cmake_build_type }} -DPREFER_STATIC_LINKING=ON \
+              -DCMAKE_BUILD_TYPE=${{ needs.vars.outputs.cmake_build_type }} -DPREFER_STATIC_LINKING=ON \
               -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
               -DVCPKG_TARGET_TRIPLET=${{ env.vcpkg_triplet }} \
               -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE="$(dirname $(which emcc))/cmake/Modules/Platform/Emscripten.cmake"
