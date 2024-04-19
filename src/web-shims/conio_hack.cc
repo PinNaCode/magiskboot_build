@@ -7,11 +7,18 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
-/* 20 ms */
-#define  MBB_CONIO_DELAY            (20)
+/* 50 lines */
+#define MBB_CONIO_BASE_THRESHOLD    (50)
 
-/* 10 characters */
-#define  MBB_CONOUT_THRESHOLD       (10)
+/* 20 ms */
+#define MBB_CONIO_BASE_DELAY        (20)
+
+/* 1 ms */
+#define MBB_CONIO_LOWEST_DELAY      (1)
+
+static char mbb_conio_cnt;
+
+static void (*conout_hook_ptr)(const char *s, size_t len);
 
 // used for exit code callback in JS
 
@@ -95,14 +102,43 @@ extern "C" {
     }
 }
 
-static void __exit_hook(int status) {
+static inline void __exit_hook(int status) {
     EM_ASM({
         Module['mbb_main_cb']($0);
     }, status);
 }
 
+static inline bool __should_sleep(const char *s, size_t len) {
+
+    return !!memchr(s, '\n', len);
+}
+
+static void __conout_hook_fast(const char *s, size_t len) {
+    if (!__should_sleep(s, len))
+        return;
+
+    emscripten_sleep(MBB_CONIO_LOWEST_DELAY);
+}
+
+static void __conout_hook_dflt(const char *s, size_t len) {
+    if (!__should_sleep(s, len))
+        return;
+
+    if (++mbb_conio_cnt >= MBB_CONIO_BASE_THRESHOLD) {
+        mbb_conio_cnt = 0;
+        conout_hook_ptr = __conout_hook_fast;
+        return;
+    }
+
+    emscripten_sleep(MBB_CONIO_BASE_DELAY);
+}
+
 static int __main_wrap(int argc, char **argv) {
     int res;
+
+    // reset conout hook state
+    conout_hook_ptr = __conout_hook_dflt;
+    mbb_conio_cnt = 0;
 
     res = __mbb_main(argc, argv);
 
@@ -117,29 +153,11 @@ __attribute__((noreturn)) static void __exit_wrap(int status) {
     __real_exit(status);
 }
 
-static void __conout_hook(const char *s, size_t len) {
-    // when should we update UI?
-
-    if (len >= MBB_CONOUT_THRESHOLD)
-        goto do_sleep;  // when the line is long enough
-
-    if (memchr(s, '\n', len) || memchr(s, '\r', len))
-        goto do_sleep;  // when there is a newline char in the str
-
-    return;
-
-do_sleep:
-    // sleeping is even more expensive to perf
-    // so only do this when needed
-    emscripten_sleep(MBB_CONIO_DELAY);  // note this needs -sASYNCIFY in LDFLAGS
-}
-
-static void __check_do_conout_hook(int fd, const char *s, size_t len) {
+static inline void __check_do_conout_hook(int fd, const char *s, size_t len) {
     switch (fd) {
         case STDOUT_FILENO:
         case STDERR_FILENO:
-            // give browser a chance to update UI
-            __conout_hook(s, len);
+            conout_hook_ptr(s, len);
             break;
         default:
             break;
@@ -162,7 +180,7 @@ static int __vprintf_wrap(const char *format, va_list ap) {
     int res;
 
     res = vprintf(format, ap);
-    __conout_hook(format, strlen(format));
+    conout_hook_ptr(format, strlen(format));
 
     return res;
 }
@@ -192,9 +210,4 @@ static void __enable_conio_hack(void) {
 
 EMSCRIPTEN_BINDINGS(conio_hack) {
     emscripten::function("mbb_enable_conio_hack", &__enable_conio_hack);
-}
-
-__attribute__((constructor)) static void __init_io_mode(void) {
-    // disable line buffering
-    setvbuf(stdout, NULL, _IONBF, BUFSIZ);
 }
