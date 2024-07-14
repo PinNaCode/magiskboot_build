@@ -411,7 +411,7 @@ jobs:
 
       # only used on ARM64 runners,
       # since there is no preinstalled Vcpkg on them
-      vcpkg_ver: 2024.01.12
+      vcpkg_ver: 2024.06.15
 
       upload_suffix: "standalone"
 
