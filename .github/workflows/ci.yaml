@@ -128,7 +128,7 @@ jobs:
       api_level: 24
       target_arch: arm64-v8a
       ondk_url: https://github.com/topjohnwu/ondk/releases/download
-      ondk_ver: 'r26.4'
+      ondk_ver: 'r27.1'
       vcpkg_triplet: arm64-android
       rust_target: aarch64-linux-android
 
