@@ -175,7 +175,7 @@ jobs:
           vcpkg install --host-triplet=${{ env.vcpkg_triplet }} zlib liblzma lz4 'bzip2[core]'
 
       - name: Synchronize (source)
-        uses: yogeshlonkar/wait-for-jobs@v0.2.1
+        uses: yogeshlonkar/wait-for-jobs@v0.4.1
         with:
           jobs: 'Prepare (source)'
 
@@ -210,7 +210,7 @@ jobs:
       # Fail fast
       - name: Cancel other jobs
         if: failure()
-        uses: andymckay/cancel-action@0.4
+        uses: andymckay/cancel-action@0.5
 
   build-linux:
     name: Build (Linux)
@@ -264,7 +264,7 @@ jobs:
                   pkgconf clang lld libc++-dev cmake samurai rust cargo
 
       - name: Synchronize (source)
-        uses: yogeshlonkar/wait-for-jobs@v0.2.1
+        uses: yogeshlonkar/wait-for-jobs@v0.4.1
         with:
           jobs: 'Prepare (source)'
 
@@ -304,7 +304,7 @@ jobs:
       # Fail fast
       - name: Cancel other jobs
         if: failure()
-        uses: andymckay/cancel-action@0.4
+        uses: andymckay/cancel-action@0.5
 
   build-macos:
     name: Build (macOS)
@@ -340,7 +340,7 @@ jobs:
           rm -rf ~/.cargo/registry/index
 
       - name: Synchronize (source)
-        uses: yogeshlonkar/wait-for-jobs@v0.2.1
+        uses: yogeshlonkar/wait-for-jobs@v0.4.1
         with:
           jobs: 'Prepare (source)'
 
@@ -387,7 +387,7 @@ jobs:
       # Fail fast
       - name: Cancel other jobs
         if: failure()
-        uses: andymckay/cancel-action@0.4
+        uses: andymckay/cancel-action@0.5
 
   build-macos-cross:
     name: Build (macOS) (Cross)
@@ -497,7 +497,7 @@ jobs:
           rm -rf ~/.cargo/registry/index
 
       - name: Synchronize (source)
-        uses: yogeshlonkar/wait-for-jobs@v0.2.1
+        uses: yogeshlonkar/wait-for-jobs@v0.4.1
         with:
           jobs: 'Prepare (source)'
 
@@ -544,7 +544,7 @@ jobs:
       # Fail fast
       - name: Cancel other jobs
         if: failure()
-        uses: andymckay/cancel-action@0.4
+        uses: andymckay/cancel-action@0.5
 
   build-windows:
     name: Build (Windows)
@@ -573,7 +573,7 @@ jobs:
             lld:p cmake:p libc++:p ninja:p rust:p
 
       - name: Synchronize (source)
-        uses: yogeshlonkar/wait-for-jobs@v0.2.1
+        uses: yogeshlonkar/wait-for-jobs@v0.4.1
         with:
           jobs: 'Prepare (source)'
 
@@ -622,7 +622,7 @@ jobs:
       # Fail fast
       - name: Cancel other jobs
         if: failure()
-        uses: andymckay/cancel-action@0.4
+        uses: andymckay/cancel-action@0.5
 
   build-windows-cross:
     name: Build (Windows) (Cross)
@@ -727,7 +727,7 @@ jobs:
           rustup component add rust-src
 
       - name: Synchronize (source)
-        uses: yogeshlonkar/wait-for-jobs@v0.2.1
+        uses: yogeshlonkar/wait-for-jobs@v0.4.1
         with:
           jobs: 'Prepare (source)'
 
@@ -772,7 +772,7 @@ jobs:
       # Fail fast
       - name: Cancel other jobs
         if: failure()
-        uses: andymckay/cancel-action@0.4
+        uses: andymckay/cancel-action@0.5
 
   build-wasm:
     name: Build (WebAssembly)
@@ -802,7 +802,7 @@ jobs:
           key: emsdk-${{ env.emsdk_ver }}-${{ runner.os }}
 
       - name: Prepare (Emscripten)
-        uses: mymindstorm/setup-emsdk@v13
+        uses: mymindstorm/setup-emsdk@v14
         with:
           version: ${{ env.emsdk_ver }}
           actions-cache-folder: ${{ env.emsdk_cache_dir }}
@@ -830,7 +830,7 @@ jobs:
           rustup target add ${{ env.rust_target }}
 
       - name: Synchronize (source)
-        uses: yogeshlonkar/wait-for-jobs@v0.2.1
+        uses: yogeshlonkar/wait-for-jobs@v0.4.1
         with:
           jobs: 'Prepare (source)'
 
@@ -879,4 +879,4 @@ jobs:
       # Fail fast
       - name: Cancel other jobs
         if: failure()
-        uses: andymckay/cancel-action@0.4
+        uses: andymckay/cancel-action@0.5
