@@ -62,8 +62,6 @@ apt install build-essential liblzma liblz4 libbz2 zlib pkg-config \
             clang rust cmake ninja
 ````
 
-When configuring, pass `-DCMAKE_INSTALL_PREFIX=$PREFIX` to CMake.
-
 </details>
 
 <details><summary>Linux</summary>
