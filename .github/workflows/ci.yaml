@@ -172,7 +172,7 @@ jobs:
 
       - name: Prepare (Cross)
         run: |
-          vcpkg install --host-triplet=${{ env.vcpkg_triplet }} zlib liblzma lz4 'bzip2[core]'
+          vcpkg install --debug --host-triplet=${{ env.vcpkg_triplet }} zlib liblzma lz4 'bzip2[core]'
 
       - name: Synchronize (source)
         uses: yogeshlonkar/wait-for-jobs@v0.4.1
@@ -479,7 +479,7 @@ jobs:
 
       - name: Prepare (Cross)
         run: |
-          vcpkg install --host-triplet=${{ matrix.vcpkg_triplet }} liblzma lz4
+          vcpkg install --debug --host-triplet=${{ matrix.vcpkg_triplet }} liblzma lz4
 
       - name: Prepare (PATH)
         run: |
@@ -702,7 +702,7 @@ jobs:
 
       - name: Prepare (Cross)
         run: |
-          vcpkg install --host-triplet=${{ matrix.vcpkg_triplet }} zlib liblzma lz4 'bzip2[core]'
+          vcpkg install --debug --host-triplet=${{ matrix.vcpkg_triplet }} zlib liblzma lz4 'bzip2[core]'
 
       - name: Prepare (Rust)
         if: matrix.build_rust_std == 'OFF'
@@ -820,7 +820,7 @@ jobs:
 
       - name: Prepare (Cross)
         run: |
-          vcpkg install --host-triplet=${{ env.vcpkg_triplet }} \
+          vcpkg install --debug --host-triplet=${{ env.vcpkg_triplet }} \
                         zlib liblzma lz4 'bzip2[core]'
 
       - name: Prepare (Rust)
